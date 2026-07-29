@@ -6,18 +6,26 @@
  *   npm run seed -- 200 social-addictive # just one board
  *   npm run seed -- 0                    # wipe every board
  *
- * This only touches the local .data/votes-<topic>.json stores. Never run it
- * against a store holding real public responses.
+ * This only touches the local .data/votes-<version>-<topic>.json stores. Never
+ * run it against a store holding real public responses.
  */
 
 import { promises as fs } from "node:fs";
 import path from "node:path";
 
-// Distinct centres so the four boards are visually distinguishable while
-// developing. These numbers are invented; they are not findings.
+// Must match STORE_VERSION in lib/store.ts.
+const STORE_VERSION = "v3";
+
+/**
+ * Invented centres, so the four boards look different while developing.
+ * THESE ARE NOT FINDINGS.
+ *
+ * Every board runs negative-on-the-left: 0 = addictive / harmful, 1 = not
+ * addictive / healthy. So a board where opinion leans negative has a LOW mean.
+ */
 const SHAPES = {
-  "social-addictive": { mean: 0.78, sd: 0.13 },
-  "porn-addictive": { mean: 0.72, sd: 0.17 },
+  "social-addictive": { mean: 0.22, sd: 0.13 },
+  "porn-addictive": { mean: 0.28, sd: 0.17 },
   "social-healthy": { mean: 0.27, sd: 0.15 },
   "porn-healthy": { mean: 0.22, sd: 0.16 },
 };
@@ -49,6 +57,7 @@ for (const [topic, shape] of Object.entries(SHAPES)) {
   const votes = Array.from({ length: n }, () =>
     Math.round(Math.min(1, Math.max(0, normal(shape.mean, shape.sd))) * 1000) / 1000,
   );
-  await fs.writeFile(path.join(dir, `votes-${topic}.json`), JSON.stringify(votes));
+  const file = path.join(dir, `votes-${STORE_VERSION}-${topic}.json`);
+  await fs.writeFile(file, JSON.stringify(votes));
   console.log(`${topic}: ${n} synthetic votes`);
 }

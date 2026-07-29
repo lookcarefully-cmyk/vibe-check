@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import Dial, { type Phase } from "./Dial";
 import TopicNav from "./TopicNav";
 import { BIN_COUNT, MARGIN_COVERAGE, type Aggregate } from "@/lib/aggregate";
-import type { Topic } from "@/lib/topics";
+import { voteStorageKey, type Topic } from "@/lib/topics";
 
 const POLL_MS = 6000;
 
@@ -31,7 +31,7 @@ export default function Wavelength({ topic }: { topic: Topic }) {
   const [navKey, setNavKey] = useState(0);
 
   const lastCount = useRef(0);
-  const storageKey = `wavelength:${topic.id}:vote`;
+  const storageKey = voteStorageKey(topic.id);
   const endpoint = `/api/votes/${topic.id}`;
 
   const load = useCallback(async () => {

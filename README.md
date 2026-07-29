@@ -8,13 +8,24 @@ Four boards, each with its own separate vote store:
 
 | Board | Spectrum |
 | --- | --- |
-| `/social-addictive` | Shortform social media: not addictive ↔ addictive |
-| `/porn-addictive` | Internet porn: not addictive ↔ addictive |
-| `/social-healthy` | Shortform social media: unhealthy ↔ healthy |
-| `/porn-healthy` | Internet porn: unhealthy ↔ healthy |
+| `/social-addictive` | Shortform social media: addictive ↔ not addictive |
+| `/porn-addictive` | Internet porn: addictive ↔ not addictive |
+| `/social-healthy` | Shortform social media: harmful ↔ healthy |
+| `/porn-healthy` | Internet porn: harmful ↔ healthy |
 
 They're defined in one place, `lib/topics.ts`. Adding an entry there creates the
 board, its route, its nav tile, and its store — no other file needs touching.
+
+**Orientation is uniform: the negative pole is always on the left (0), the
+positive pole always on the right (1).** Four dials read side by side in the nav
+are only comparable if they all run the same way.
+
+If you ever swap an existing board's ends, **bump `STORE_VERSION` in
+`lib/store.ts`.** Votes are stored as bare positions on the 0..1 scale with no
+record of which way the labels ran, so reversing the labels would silently turn
+every vote already collected into its exact opposite. Bumping the version starts
+that board's collection cleanly instead. (This is why the store is on `v3` — the
+addictive boards originally ran the other way.)
 
 ## Running it
 
@@ -34,11 +45,36 @@ nobody else can reach it until it's deployed (see Deploying, below).
 ## How it works
 
 **The flow.** The dial starts in *choose* mode — a teal handle on a horizontal
-track, with a live percentage readout. A click (or `Enter`, after aiming with
-the arrow keys) POSTs the value, and the dial animates into *result* mode:
-coloured rays burst out of the red hub, the red needle swings to the average,
-and the spread bracket fades in. The viewer's own answer stays on screen as the
-teal line, so they can see themselves against the crowd.
+track and no numbers at all. A click (or `Enter`, after aiming with the arrow
+keys) POSTs the value, and the dial animates into *result* mode: coloured rays
+burst out of the red hub, the red needle swings to the average, and the spread
+bracket fades in. The viewer's own answer stays on screen as the teal line, so
+they can see themselves against the crowd.
+
+### Anchoring
+
+**No percentage is shown to anyone who hasn't answered yet.** This is a
+deliberate constraint on the whole UI, not a styling choice, and it's easy to
+break by accident:
+
+- There's no live readout on the dial while choosing. A running "50%" anchors
+  people to the midpoint and turns a felt judgement into a number-picking task.
+- A nav tile only draws its needle and average once the viewer has answered
+  *that* board. Four averages on screen before you've given an opinion is the
+  strongest anchor on the page, so `TopicNav` gates each tile on its own
+  `localStorage` entry and passes `mean: null` otherwise — the number never
+  reaches the tile it would leak from.
+- Tiles still show a response count. A count lends credibility without
+  suggesting an answer.
+
+The one exception is `aria-valuetext`, which announces the viewer's own handle
+position to screen readers. There's no other way to convey where the handle sits,
+and it's their own pick rather than the crowd's, so it carries no anchor.
+
+Note that `/api/summary` returns every board's mean regardless. The gate is in
+the UI, so a visitor who opens the network tab can still find the numbers. That's
+a fine trade for a public opinion board — tighten it only if you ever need the
+guarantee to hold against someone deliberately looking.
 
 **The numbers.** `lib/aggregate.ts` turns raw votes into a mean, a standard
 deviation, the 10th/90th percentiles, and a 40-bucket histogram.
@@ -94,8 +130,9 @@ each board's current average as a tiny needle, refreshed after every vote.
 
 Two interchangeable backends behind one interface:
 
-- **Local (default).** Votes go to `.data/votes-<topic>.json`, one file per
-  board. Zero configuration, but it only works where the filesystem is writable.
+- **Local (default).** Votes go to `.data/votes-<version>-<topic>.json`, one file
+  per board. Zero configuration, but it only works where the filesystem is
+  writable.
 - **Upstash Redis.** Set both variables and the app switches automatically:
 
   ```

@@ -278,29 +278,6 @@ body::after {
   }
 }
 
-/* the big percentage the viewer is currently aiming at */
-
-.readout-value {
-  fill: var(--navy-mid);
-  font-size: calc(108px * var(--t, 1));
-  font-weight: 800;
-  letter-spacing: -0.03em;
-  /* stroked in the face colour so the aim line passes cleanly behind it */
-  stroke: var(--teal);
-  stroke-width: 18px;
-  stroke-linejoin: round;
-}
-
-.readout-caption {
-  fill: rgba(16, 26, 74, 0.7);
-  font-size: calc(24px * var(--t, 1));
-  font-weight: 700;
-  letter-spacing: 0.26em;
-  stroke: var(--teal);
-  stroke-width: 12px;
-  stroke-linejoin: round;
-}
-
 /* endpoint labels sit in the navy band below the dial face */
 
 .end-label {
@@ -311,7 +288,7 @@ body::after {
   transition: fill 900ms var(--ease-out);
 }
 
-/* only once results are shown does the alarming end get called out */
+/* the negative pole (always the left end) is called out once results show */
 .is-result .end-label.alarm {
   fill: #ff7a8a;
 }

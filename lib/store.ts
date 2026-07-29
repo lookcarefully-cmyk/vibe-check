@@ -13,7 +13,18 @@ import path from "node:path";
 
 export const MAX_VOTES = 20_000;
 
-const key = (topic: string) => `wavelength:v2:${topic}`;
+/**
+ * Bump this whenever a board's ends are swapped or its scale is redefined.
+ * Votes are stored as bare 0..1 positions with no record of which way the
+ * labels ran, so a flipped board would otherwise reinterpret every old vote as
+ * its exact opposite. Bumping starts that board's collection cleanly instead.
+ *
+ * v3: negative pole moved to the left on every board (the addictive boards
+ * previously ran the other way).
+ */
+export const STORE_VERSION = "v3";
+
+const key = (topic: string) => `wavelength:${STORE_VERSION}:${topic}`;
 
 export interface VoteStore {
   /** Append a vote in [0, 1] to one topic. Returns that topic's new total. */
@@ -60,8 +71,9 @@ const upstashStore: VoteStore = {
 
 /* --------------------------------------------------------------------- file */
 
+// Kept in sync by hand with scripts/seed.mjs, which writes these same files.
 const fileFor = (topic: string) =>
-  path.join(process.cwd(), ".data", `votes-${topic}.json`);
+  path.join(process.cwd(), ".data", `votes-${STORE_VERSION}-${topic}.json`);
 
 // One write chain per topic, so concurrent votes can't lose a read-modify-write
 // race against each other.

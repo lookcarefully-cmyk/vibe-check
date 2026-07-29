@@ -143,7 +143,14 @@ export default function Dial({
       aria-valuemin={interactive ? 0 : undefined}
       aria-valuemax={interactive ? 100 : undefined}
       aria-valuenow={interactive ? Math.round(pick * 100) : undefined}
-      aria-valuetext={interactive ? `${Math.round(pick * 100)} percent addictive` : undefined}
+      aria-valuetext={
+        // Screen-reader users get a number for their own handle position —
+        // there is no other way to convey it. It is their own pick, never the
+        // crowd's average, so it carries no anchor.
+        interactive
+          ? `${Math.round(pick * 100)} percent toward ${topic.rightLabel.toLowerCase()}`
+          : undefined
+      }
       tabIndex={interactive ? 0 : -1}
       onPointerMove={interactive ? (e) => onPick(valueFromEvent(e)) : undefined}
       onPointerDown={
@@ -348,17 +355,12 @@ export default function Dial({
         </g>
       )}
 
-      {/* ------------------------------------ live readout while choosing */}
-      {!isResult && (
-        <g className="readout" aria-hidden="true">
-          <text className="readout-value" x={CX} y={CY - 268} textAnchor="middle" paintOrder="stroke">
-            {Math.round(pick * 100)}%
-          </text>
-          <text className="readout-caption" x={CX} y={CY - 216} textAnchor="middle" paintOrder="stroke">
-            YOUR ANSWER
-          </text>
-        </g>
-      )}
+      {/*
+        No number is drawn while choosing, deliberately. Showing a running
+        percentage turns a felt judgement into a number-picking task and anchors
+        people to the 50% the dial starts at. Position is conveyed by the aim
+        line and the handle; the arithmetic only appears once an answer is in.
+      */}
 
       {/* ----------------------------------------------- notches + ends */}
       <circle cx={CX - R_FACE} cy={CY} r="13" className="notch" />
@@ -369,19 +371,10 @@ export default function Dial({
         face they collided with the ray fan, and with the bracket labels
         whenever a band ran out to either extreme.
       */}
-      <text
-        className={`end-label ${topic.alarmSide === "left" ? "alarm" : ""}`}
-        x={CX - R_FACE + 6}
-        y={CY + 38}
-      >
+      <text className="end-label alarm" x={CX - R_FACE + 6} y={CY + 38}>
         {topic.leftLabel}
       </text>
-      <text
-        className={`end-label ${topic.alarmSide === "right" ? "alarm" : ""}`}
-        x={CX + R_FACE - 6}
-        y={CY + 38}
-        textAnchor="end"
-      >
+      <text className="end-label" x={CX + R_FACE - 6} y={CY + 38} textAnchor="end">
         {topic.rightLabel}
       </text>
 

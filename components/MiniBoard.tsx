@@ -4,9 +4,11 @@ import Link from "next/link";
 import type { Topic } from "@/lib/topics";
 
 /**
- * A pocket-sized version of the dial used as a nav tile. If the board has
- * votes, the needle sits at its current average, so the whole collection reads
- * at a glance.
+ * A pocket-sized version of the dial used as a nav tile.
+ *
+ * The needle and the average are only drawn for boards the viewer has already
+ * answered. An unanswered board shows a blank face: seeing four averages before
+ * you have given an opinion is the strongest anchor on the page.
  */
 
 const W = 120;
@@ -40,12 +42,22 @@ function dome(radius: number, base: number): string {
 interface MiniBoardProps {
   topic: Topic;
   active: boolean;
-  /** The board's current average, 0..1, or null if nobody has answered. */
+  /** The board's average, 0..1 — only ever passed once the viewer has voted. */
   mean: number | null;
   count: number;
+  /** Whether the viewer has answered this board. */
+  answered: boolean;
 }
 
-export default function MiniBoard({ topic, active, mean, count }: MiniBoardProps) {
+export default function MiniBoard({
+  topic,
+  active,
+  mean,
+  count,
+  answered,
+}: MiniBoardProps) {
+  const reveal = answered && mean !== null;
+
   return (
     <Link
       href={`/${topic.id}`}
@@ -56,10 +68,13 @@ export default function MiniBoard({ topic, active, mean, count }: MiniBoardProps
         <path d={scalloped(R_SCALLOP, 12)} className="mini-scallop" />
         <path d={dome(R_RIM, 12)} className="mini-body" />
         <path d={dome(R_FACE, 0)} className="mini-face" />
-        {mean !== null && (
+        {reveal && (
           <g
             className="mini-needle"
-            style={{ transform: `rotate(${mean * 180 - 90}deg)`, transformOrigin: `${CX}px ${CY}px` }}
+            style={{
+              transform: `rotate(${mean * 180 - 90}deg)`,
+              transformOrigin: `${CX}px ${CY}px`,
+            }}
           >
             <line x1={CX} y1={CY} x2={CX} y2={CY - (R_FACE - 8)} strokeWidth="3.5" strokeLinecap="round" />
           </g>
@@ -69,7 +84,11 @@ export default function MiniBoard({ topic, active, mean, count }: MiniBoardProps
       <span className="mini-subject">{topic.subject}</span>
       <span className="mini-axis">{topic.axis}</span>
       <span className="mini-stat">
-        {count > 0 ? `${Math.round(mean! * 100)}% · ${count}` : "no answers yet"}
+        {reveal
+          ? `avg ${Math.round(mean * 100)}% · ${count}`
+          : count > 0
+            ? `${count} answered`
+            : "be the first"}
       </span>
     </Link>
   );

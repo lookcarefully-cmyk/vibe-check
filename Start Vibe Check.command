@@ -1,6 +1,6 @@
 #!/bin/zsh
 #
-# Double-click this file in Finder to run Wavelength.
+# Double-click this file in Finder to run Vibe Check.
 #
 # It opens a Terminal window, starts the server, and opens the site in your
 # browser. Leave the Terminal window open while you're using it — closing it
@@ -26,12 +26,12 @@ fi
 if lsof -nP -iTCP:3210 -sTCP:LISTEN >/dev/null 2>&1; then
   if [ "$(curl -s -o /dev/null -w '%{http_code}' --max-time 5 \
           "http://localhost:3210/social-addictive")" = "200" ]; then
-    echo "Wavelength is already running. Opening it..."
+    echo "Vibe Check is already running. Opening it..."
     open "http://localhost:3210"
   else
-    echo "Something is using port 3210 but not serving Wavelength properly."
+    echo "Something is using port 3210 but not serving Vibe Check properly."
     echo
-    echo "Close any other Terminal window running Wavelength, then run this"
+    echo "Close any other Terminal window running Vibe Check, then run this"
     echo "again. If there isn't one, this will force it closed:"
     echo
     echo "  lsof -nP -iTCP:3210 -sTCP:LISTEN -t | xargs kill"
@@ -42,7 +42,7 @@ if lsof -nP -iTCP:3210 -sTCP:LISTEN >/dev/null 2>&1; then
   exit 0
 fi
 
-echo "Starting Wavelength..."
+echo "Starting Vibe Check..."
 echo "The browser will open in a few seconds. Keep this window open."
 echo
 

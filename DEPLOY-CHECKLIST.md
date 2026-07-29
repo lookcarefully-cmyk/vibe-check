@@ -1,7 +1,7 @@
-# Going live — checklist for review
+# Going live — checklist
 
-Nothing in here is done yet. Review, cut what you don't want, then we work
-through it.
+Decisions made 2026-07-29. Items marked **DONE** are finished and verified;
+the rest are still open.
 
 Each item is tagged:
 

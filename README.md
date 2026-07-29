@@ -1,4 +1,4 @@
-# Wavelength
+# Vibe Check
 
 A set of consensus dials for public data collection. Visitors place their answer
 on a spectrum; the moment they click, their vote is recorded and the dial
@@ -28,12 +28,12 @@ If you ever swap an existing board's ends, **bump `STORE_VERSION` in
 `lib/store.ts`.** Votes are stored as bare positions on the 0..1 scale with no
 record of which way the labels ran, so reversing the labels would silently turn
 every vote already collected into its exact opposite. Bumping the version starts
-that board's collection cleanly instead. (This is why the store is on `v3` — the
-addictive boards originally ran the other way.)
+that board's collection cleanly instead. (The store is on `v4`: `v3` moved the negative pole left, `v4` added timestamps
+and session ids and dropped the vote cap.)
 
 ## Running it
 
-**Double-click `Start Wavelength.command` in Finder.** It opens a Terminal
+**Double-click `Start Vibe Check.command` in Finder.** It opens a Terminal
 window, starts the server, and opens the site in your browser. Leave that
 Terminal window open while you're using it — closing it stops the server.
 
@@ -115,9 +115,11 @@ if opinion is genuinely bimodal, two humps appear instead of one smooth bell
 that was never in the data. With a normal-ish sample it renders as the bell
 curve you'd expect.
 
-**Live updates.** The client polls `/api/votes/<topic>` every 6 seconds and on
-tab focus, so the distribution reshapes as new people answer. The nav tiles show
-each board's current average as a tiny needle, refreshed after every vote.
+**Live updates.** The client polls `/api/votes/<topic>` every 20 seconds, and on
+tab focus, so the distribution reshapes as new people answer. Polling stops while
+the tab is hidden. Both are cost controls as much as UX: every poll is a read of
+the whole vote list, which is one database command, and at 6s a single tab left
+open for ten minutes cost 100 of them.
 
 ### The "?" panel and the disclosure
 
@@ -136,12 +138,22 @@ dial, and the data disclosure. It's a native `<dialog>` opened with
 A one-line version of the disclosure sits permanently under the dial, so it's
 readable without opening anything.
 
-If the disclosure changes, keep it true to what the code does. Right now that
-is: one number appended per vote, no identifier of any kind, nothing linking a
-person's answers across boards, `localStorage` for your own answers only. The
-claim that answers can't be traced back holds precisely because no linking
-information is collected — not because anything is stripped later. Don't
-loosen that wording without changing the storage to match.
+If the disclosure changes, keep it true to what the code does. Right now a vote
+record is exactly `{ v, t, s }` — position, timestamp, and a random 16-byte
+session id minted in the browser (`lib/session.ts`).
+
+That session id is what makes cross-board correlation possible, and it is the
+reason the disclosure can no longer say answers are unlinked. It went in
+deliberately, with that trade understood: correlation is the most interesting
+thing a multi-board survey can produce, and the id is not derived from anything
+about the person. Nothing identifying is stored beside it, and neither `t` nor
+`s` is ever returned by a public endpoint — `/api/votes` and `/api/summary` both
+map records down to positions before responding.
+
+Rate limiting hashes the caller's IP with `RATE_LIMIT_SALT` and keeps only a
+counter under that hash, expiring within a day. The raw address is never written
+and the hash is never stored next to a vote. The disclosure says this in plain
+words; if you ever change the limiter to store more, change those words too.
 
 ### Files
 
@@ -149,10 +161,12 @@ loosen that wording without changing the storage to match.
 | --- | --- |
 | `lib/topics.ts` | **the board definitions — start here** |
 | `components/InfoDialog.tsx` | the "?" panel: how to play + data disclosure |
+| `components/VibeCheck.tsx` | state, submission, polling |
+| `lib/session.ts` | the random per-browser id sent with each vote |
+| `lib/request.ts` | origin check + hashed rate-limit bucket |
 | `app/[topic]/page.tsx` | a board |
 | `app/api/votes/[topic]/route.ts` | `GET` aggregate, `POST` a vote |
 | `app/api/summary/route.ts` | every board's average, for the nav tiles |
-| `components/Wavelength.tsx` | state, submission, polling |
 | `components/Dial.tsx` | the SVG dial |
 | `components/TopicNav.tsx` / `MiniBoard.tsx` | the mini-board switcher |
 | `lib/store.ts` | vote persistence (Upstash or local file) |

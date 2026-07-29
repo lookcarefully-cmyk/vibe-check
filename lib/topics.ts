@@ -120,5 +120,5 @@ export function getTopic(id: string | undefined): Topic | undefined {
  * that board's average is revealed to them — see components/TopicNav.tsx.
  */
 export function voteStorageKey(topicId: string): string {
-  return `wavelength:${topicId}:vote`;
+  return `vibecheck:${topicId}:vote`;
 }

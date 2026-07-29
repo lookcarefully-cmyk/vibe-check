@@ -5,9 +5,16 @@ import Dial, { type Phase } from "./Dial";
 import InfoDialog from "./InfoDialog";
 import TopicNav from "./TopicNav";
 import { BIN_COUNT, MARGIN_COVERAGE, type Aggregate } from "@/lib/aggregate";
+import { getSessionId } from "@/lib/session";
 import { voteStorageKey, type Topic } from "@/lib/topics";
 
-const POLL_MS = 6000;
+/*
+ * Every poll is a read of the whole vote list, which costs a database command.
+ * At 6s a single tab left open for ten minutes cost 100 of them; 20s plus the
+ * pause-when-hidden below cuts that by roughly 3x. Results still feel live —
+ * the dial also refreshes whenever the tab regains focus.
+ */
+const POLL_MS = 20_000;
 
 const EMPTY: Aggregate = {
   count: 0,
@@ -22,7 +29,7 @@ const EMPTY: Aggregate = {
 
 const pct = (v: number) => `${Math.round(v * 100)}%`;
 
-export default function Wavelength({ topic }: { topic: Topic }) {
+export default function VibeCheck({ topic }: { topic: Topic }) {
   const [phase, setPhase] = useState<Phase>("choose");
   const [pick, setPick] = useState(0.5);
   const [agg, setAgg] = useState<Aggregate>(EMPTY);
@@ -71,8 +78,22 @@ export default function Wavelength({ topic }: { topic: Topic }) {
   }, [storageKey, load]);
 
   useEffect(() => {
-    const id = window.setInterval(() => void load(), POLL_MS);
-    const onVisible = () => document.visibilityState === "visible" && void load();
+    let id = 0;
+    // Don't poll a tab nobody is looking at — it costs database commands and
+    // nobody sees the result.
+    const start = () => {
+      window.clearInterval(id);
+      id = window.setInterval(() => void load(), POLL_MS);
+    };
+    const onVisible = () => {
+      if (document.visibilityState === "visible") {
+        void load();
+        start();
+      } else {
+        window.clearInterval(id);
+      }
+    };
+    if (document.visibilityState === "visible") start();
     document.addEventListener("visibilitychange", onVisible);
     return () => {
       window.clearInterval(id);
@@ -90,7 +111,7 @@ export default function Wavelength({ topic }: { topic: Topic }) {
         const res = await fetch(endpoint, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ value }),
+          body: JSON.stringify({ value, session: getSessionId() }),
         });
         const data = await res.json();
         if (!res.ok) throw new Error(data?.error ?? "Something went wrong.");
@@ -126,7 +147,7 @@ export default function Wavelength({ topic }: { topic: Topic }) {
       <header className="masthead">
         {/* A div, not a p: it contains a <dialog>, which isn't phrasing content. */}
         <div className="kicker">
-          <span className="kicker-text">Wavelength · public data collection</span>
+          <span className="kicker-text">Vibe Check · public data collection</span>
           <InfoDialog />
         </div>
         <h1>{topic.question}</h1>
@@ -210,9 +231,9 @@ export default function Wavelength({ topic }: { topic: Topic }) {
 
       {/* Standing disclosure, so it's readable without opening the dialog. */}
       <footer className="disclosure">
-        Anonymous: one number per answer, nothing linking it to you or to your other
-        answers. Aggregate results are used for writing on Substack.{" "}
-        <span className="disclosure-cue">Full details under the ? above.</span>
+        Anonymous: your answer, the time, and a random ID that groups your answers together.
+        No name, email, account or IP. Aggregate results are used for writing on X and
+        Substack. <span className="disclosure-cue">Full details under the ? above.</span>
       </footer>
     </main>
   );

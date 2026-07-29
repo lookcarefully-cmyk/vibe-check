@@ -2,7 +2,7 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Wavelength — Is shortform social media addictive?",
+  title: "Vibe Check — where does everyone actually land?",
   description:
     "A live consensus dial. Answer on the spectrum, then see the crowd's distribution.",
 };

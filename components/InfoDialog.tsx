@@ -120,19 +120,29 @@ export default function InfoDialog() {
             <h3>What&rsquo;s collected</h3>
             <ul>
               <li>
-                <strong>One number per answer</strong>, between 0 and 100 — where you put
-                the handle. That is the whole record.
+                <strong>Where you put the handle</strong>, as a number between 0 and 100,
+                and <strong>when</strong> you answered.
               </li>
               <li>No account, no email, no name, no cookies, no tracking scripts.</li>
               <li>
-                <strong>Nothing links your answers to each other.</strong> Answering all
-                eight boards stores eight unconnected numbers, with no identifier tying them
-                together or to you.
+                <strong>A random ID links your answers to each other.</strong> It&rsquo;s 16
+                random bytes generated in your browser — nothing about you feeds into it, and
+                it isn&rsquo;t connected to your name, email, IP address or any account. It
+                exists so the results can answer questions like &ldquo;do people who call
+                something addictive also call it harmful?&rdquo;, which is impossible with
+                unlinked answers. Clearing your browser data destroys it.
               </li>
               <li>
                 Your own answers are kept in your browser&rsquo;s local storage so the page
                 can show you what you picked. That never leaves your device — clearing your
                 browser data erases it.
+              </li>
+              <li>
+                To stop one person stuffing a board, your IP address is scrambled into a
+                one-way code and used to count how many answers came from you today. The
+                address itself is never written down, the code can&rsquo;t be turned back
+                into it, only a running count is kept, and it&rsquo;s deleted after a day.
+                It is never stored with your answers.
               </li>
               <li>
                 As with any website, the server that hosts this keeps ordinary request logs,
@@ -145,16 +155,16 @@ export default function InfoDialog() {
           <section>
             <h3>What it&rsquo;s used for</h3>
             <p>
-              Aggregate results — averages, spreads and response counts — for writing
-              published on Substack. Individual answers say nothing on their own, and there
-              is nothing in them that could identify anyone. Nothing is sold or handed to
-              third parties.
+              Aggregate results — averages, spreads, response counts and how answers
+              relate to each other — for writing published on X and Substack. Individual
+              answers say nothing on their own. Nothing is sold or handed to third
+              parties.
             </p>
             <p className="info-note">
-              Some of these questions are personal. That&rsquo;s exactly why the record is a
-              bare number and nothing else: there is no version of this data that can be
-              traced back to you, because none of the linking information was ever
-              collected.
+              Some of these questions are personal. Your answers are grouped together by a
+              random ID so they can be compared with each other — but nothing that could
+              identify you is stored alongside them, and no name, email, account or IP
+              address is ever attached. A set of numbers and a random string is not a person.
             </p>
           </section>
 

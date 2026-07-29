@@ -43,6 +43,11 @@ Or from a terminal:
 npm install && npm run dev
 ```
 
+> **Don't run `npm run build` while the dev server is running.** They share the
+> `.next` directory, so the build overwrites the files the running server is
+> reading and every page starts returning 500. Stop the server first. (If it
+> happens: stop it, `rm -rf .next`, start it again.)
+
 Either way it lives at http://localhost:3210. It runs on this machine only;
 nobody else can reach it until it's deployed (see Deploying, below).
 

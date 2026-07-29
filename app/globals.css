@@ -87,12 +87,13 @@ body::after {
 
 /* ------------------------------------------------------- board switcher */
 
+/* four across, wrapping to a second row as boards are added */
 .topic-nav {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: clamp(0.4rem, 1.5vw, 0.9rem);
   width: 100%;
-  max-width: 42rem;
+  max-width: 54rem;
 }
 
 .mini {
@@ -192,7 +193,9 @@ body::after {
 
 .masthead h1 {
   margin: 0;
-  font-size: clamp(1.75rem, 5.5vw, 3.1rem);
+  /* capped lower than a one-line headline would allow: with eight boards, some
+     questions are long, and the dial has to stay near the fold */
+  font-size: clamp(1.6rem, 4.6vw, 2.6rem);
   line-height: 1.05;
   letter-spacing: -0.02em;
   font-weight: 800;
@@ -490,11 +493,31 @@ body::after {
   .dial {
     max-height: none;
   }
-  /* two-up, and compact enough that the dial still clears the fold */
+  /*
+    A grid of eight tiles would push the dial off the bottom of a phone, so the
+    switcher becomes one horizontally scrolling strip instead. The negative
+    inline margin bleeds it to the screen edges, which is what signals there is
+    more to swipe to.
+  */
   .topic-nav {
-    grid-template-columns: repeat(2, 1fr);
+    display: flex;
+    grid-template-columns: none;
+    max-width: none;
+    width: auto;
+    align-self: stretch;
+    overflow-x: auto;
+    scroll-snap-type: x proximity;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    margin-inline: calc(-1 * clamp(1rem, 4vw, 2rem));
+    padding: 0 clamp(1rem, 4vw, 2rem) 0.35rem;
+  }
+  .topic-nav::-webkit-scrollbar {
+    display: none;
   }
   .mini {
+    flex: 0 0 116px;
+    scroll-snap-align: start;
     padding: 0.4rem 0.3rem 0.5rem;
     border-radius: 13px;
   }

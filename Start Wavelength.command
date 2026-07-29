@@ -20,10 +20,23 @@ fi
 
 [ -d node_modules ] || npm install
 
-# If it's already running, just open the browser and stop.
+# Something already has the port. Check it's actually serving before assuming
+# it's a healthy copy — a half-dead server still holds the port, and silently
+# opening the browser onto it just shows an error page.
 if lsof -nP -iTCP:3210 -sTCP:LISTEN >/dev/null 2>&1; then
-  echo "Wavelength is already running. Opening it..."
-  open "http://localhost:3210"
+  if [ "$(curl -s -o /dev/null -w '%{http_code}' --max-time 5 \
+          "http://localhost:3210/social-addictive")" = "200" ]; then
+    echo "Wavelength is already running. Opening it..."
+    open "http://localhost:3210"
+  else
+    echo "Something is using port 3210 but not serving Wavelength properly."
+    echo
+    echo "Close any other Terminal window running Wavelength, then run this"
+    echo "again. If there isn't one, this will force it closed:"
+    echo
+    echo "  lsof -nP -iTCP:3210 -sTCP:LISTEN -t | xargs kill"
+  fi
+  echo
   echo "Press Return to close this window."
   read -r
   exit 0

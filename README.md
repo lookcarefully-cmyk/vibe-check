@@ -4,7 +4,7 @@ A set of consensus dials for public data collection. Visitors place their answer
 on a spectrum; the moment they click, their vote is recorded and the dial
 transforms into a live distribution of everyone else's answers.
 
-Four boards, each with its own separate vote store:
+Eight boards, each with its own separate vote store:
 
 | Board | Spectrum |
 | --- | --- |
@@ -12,12 +12,16 @@ Four boards, each with its own separate vote store:
 | `/porn-addictive` | Internet porn: addictive ↔ not addictive |
 | `/social-healthy` | Shortform social media: harmful ↔ healthy |
 | `/porn-healthy` | Internet porn: harmful ↔ healthy |
+| `/social-cigarettes` | Shortform social media: cigarettes ↔ comic books |
+| `/social-polarizing` | Shortform social media: polarizing ↔ unifying |
+| `/social-society` | Shortform social media: bad ↔ good for society |
+| `/porn-society` | Internet porn: bad ↔ good for society |
 
 They're defined in one place, `lib/topics.ts`. Adding an entry there creates the
 board, its route, its nav tile, and its store — no other file needs touching.
 
 **Orientation is uniform: the negative pole is always on the left (0), the
-positive pole always on the right (1).** Four dials read side by side in the nav
+positive pole always on the right (1).** Eight dials read side by side in the nav
 are only comparable if they all run the same way.
 
 If you ever swap an existing board's ends, **bump `STORE_VERSION` in

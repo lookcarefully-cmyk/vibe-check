@@ -28,6 +28,10 @@ const SHAPES = {
   "porn-addictive": { mean: 0.28, sd: 0.17 },
   "social-healthy": { mean: 0.27, sd: 0.15 },
   "porn-healthy": { mean: 0.22, sd: 0.16 },
+  "social-cigarettes": { mean: 0.35, sd: 0.2 },
+  "social-polarizing": { mean: 0.18, sd: 0.14 },
+  "social-society": { mean: 0.3, sd: 0.18 },
+  "porn-society": { mean: 0.26, sd: 0.17 },
 };
 
 const n = Number(process.argv[2] ?? 200);

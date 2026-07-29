@@ -65,6 +65,48 @@ export const TOPICS: Topic[] = [
     leftLabel: "HARMFUL",
     rightLabel: "HEALTHY",
   },
+  {
+    // Cigarettes: a product whose harms proved real. Comic books: a 1950s
+    // panic that looks quaint in hindsight. The axis asks which precedent
+    // this era's worry will resemble — so cigarettes is the negative pole.
+    id: "social-cigarettes",
+    subject: "Shortform social media",
+    axis: "Cigarettes or comics?",
+    // Kept short: as an h1 the longer phrasing ran to three lines and pushed
+    // the dial below the fold. The time horizon lives in the prompt instead.
+    question: "Shortform social media: cigarettes or comic books?",
+    prompt:
+      "In fifty years — cigarettes, whose harms proved real, or comic books, whose panic looks quaint? Where will this land?",
+    leftLabel: "CIGARETTES",
+    rightLabel: "COMIC BOOKS",
+  },
+  {
+    id: "social-polarizing",
+    subject: "Shortform social media",
+    axis: "Polarizing?",
+    question: "Is shortform social media politically polarizing or politically unifying?",
+    prompt: "Slide to your answer and click anywhere on the dial to lock it in.",
+    leftLabel: "POLARIZING",
+    rightLabel: "UNIFYING",
+  },
+  {
+    id: "social-society",
+    subject: "Shortform social media",
+    axis: "Good for society?",
+    question: "Is shortform social media bad or good for society?",
+    prompt: "Slide to your answer and click anywhere on the dial to lock it in.",
+    leftLabel: "BAD FOR SOCIETY",
+    rightLabel: "GOOD FOR SOCIETY",
+  },
+  {
+    id: "porn-society",
+    subject: "Internet porn",
+    axis: "Good for society?",
+    question: "Is internet porn bad or good for society?",
+    prompt: "Slide to your answer and click anywhere on the dial to lock it in.",
+    leftLabel: "BAD FOR SOCIETY",
+    rightLabel: "GOOD FOR SOCIETY",
+  },
 ];
 
 export const DEFAULT_TOPIC = TOPICS[0];

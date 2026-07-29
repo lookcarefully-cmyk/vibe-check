@@ -87,11 +87,7 @@ export default function InfoDialog() {
           <section>
             <h3>Why you can&rsquo;t see the results first</h3>
             <p>
-              Every board stays blank until you&rsquo;ve answered it — no average, no
-              needle, no numbers. If you knew most people had said 80%, you&rsquo;d drift
-              toward 80%. That&rsquo;s <strong>anchoring</strong>, and it quietly makes the
-              results worse for everyone who comes after you. Answer honestly first, then
-              look.
+              A board stays blank until you&rsquo;ve answered it, to reduce anchoring bias.
             </p>
           </section>
 

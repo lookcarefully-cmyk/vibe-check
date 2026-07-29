@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { Aggregate } from "@/lib/aggregate";
+import type { Topic } from "@/lib/topics";
 import { buildRays, RAY_COUNT } from "@/lib/rays";
 import {
   CX,
@@ -33,6 +34,7 @@ interface DialProps {
   /** The viewer's own pick, 0..1. */
   pick: number;
   agg: Aggregate;
+  topic: Topic;
   onPick: (value: number) => void;
   onCommit: (value: number) => void;
   interactive: boolean;
@@ -85,6 +87,7 @@ export default function Dial({
   phase,
   pick,
   agg,
+  topic,
   onPick,
   onCommit,
   interactive,
@@ -105,7 +108,7 @@ export default function Dial({
     : R_FACE * 0.7;
   const [markerX, markerY] = polar(agg.mean, markerRadius);
   // Chip geometry is derived from the label so it never clips at any type scale.
-  const chipLabel = `CONSENSUS ${Math.round(agg.mean * 100)}%`;
+  const chipLabel = `AVERAGE ${Math.round(agg.mean * 100)}%`;
   const chipFont = 23 * t;
   const chipW = chipLabel.length * chipFont * 0.78 + 46;
   const chipH = chipFont * 2.2;
@@ -134,8 +137,8 @@ export default function Dial({
       role={interactive ? "slider" : "img"}
       aria-label={
         interactive
-          ? "How addictive is shortform social media? Click along the spectrum to answer."
-          : `Consensus: ${Math.round(agg.mean * 100)} percent addictive, from ${agg.count} responses.`
+          ? `${topic.question} Click along the spectrum to answer, where 0 percent is ${topic.leftLabel.toLowerCase()} and 100 percent is ${topic.rightLabel.toLowerCase()}.`
+          : `Average answer: ${Math.round(agg.mean * 100)} percent toward ${topic.rightLabel.toLowerCase()}, from ${agg.count} responses.`
       }
       aria-valuemin={interactive ? 0 : undefined}
       aria-valuemax={interactive ? 100 : undefined}
@@ -266,39 +269,54 @@ export default function Dial({
       {/* -------------------------------------------- 80% margin bracket */}
       {isResult && agg.count > 1 && (
         <g className="margin">
-          {/* the arc is broken in the middle so the label sits in the gap */}
-          {(() => {
-            const mid = (agg.p10 + agg.p90) / 2;
-            const gap = 0.055;
-            return [
-              [agg.p10, Math.max(agg.p10, mid - gap)],
-              [Math.min(agg.p90, mid + gap), agg.p90],
-            ].map(([a, b], i) => (
-              <path
-                key={i}
-                d={arcBetween(a, b, R_BRACKET)}
-                fill="none"
-                stroke="#101A4A"
-                strokeWidth="4"
-                strokeLinecap="round"
-                opacity="0.7"
-              />
-            ));
-          })()}
+          <path
+            d={arcBetween(agg.p10, agg.p90, R_BRACKET)}
+            fill="none"
+            stroke="#101A4A"
+            strokeWidth="4"
+            strokeLinecap="round"
+            opacity="0.7"
+          />
           {[agg.p10, agg.p90].map((v, i) => {
             const [x1, y1] = polar(v, R_BRACKET - 22);
             const [x2, y2] = polar(v, R_BRACKET + 22);
             return <line key={i} x1={x1} y1={y1} x2={x2} y2={y2} stroke="#101A4A" strokeWidth="4" strokeLinecap="round" opacity="0.7" />;
           })}
+          {/*
+            The ends carry the numbers, in the same units as everything else on
+            the dial. Two reasons not to put a single label at the midpoint:
+            the midpoint is always about where the average marker already sits,
+            and quoting the crowd proportion there ("80%") put a share-of-people
+            number beside a position-on-the-spectrum number and invited readers
+            to compare them.
+          */}
+          {/*
+            Set inboard of the ticks rather than outboard: a band that reaches
+            either extreme would otherwise push its label into the endpoint
+            labels sitting along the baseline.
+          */}
           {(() => {
-            const mid = (agg.p10 + agg.p90) / 2;
-            const [tx, ty] = polar(mid, R_BRACKET_LABEL);
+            const inset = Math.min(0.04, (agg.p90 - agg.p10) / 3);
+            return [
+              { v: agg.p10, at: agg.p10 + inset },
+              { v: agg.p90, at: agg.p90 - inset },
+            ];
+          })().map(({ v, at }, i) => {
+            const [tx, ty] = polar(at, R_BRACKET_LABEL);
             return (
-              <text className="margin-label" x={tx} y={ty + 11} textAnchor="middle" paintOrder="stroke">
-                80%
+              <text
+                key={i}
+                className="margin-label"
+                x={tx}
+                y={ty}
+                textAnchor="middle"
+                dominantBaseline="central"
+                paintOrder="stroke"
+              >
+                {Math.round(v * 100)}
               </text>
             );
-          })()}
+          })}
         </g>
       )}
 
@@ -346,11 +364,25 @@ export default function Dial({
       <circle cx={CX - R_FACE} cy={CY} r="13" className="notch" />
       <circle cx={CX + R_FACE} cy={CY} r="13" className="notch" />
 
-      <text className="end-label left" x={CX - R_FACE + 34} y={CY - 26}>
-        NOT ADDICTIVE
+      {/*
+        These sit in the navy band below the baseline, not on the face. On the
+        face they collided with the ray fan, and with the bracket labels
+        whenever a band ran out to either extreme.
+      */}
+      <text
+        className={`end-label ${topic.alarmSide === "left" ? "alarm" : ""}`}
+        x={CX - R_FACE + 6}
+        y={CY + 38}
+      >
+        {topic.leftLabel}
       </text>
-      <text className="end-label right" x={CX + R_FACE - 34} y={CY - 26} textAnchor="end">
-        ADDICTIVE
+      <text
+        className={`end-label ${topic.alarmSide === "right" ? "alarm" : ""}`}
+        x={CX + R_FACE - 6}
+        y={CY + 38}
+        textAnchor="end"
+      >
+        {topic.rightLabel}
       </text>
 
       {/* ------------------------------------------------ track + handle */}

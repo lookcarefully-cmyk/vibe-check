@@ -2,9 +2,10 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import Dial, { type Phase } from "./Dial";
+import TopicNav from "./TopicNav";
 import { BIN_COUNT, MARGIN_COVERAGE, type Aggregate } from "@/lib/aggregate";
+import type { Topic } from "@/lib/topics";
 
-const STORAGE_KEY = "wavelength:shortform:vote";
 const POLL_MS = 6000;
 
 const EMPTY: Aggregate = {
@@ -20,19 +21,22 @@ const EMPTY: Aggregate = {
 
 const pct = (v: number) => `${Math.round(v * 100)}%`;
 
-export default function Wavelength() {
+export default function Wavelength({ topic }: { topic: Topic }) {
   const [phase, setPhase] = useState<Phase>("choose");
   const [pick, setPick] = useState(0.5);
   const [agg, setAgg] = useState<Aggregate>(EMPTY);
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [flash, setFlash] = useState(false);
+  const [navKey, setNavKey] = useState(0);
 
   const lastCount = useRef(0);
+  const storageKey = `wavelength:${topic.id}:vote`;
+  const endpoint = `/api/votes/${topic.id}`;
 
   const load = useCallback(async () => {
     try {
-      const res = await fetch("/api/votes", { cache: "no-store" });
+      const res = await fetch(endpoint, { cache: "no-store" });
       if (!res.ok) throw new Error(String(res.status));
       const data: Aggregate = await res.json();
       setAgg((prev) => {
@@ -46,17 +50,24 @@ export default function Wavelength() {
     } catch {
       /* a failed poll is not worth shouting about; the next one may work */
     }
-  }, []);
+  }, [endpoint]);
 
-  // Restore a previous vote, then keep the aggregate live.
+  // Switching boards resets everything, then restores that board's own vote.
   useEffect(() => {
-    const saved = window.localStorage.getItem(STORAGE_KEY);
+    setAgg(EMPTY);
+    setError(null);
+    lastCount.current = 0;
+
+    const saved = window.localStorage.getItem(storageKey);
     if (saved !== null && Number.isFinite(Number(saved))) {
       setPick(Number(saved));
       setPhase("result");
+    } else {
+      setPick(0.5);
+      setPhase("choose");
     }
     void load();
-  }, [load]);
+  }, [storageKey, load]);
 
   useEffect(() => {
     const id = window.setInterval(() => void load(), POLL_MS);
@@ -75,45 +86,47 @@ export default function Wavelength() {
       setError(null);
       setPick(value);
       try {
-        const res = await fetch("/api/votes", {
+        const res = await fetch(endpoint, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ value }),
         });
         const data = await res.json();
         if (!res.ok) throw new Error(data?.error ?? "Something went wrong.");
-        window.localStorage.setItem(STORAGE_KEY, String(value));
+        window.localStorage.setItem(storageKey, String(value));
         lastCount.current = data.count;
         setAgg(data);
         setPhase("result");
+        setNavKey((k) => k + 1);
       } catch (err) {
         setError(err instanceof Error ? err.message : "Could not record your vote.");
       } finally {
         setPending(false);
       }
     },
-    [pending, phase],
+    [pending, phase, endpoint, storageKey],
   );
 
   const reset = () => {
-    window.localStorage.removeItem(STORAGE_KEY);
+    window.localStorage.removeItem(storageKey);
     setPhase("choose");
     setPick(0.5);
   };
 
   const isResult = phase === "result";
-  const spread = Math.round((agg.p90 - agg.p10) * 100);
-  const coverage = Math.round(MARGIN_COVERAGE * 100);
+  const outside = Math.round(((1 - MARGIN_COVERAGE) / 2) * 100);
+  const inTen = Math.round(MARGIN_COVERAGE * 10);
+  const hasSpread = agg.count > 1;
 
   return (
     <main className="shell">
+      <TopicNav activeId={topic.id} refreshKey={navKey} />
+
       <header className="masthead">
         <p className="kicker">Wavelength · public data collection</p>
-        <h1>Is shortform social media addictive?</h1>
+        <h1>{topic.question}</h1>
         <p className="lede">
-          {isResult
-            ? "You're on the board. Here's where everyone else landed."
-            : "Slide to your answer and click anywhere on the dial to lock it in."}
+          {isResult ? "You're on the board. Here's where everyone else landed." : topic.prompt}
         </p>
       </header>
 
@@ -122,6 +135,7 @@ export default function Wavelength() {
           phase={phase}
           pick={pick}
           agg={agg}
+          topic={topic}
           onPick={setPick}
           onCommit={commit}
           interactive={!isResult && !pending}
@@ -137,13 +151,17 @@ export default function Wavelength() {
       {isResult ? (
         <section className="results">
           <p className="consensus">
-            The consensus is <strong>{pct(agg.mean)}</strong>
+            The average answer is <strong>{pct(agg.mean)}</strong>
           </p>
-          <p className="margin-copy">
-            with an <strong>{coverage}%</strong> margin spanning{" "}
-            <strong>{spread} points</strong> — {coverage}% of answers fall between{" "}
-            {pct(agg.p10)} and {pct(agg.p90)}.
-          </p>
+          {hasSpread ? (
+            <p className="margin-copy">
+              Most answers — {inTen} in 10 — land between <strong>{pct(agg.p10)}</strong> and{" "}
+              <strong>{pct(agg.p90)}</strong>. About {outside}% went lower than that, and{" "}
+              {outside}% went higher.
+            </p>
+          ) : (
+            <p className="margin-copy">Not enough answers yet to describe the spread.</p>
+          )}
 
           <dl className="stats">
             <div>
@@ -155,14 +173,17 @@ export default function Wavelength() {
               <dd>{agg.count.toLocaleString()}</dd>
             </div>
             <div>
-              <dt>Std. deviation</dt>
-              <dd>{pct(agg.sd)}</dd>
+              <dt>Where most land</dt>
+              <dd>{hasSpread ? `${pct(agg.p10)}–${pct(agg.p90)}` : "—"}</dd>
             </div>
             <div>
-              <dt>You vs. crowd</dt>
+              <dt>You vs. average</dt>
               <dd>
-                {pick > agg.mean ? "+" : ""}
-                {Math.round((pick - agg.mean) * 100)} pts
+                {(() => {
+                  const diff = Math.round((pick - agg.mean) * 100);
+                  const unit = Math.abs(diff) === 1 ? "pt" : "pts";
+                  return `${diff > 0 ? "+" : ""}${diff} ${unit}`;
+                })()}
               </dd>
             </div>
           </dl>

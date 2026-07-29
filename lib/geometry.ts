@@ -23,7 +23,8 @@ export const R_RAY_MAX = R_FACE - 96;
 
 /** Radii for the 80%-margin bracket and its label, outside the ray field. */
 export const R_BRACKET = R_FACE - 40;
-export const R_BRACKET_LABEL = R_BRACKET;
+/** Just outside the bracket, in the clear band between the ticks and the rim. */
+export const R_BRACKET_LABEL = R_BRACKET + 26;
 
 /** Value (0..1) -> angle in radians, measured maths-style (0 = east). */
 export function angleOf(value: number): number {

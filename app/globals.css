@@ -85,6 +85,99 @@ body::after {
   text-align: center;
 }
 
+/* ------------------------------------------------------- board switcher */
+
+.topic-nav {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: clamp(0.4rem, 1.5vw, 0.9rem);
+  width: 100%;
+  max-width: 42rem;
+}
+
+.mini {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.15rem;
+  padding: 0.6rem 0.4rem 0.7rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.04);
+  text-decoration: none;
+  color: inherit;
+  transition: transform 200ms var(--ease-out), border-color 200ms ease,
+    background 200ms ease;
+}
+
+.mini:hover {
+  transform: translateY(-3px);
+  border-color: rgba(95, 211, 212, 0.55);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.mini:focus-visible {
+  outline: 2px solid var(--teal);
+  outline-offset: 3px;
+}
+
+.mini.is-active {
+  border-color: var(--teal);
+  background: rgba(95, 211, 212, 0.12);
+}
+
+.mini svg {
+  width: 100%;
+  max-width: 96px;
+  height: auto;
+  display: block;
+}
+
+.mini-scallop {
+  fill: rgba(251, 247, 238, 0.9);
+}
+
+.mini-body {
+  fill: var(--navy-mid);
+}
+
+.mini-face {
+  fill: var(--cream);
+}
+
+.mini.is-active .mini-face {
+  fill: var(--teal);
+}
+
+.mini-needle line {
+  stroke: var(--red);
+  transition: transform 700ms var(--ease-out);
+}
+
+.mini-hub {
+  fill: var(--red);
+}
+
+.mini-subject {
+  margin-top: 0.35rem;
+  font-size: clamp(0.6rem, 1.5vw, 0.72rem);
+  font-weight: 700;
+  line-height: 1.2;
+  text-align: center;
+}
+
+.mini-axis {
+  font-size: clamp(0.55rem, 1.3vw, 0.66rem);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--teal);
+}
+
+.mini-stat {
+  font-size: clamp(0.5rem, 1.2vw, 0.62rem);
+  color: rgba(242, 235, 218, 0.45);
+}
+
 .masthead {
   max-width: 42rem;
 }
@@ -208,26 +301,19 @@ body::after {
   stroke-linejoin: round;
 }
 
-/* endpoint labels sit on the dial face, so they track the face colour */
+/* endpoint labels sit in the navy band below the dial face */
 
 .end-label {
   font-size: calc(25px * var(--te, 1));
   font-weight: 800;
   letter-spacing: 0.16em;
+  fill: rgba(242, 235, 218, 0.7);
   transition: fill 900ms var(--ease-out);
 }
 
-.end-label.left {
-  fill: rgba(10, 18, 56, 0.62);
-}
-
-.end-label.right {
-  fill: var(--red);
-  opacity: 0.85;
-}
-
-.is-choose .end-label.right {
-  fill: rgba(10, 18, 56, 0.62);
+/* only once results are shown does the alarming end get called out */
+.is-result .end-label.alarm {
+  fill: #ff7a8a;
 }
 
 /* rays burst outward from the hub, staggered from the centre */
@@ -426,6 +512,17 @@ body::after {
   }
   .dial {
     max-height: none;
+  }
+  /* two-up, and compact enough that the dial still clears the fold */
+  .topic-nav {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .mini {
+    padding: 0.4rem 0.3rem 0.5rem;
+    border-radius: 13px;
+  }
+  .mini svg {
+    max-width: 62px;
   }
 }
 

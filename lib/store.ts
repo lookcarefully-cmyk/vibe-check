@@ -1,24 +1,25 @@
 /**
- * Vote storage with two interchangeable backends.
+ * Vote storage, partitioned by topic, with two interchangeable backends.
  *
  *  - Upstash Redis (serverless-safe) when UPSTASH_REDIS_REST_URL + _TOKEN are set.
- *  - A local JSON file (.data/votes.json) otherwise, so `npm run dev` works
- *    with zero configuration.
+ *  - A local JSON file per topic (.data/votes-<topic>.json) otherwise, so
+ *    `npm run dev` works with zero configuration.
  *
- * Both speak the same tiny interface, so the API route never has to care.
+ * Both speak the same tiny interface, so the API routes never have to care.
  */
 
 import { promises as fs } from "node:fs";
 import path from "node:path";
 
 export const MAX_VOTES = 20_000;
-const KEY = "wavelength:shortform:votes";
+
+const key = (topic: string) => `wavelength:v2:${topic}`;
 
 export interface VoteStore {
-  /** Append a vote in [0, 1]. Returns the new total count. */
-  push(value: number): Promise<number>;
-  /** All stored vote values, oldest first. */
-  all(): Promise<number[]>;
+  /** Append a vote in [0, 1] to one topic. Returns that topic's new total. */
+  push(topic: string, value: number): Promise<number>;
+  /** All stored vote values for one topic, oldest first. */
+  all(topic: string): Promise<number[]>;
   readonly kind: "upstash" | "file";
 }
 
@@ -45,30 +46,30 @@ async function upstash(command: (string | number)[]): Promise<unknown> {
 
 const upstashStore: VoteStore = {
   kind: "upstash",
-  async push(value) {
-    const len = (await upstash(["RPUSH", KEY, String(value)])) as number;
+  async push(topic, value) {
+    const len = (await upstash(["RPUSH", key(topic), String(value)])) as number;
     // Keep the list bounded so LRANGE stays cheap forever.
-    if (len > MAX_VOTES) await upstash(["LTRIM", KEY, -MAX_VOTES, -1]);
+    if (len > MAX_VOTES) await upstash(["LTRIM", key(topic), -MAX_VOTES, -1]);
     return Math.min(len, MAX_VOTES);
   },
-  async all() {
-    const raw = (await upstash(["LRANGE", KEY, 0, -1])) as string[] | null;
+  async all(topic) {
+    const raw = (await upstash(["LRANGE", key(topic), 0, -1])) as string[] | null;
     return (raw ?? []).map(Number).filter(Number.isFinite);
   },
 };
 
 /* --------------------------------------------------------------------- file */
 
-const FILE = path.join(process.cwd(), ".data", "votes.json");
+const fileFor = (topic: string) =>
+  path.join(process.cwd(), ".data", `votes-${topic}.json`);
 
-// Serialises concurrent writes within this process so we never lose a vote to
-// a read-modify-write race.
-let writeChain: Promise<unknown> = Promise.resolve();
+// One write chain per topic, so concurrent votes can't lose a read-modify-write
+// race against each other.
+const chains = new Map<string, Promise<unknown>>();
 
-async function readFile(): Promise<number[]> {
+async function readVotes(topic: string): Promise<number[]> {
   try {
-    const txt = await fs.readFile(FILE, "utf8");
-    const parsed = JSON.parse(txt);
+    const parsed = JSON.parse(await fs.readFile(fileFor(topic), "utf8"));
     return Array.isArray(parsed) ? parsed.filter(Number.isFinite) : [];
   } catch {
     return [];
@@ -77,19 +78,24 @@ async function readFile(): Promise<number[]> {
 
 const fileStore: VoteStore = {
   kind: "file",
-  push(value) {
-    const next = writeChain.then(async () => {
-      const votes = await readFile();
+  push(topic, value) {
+    const prior = chains.get(topic) ?? Promise.resolve();
+    const next = prior.then(async () => {
+      const votes = await readVotes(topic);
       votes.push(value);
       const trimmed = votes.slice(-MAX_VOTES);
-      await fs.mkdir(path.dirname(FILE), { recursive: true });
-      await fs.writeFile(FILE, JSON.stringify(trimmed));
+      const file = fileFor(topic);
+      await fs.mkdir(path.dirname(file), { recursive: true });
+      await fs.writeFile(file, JSON.stringify(trimmed));
       return trimmed.length;
     });
-    writeChain = next.catch(() => {});
+    chains.set(
+      topic,
+      next.catch(() => {}),
+    );
     return next;
   },
-  all: readFile,
+  all: readVotes,
 };
 
 /* ------------------------------------------------------------------- export */

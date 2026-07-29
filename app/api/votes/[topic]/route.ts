@@ -1,10 +1,13 @@
 import { NextResponse } from "next/server";
 import { aggregate } from "@/lib/aggregate";
 import { store } from "@/lib/store";
+import { getTopic } from "@/lib/topics";
 
 // Votes are mutable state; never let a CDN or the build step freeze this.
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
+
+type Params = { params: Promise<{ topic: string }> };
 
 function noStore(body: unknown, status = 200) {
   return NextResponse.json(body, {
@@ -13,16 +16,22 @@ function noStore(body: unknown, status = 200) {
   });
 }
 
-export async function GET() {
+export async function GET(_req: Request, { params }: Params) {
+  const topic = getTopic((await params).topic);
+  if (!topic) return noStore({ error: "Unknown topic." }, 404);
+
   try {
-    return noStore(aggregate(await store.all()));
+    return noStore(aggregate(await store.all(topic.id)));
   } catch (err) {
     console.error("[votes] GET failed", err);
     return noStore({ error: "Could not read votes." }, 500);
   }
 }
 
-export async function POST(req: Request) {
+export async function POST(req: Request, { params }: Params) {
+  const topic = getTopic((await params).topic);
+  if (!topic) return noStore({ error: "Unknown topic." }, 404);
+
   let value: unknown;
   try {
     ({ value } = (await req.json()) as { value?: unknown });
@@ -37,8 +46,8 @@ export async function POST(req: Request) {
   try {
     // Round to the nearest 0.1% — plenty of resolution, and it keeps the
     // stored payload small.
-    await store.push(Math.round(value * 1000) / 1000);
-    return noStore(aggregate(await store.all()));
+    await store.push(topic.id, Math.round(value * 1000) / 1000);
+    return noStore(aggregate(await store.all(topic.id)));
   } catch (err) {
     console.error("[votes] POST failed", err);
     return noStore({ error: "Could not record your vote." }, 500);

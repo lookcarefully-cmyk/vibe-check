@@ -1,0 +1,29 @@
+import type { Metadata } from "next";
+import { notFound } from "next/navigation";
+import Wavelength from "@/components/Wavelength";
+import { TOPICS, getTopic } from "@/lib/topics";
+
+// This page is only the shell — every vote number is fetched on the client
+// from /api/votes/[topic], which is itself force-dynamic. So prerendering the
+// four boards is safe and there is nothing here that can go stale.
+
+type Params = { params: Promise<{ topic: string }> };
+
+export function generateStaticParams() {
+  return TOPICS.map((t) => ({ topic: t.id }));
+}
+
+export async function generateMetadata({ params }: Params): Promise<Metadata> {
+  const topic = getTopic((await params).topic);
+  if (!topic) return {};
+  return {
+    title: `Wavelength — ${topic.question}`,
+    description: "A live consensus dial. Answer on the spectrum, then see the crowd's distribution.",
+  };
+}
+
+export default async function TopicPage({ params }: Params) {
+  const topic = getTopic((await params).topic);
+  if (!topic) notFound();
+  return <Wavelength topic={topic} />;
+}

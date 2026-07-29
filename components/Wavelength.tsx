@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import Dial, { type Phase } from "./Dial";
+import InfoDialog from "./InfoDialog";
 import TopicNav from "./TopicNav";
 import { BIN_COUNT, MARGIN_COVERAGE, type Aggregate } from "@/lib/aggregate";
 import { voteStorageKey, type Topic } from "@/lib/topics";
@@ -123,7 +124,11 @@ export default function Wavelength({ topic }: { topic: Topic }) {
       <TopicNav activeId={topic.id} refreshKey={navKey} />
 
       <header className="masthead">
-        <p className="kicker">Wavelength · public data collection</p>
+        {/* A div, not a p: it contains a <dialog>, which isn't phrasing content. */}
+        <div className="kicker">
+          <span className="kicker-text">Wavelength · public data collection</span>
+          <InfoDialog />
+        </div>
         <h1>{topic.question}</h1>
         <p className="lede">
           {isResult ? "You're on the board. Here's where everyone else landed." : topic.prompt}
@@ -200,10 +205,15 @@ export default function Wavelength({ topic }: { topic: Topic }) {
           </button>
         </section>
       ) : (
-        <p className="hint">
-          Keyboard: arrow keys to aim, Enter to submit. Your answer is stored anonymously.
-        </p>
+        <p className="hint">Keyboard: arrow keys to aim, Enter to submit.</p>
       )}
+
+      {/* Standing disclosure, so it's readable without opening the dialog. */}
+      <footer className="disclosure">
+        Anonymous: one number per answer, nothing linking it to you or to your other
+        answers. Aggregate results are used for writing on Substack.{" "}
+        <span className="disclosure-cue">Full details under the ? above.</span>
+      </footer>
     </main>
   );
 }

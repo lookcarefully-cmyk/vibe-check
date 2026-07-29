@@ -183,12 +183,217 @@ body::after {
   max-width: 42rem;
 }
 
+/* ------------------------------------------------ the "?" and its panel */
+
+.kicker {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.55rem;
+}
+
+.info-trigger {
+  flex: 0 0 auto;
+  width: 1.45rem;
+  height: 1.45rem;
+  border-radius: 50%;
+  border: 1px solid rgba(95, 211, 212, 0.55);
+  background: transparent;
+  color: var(--teal);
+  font: inherit;
+  font-size: 0.78rem;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: 0;
+  cursor: pointer;
+  transition: background 180ms ease, color 180ms ease, transform 180ms var(--ease-out);
+}
+
+.info-trigger:hover {
+  background: var(--teal);
+  color: var(--navy);
+  transform: scale(1.1);
+}
+
+.info-trigger:focus-visible {
+  outline: 2px solid var(--teal);
+  outline-offset: 2px;
+}
+
+.info-dialog {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  max-width: min(38rem, calc(100vw - 2rem));
+  max-height: min(86vh, 46rem);
+  color: var(--navy);
+}
+
+.info-dialog::backdrop {
+  background: rgba(6, 10, 32, 0.72);
+  backdrop-filter: blur(3px);
+}
+
+.info-panel {
+  background: var(--cream);
+  border: 5px solid var(--navy-mid);
+  border-radius: 22px;
+  padding: clamp(1.1rem, 3vw, 1.9rem);
+  overflow-y: auto;
+  max-height: inherit;
+  /* Body copy: explicitly undo the centred, tracked, uppercase display styles
+     that would otherwise cascade in from the page. */
+  text-align: left;
+  text-transform: none;
+  letter-spacing: normal;
+  color: var(--navy);
+  font-size: 0.95rem;
+  line-height: 1.55;
+}
+
+.info-panel:focus,
+.info-panel:focus-visible {
+  outline: none;
+}
+
+.info-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.4rem;
+}
+
+.info-panel h2 {
+  margin: 0;
+  font-size: clamp(1.25rem, 3.5vw, 1.6rem);
+  letter-spacing: -0.01em;
+}
+
+.info-close {
+  flex: 0 0 auto;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  border: 0;
+  background: var(--red);
+  color: #fff;
+  font-size: 1.35rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.info-close:focus-visible,
+.info-done:focus-visible {
+  outline: 2px solid var(--navy-mid);
+  outline-offset: 2px;
+}
+
+.info-panel section {
+  margin-top: 1.35rem;
+}
+
+.info-panel h3 {
+  margin: 0 0 0.4rem;
+  font-size: 0.72rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--teal-deep);
+}
+
+.info-panel p,
+.info-panel ul,
+.info-panel ol {
+  margin: 0 0 0.6rem;
+}
+
+.info-panel ul,
+.info-panel ol {
+  padding-left: 1.25rem;
+}
+
+.info-panel li {
+  margin-bottom: 0.4rem;
+}
+
+.info-panel strong {
+  font-weight: 700;
+}
+
+/* the legend for reading the dial */
+.info-key {
+  margin: 0 0 0.6rem;
+}
+
+.info-key dt {
+  font-weight: 800;
+  font-size: 0.8rem;
+  letter-spacing: 0.04em;
+  color: var(--red);
+  margin-top: 0.6rem;
+}
+
+.info-key dd {
+  margin: 0.1rem 0 0;
+}
+
+.info-note {
+  margin-top: 0.5rem;
+  padding: 0.6rem 0.8rem;
+  border-left: 3px solid var(--mustard);
+  background: rgba(16, 26, 74, 0.05);
+  border-radius: 0 8px 8px 0;
+  font-size: 0.88rem;
+}
+
+.info-done {
+  display: block;
+  width: 100%;
+  margin-top: 1.6rem;
+  padding: 0.75rem;
+  border: 0;
+  border-radius: 999px;
+  background: var(--navy-mid);
+  color: var(--cream);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.info-done:hover {
+  background: var(--red);
+}
+
+/* -------------------------------------------------- standing disclosure */
+
+.disclosure {
+  max-width: 40rem;
+  margin-top: 2.5rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.09);
+  font-size: 0.76rem;
+  line-height: 1.6;
+  color: rgba(242, 235, 218, 0.45);
+}
+
+.disclosure-cue {
+  color: var(--teal);
+  opacity: 0.75;
+}
+
+/*
+ * Tracking and uppercasing live on .kicker-text, not here: the "?" dialog is a
+ * child of this element, and display typography must not inherit into it.
+ */
 .kicker {
   margin: 0 0 0.5rem;
   font-size: clamp(0.65rem, 1.6vw, 0.8rem);
+  color: var(--teal);
+}
+
+.kicker-text {
   letter-spacing: 0.28em;
   text-transform: uppercase;
-  color: var(--teal);
 }
 
 .masthead h1 {

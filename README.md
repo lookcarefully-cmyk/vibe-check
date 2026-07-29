@@ -119,11 +119,36 @@ curve you'd expect.
 tab focus, so the distribution reshapes as new people answer. The nav tiles show
 each board's current average as a tiny needle, refreshed after every vote.
 
+### The "?" panel and the disclosure
+
+`components/InfoDialog.tsx` holds the how-to-play explanation, how to read the
+dial, and the data disclosure. It's a native `<dialog>` opened with
+`showModal()`, which gives focus trapping, an inert background and a styleable
+`::backdrop` for nothing. Two things there are deliberate:
+
+- **Escape is handled explicitly** rather than left to the browser's built-in
+  dialog behaviour, so closing works identically everywhere.
+- **No `aria-expanded` on the trigger.** That attribute is for disclosure
+  widgets and comboboxes, whose content sits beside the trigger in the DOM. A
+  button that opens a modal takes `aria-haspopup`; the dialog reports its own
+  open state.
+
+A one-line version of the disclosure sits permanently under the dial, so it's
+readable without opening anything.
+
+If the disclosure changes, keep it true to what the code does. Right now that
+is: one number appended per vote, no identifier of any kind, nothing linking a
+person's answers across boards, `localStorage` for your own answers only. The
+claim that answers can't be traced back holds precisely because no linking
+information is collected — not because anything is stripped later. Don't
+loosen that wording without changing the storage to match.
+
 ### Files
 
 | Path | Role |
 | --- | --- |
 | `lib/topics.ts` | **the board definitions — start here** |
+| `components/InfoDialog.tsx` | the "?" panel: how to play + data disclosure |
 | `app/[topic]/page.tsx` | a board |
 | `app/api/votes/[topic]/route.ts` | `GET` aggregate, `POST` a vote |
 | `app/api/summary/route.ts` | every board's average, for the nav tiles |

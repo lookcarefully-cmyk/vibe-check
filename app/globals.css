@@ -1,0 +1,449 @@
+:root {
+  --navy: #0a1238;
+  --navy-mid: #101a4a;
+  --cream: #f2ebda;
+  --teal: #5fd3d4;
+  --teal-deep: #2ea3ad;
+  --red: #e51d35;
+  --pink: #f291ac;
+  --mustard: #f2b138;
+  --mint: #9bd3a6;
+
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  background: var(--navy);
+  color: var(--cream);
+  font-family: ui-sans-serif, system-ui, "Helvetica Neue", Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+/* ------------------------------------------------------------ starfield */
+
+body::before,
+body::after {
+  content: "";
+  position: fixed;
+  inset: -25%;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* two parallax layers of dust, drifting at different speeds */
+body::before {
+  background-image:
+    radial-gradient(1.6px 1.6px at 12% 18%, rgba(255, 255, 255, 0.85), transparent),
+    radial-gradient(1.2px 1.2px at 32% 62%, rgba(255, 255, 255, 0.7), transparent),
+    radial-gradient(2px 2px at 68% 24%, rgba(255, 255, 255, 0.8), transparent),
+    radial-gradient(1.4px 1.4px at 84% 70%, rgba(255, 255, 255, 0.6), transparent),
+    radial-gradient(1.1px 1.1px at 52% 88%, rgba(255, 255, 255, 0.65), transparent),
+    radial-gradient(1.8px 1.8px at 8% 82%, rgba(255, 255, 255, 0.55), transparent),
+    radial-gradient(1.3px 1.3px at 92% 40%, rgba(255, 255, 255, 0.7), transparent),
+    radial-gradient(1.5px 1.5px at 44% 34%, rgba(255, 255, 255, 0.5), transparent);
+  background-size: 520px 520px;
+  animation: drift 140s linear infinite;
+}
+
+body::after {
+  background-image:
+    radial-gradient(1px 1px at 22% 44%, rgba(255, 255, 255, 0.6), transparent),
+    radial-gradient(1px 1px at 76% 12%, rgba(255, 255, 255, 0.5), transparent),
+    radial-gradient(1.2px 1.2px at 58% 76%, rgba(255, 255, 255, 0.45), transparent),
+    radial-gradient(1px 1px at 36% 6%, rgba(255, 255, 255, 0.5), transparent);
+  background-size: 310px 310px;
+  animation: drift 220s linear infinite reverse;
+  opacity: 0.75;
+}
+
+@keyframes drift {
+  to {
+    transform: translate3d(-520px, 260px, 0);
+  }
+}
+
+/* ---------------------------------------------------------- page layout */
+
+.shell {
+  position: relative;
+  z-index: 1;
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: clamp(1.5rem, 4vw, 3rem) clamp(1rem, 4vw, 2rem) 4rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(1rem, 2.5vw, 1.75rem);
+  text-align: center;
+}
+
+.masthead {
+  max-width: 42rem;
+}
+
+.kicker {
+  margin: 0 0 0.5rem;
+  font-size: clamp(0.65rem, 1.6vw, 0.8rem);
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--teal);
+}
+
+.masthead h1 {
+  margin: 0;
+  font-size: clamp(1.75rem, 5.5vw, 3.1rem);
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  font-weight: 800;
+}
+
+.lede {
+  margin: 0.75rem 0 0;
+  font-size: clamp(0.95rem, 2.2vw, 1.1rem);
+  color: rgba(242, 235, 218, 0.72);
+}
+
+.stage {
+  position: relative;
+  width: 100%;
+  max-width: 820px;
+  transition: opacity 250ms ease;
+}
+
+.stage.is-pending {
+  opacity: 0.85;
+  pointer-events: none;
+}
+
+.stage.is-flash .face {
+  filter: brightness(1.06);
+}
+
+/* ------------------------------------------------------------ the dial */
+
+.dial {
+  display: block;
+  width: 100%;
+  height: auto;
+  /* keep the dial inside the fold on short/wide screens */
+  max-height: 64vh;
+  overflow: visible;
+  touch-action: none;
+}
+
+.dial.is-choose {
+  cursor: crosshair;
+}
+
+.dial:focus-visible {
+  outline: 3px solid var(--teal);
+  outline-offset: 6px;
+  border-radius: 12px;
+}
+
+.face {
+  fill: var(--teal);
+  transition: fill 900ms var(--ease-out), filter 400ms ease;
+}
+
+.is-result .face {
+  fill: var(--cream);
+}
+
+.notch {
+  fill: var(--cream);
+  transition: fill 900ms var(--ease-out);
+}
+
+.is-choose .notch {
+  fill: var(--teal);
+}
+
+.scallop {
+  filter: drop-shadow(0 24px 60px rgba(0, 0, 0, 0.45));
+}
+
+.stars circle {
+  animation: twinkle 5.5s ease-in-out infinite;
+}
+
+@keyframes twinkle {
+  0%,
+  100% {
+    opacity: inherit;
+  }
+  50% {
+    opacity: 0.15;
+  }
+}
+
+/* the big percentage the viewer is currently aiming at */
+
+.readout-value {
+  fill: var(--navy-mid);
+  font-size: calc(108px * var(--t, 1));
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  /* stroked in the face colour so the aim line passes cleanly behind it */
+  stroke: var(--teal);
+  stroke-width: 18px;
+  stroke-linejoin: round;
+}
+
+.readout-caption {
+  fill: rgba(16, 26, 74, 0.7);
+  font-size: calc(24px * var(--t, 1));
+  font-weight: 700;
+  letter-spacing: 0.26em;
+  stroke: var(--teal);
+  stroke-width: 12px;
+  stroke-linejoin: round;
+}
+
+/* endpoint labels sit on the dial face, so they track the face colour */
+
+.end-label {
+  font-size: calc(25px * var(--te, 1));
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  transition: fill 900ms var(--ease-out);
+}
+
+.end-label.left {
+  fill: rgba(10, 18, 56, 0.62);
+}
+
+.end-label.right {
+  fill: var(--red);
+  opacity: 0.85;
+}
+
+.is-choose .end-label.right {
+  fill: rgba(10, 18, 56, 0.62);
+}
+
+/* rays burst outward from the hub, staggered from the centre */
+
+.ray {
+  transform-box: view-box;
+  transform-origin: 500px 500px;
+  animation: burst 900ms var(--ease-out) both;
+}
+
+@keyframes burst {
+  from {
+    transform: scale(0.04);
+    opacity: 0;
+  }
+  60% {
+    opacity: 1;
+  }
+  to {
+    transform: scale(1);
+  }
+}
+
+/* a mid-tone teal that holds up against both the teal and the cream face */
+.aim {
+  stroke: var(--teal-deep);
+  transition: opacity 600ms ease, stroke-width 600ms ease;
+}
+
+.is-result .aim {
+  opacity: 0.85;
+}
+
+.needle {
+  transform-box: view-box;
+  transform-origin: 500px 500px;
+  transition: transform 1100ms var(--ease-out), opacity 500ms ease 300ms;
+}
+
+.slider {
+  transition: opacity 700ms ease;
+}
+
+.slider.muted {
+  opacity: 0.32;
+}
+
+.rod,
+.handle {
+  transition: none;
+}
+
+.is-result .rod,
+.is-result .handle {
+  transition: all 700ms var(--ease-out);
+}
+
+.margin,
+.marker {
+  animation: fade-up 700ms var(--ease-out) 700ms both;
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.margin-label {
+  fill: var(--navy-mid);
+  font-size: calc(32px * var(--t, 1));
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  /* halo in the face colour so it stays legible over any ray */
+  stroke: var(--cream);
+  stroke-width: 9px;
+  stroke-linejoin: round;
+}
+
+.chip-text {
+  fill: #fff;
+  font-size: 23px;
+  font-weight: 800;
+  letter-spacing: 0.13em;
+}
+
+/* -------------------------------------------------------------- results */
+
+.results {
+  width: 100%;
+  max-width: 46rem;
+  animation: fade-up 700ms var(--ease-out) 400ms both;
+}
+
+.consensus {
+  margin: 0;
+  font-size: clamp(1.5rem, 4.5vw, 2.4rem);
+  font-weight: 700;
+}
+
+.consensus strong {
+  color: var(--red);
+  font-weight: 800;
+}
+
+.margin-copy {
+  margin: 0.5rem 0 0;
+  font-size: clamp(0.9rem, 2.2vw, 1.05rem);
+  color: rgba(242, 235, 218, 0.75);
+}
+
+.margin-copy strong {
+  color: var(--mustard);
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.75rem;
+  margin: 1.75rem 0 0;
+  padding: 0;
+}
+
+.stats > div {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 14px;
+  padding: 0.85rem 0.5rem;
+}
+
+.stats dt {
+  font-size: 0.62rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(242, 235, 218, 0.55);
+}
+
+.stats dd {
+  margin: 0.35rem 0 0;
+  font-size: clamp(1rem, 3vw, 1.4rem);
+  font-weight: 800;
+}
+
+.thin-data {
+  margin: 1rem 0 0;
+  font-size: 0.85rem;
+  color: var(--mustard);
+}
+
+.reset,
+.hint {
+  margin-top: 1.5rem;
+}
+
+.reset {
+  background: transparent;
+  border: 1px solid rgba(242, 235, 218, 0.3);
+  color: var(--cream);
+  border-radius: 999px;
+  padding: 0.6rem 1.4rem;
+  font: inherit;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: background 200ms ease, border-color 200ms ease;
+}
+
+.reset:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: var(--teal);
+}
+
+.hint {
+  font-size: 0.8rem;
+  color: rgba(242, 235, 218, 0.45);
+}
+
+.error {
+  color: #ffb3bd;
+  background: rgba(229, 29, 53, 0.16);
+  border: 1px solid rgba(229, 29, 53, 0.4);
+  border-radius: 10px;
+  padding: 0.6rem 1rem;
+  font-size: 0.9rem;
+}
+
+/* ----------------------------------------------------------- responsive */
+
+@media (max-width: 640px) {
+  .stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .dial {
+    max-height: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body::before,
+  body::after,
+  .stars circle {
+    animation: none;
+  }
+  .ray,
+  .margin,
+  .marker,
+  .results {
+    animation-duration: 1ms;
+    animation-delay: 0ms;
+  }
+  .needle,
+  .face {
+    transition-duration: 1ms;
+  }
+}

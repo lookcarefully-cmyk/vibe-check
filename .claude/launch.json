@@ -1,0 +1,14 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "wavelength",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev"],
+      "port": 3210,
+      "env": {
+        "PATH": "/Users/willkeller/.local/node/bin:/usr/local/bin:/usr/bin:/bin"
+      }
+    }
+  ]
+}

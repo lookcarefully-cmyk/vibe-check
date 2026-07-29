@@ -18,11 +18,18 @@ board, its route, its nav tile, and its store — no other file needs touching.
 
 ## Running it
 
+**Double-click `Start Wavelength.command` in Finder.** It opens a Terminal
+window, starts the server, and opens the site in your browser. Leave that
+Terminal window open while you're using it — closing it stops the server.
+
+Or from a terminal:
+
 ```bash
 npm install && npm run dev
 ```
 
-Then open http://localhost:3210.
+Either way it lives at http://localhost:3210. It runs on this machine only;
+nobody else can reach it until it's deployed (see Deploying, below).
 
 ## How it works
 

@@ -66,17 +66,38 @@ export const TOPICS: Topic[] = [
     rightLabel: "HEALTHY",
   },
   {
-    // Cigarettes: a product whose harms proved real. Comic books: a 1950s
-    // panic that looks quaint in hindsight. The axis asks which precedent
-    // this era's worry will resemble — so cigarettes is the negative pole.
+    /*
+     * THE VAGUENESS IS THE POINT. Do not add explanatory copy to this board.
+     *
+     * It's a trap item. The hypothesis is that people will rate shortform
+     * social media as highly addictive AND place it nearer comic books — the
+     * moral panic that turned out to be nothing — than cigarettes. Holding both
+     * positions at once is evidence that the public's "addictive" is a
+     * colloquial intensifier, not the clinical construct.
+     *
+     * Any prompt that spells out what cigarettes and comic books stand for
+     * tells respondents which answer is consistent, and a respondent who spots
+     * the inconsistency will resolve it. That destroys the measurement. Leave
+     * the framing to the reader.
+     */
     id: "social-cigarettes",
     subject: "Shortform social media",
     axis: "Cigarettes or comics?",
-    // Kept short: as an h1 the longer phrasing ran to three lines and pushed
-    // the dial below the fold. The time horizon lives in the prompt instead.
-    question: "Shortform social media: cigarettes or comic books?",
-    prompt:
-      "In fifty years — cigarettes, whose harms proved real, or comic books, whose panic looks quaint? Where will this land?",
+    question: "Is shortform social media more akin to cigarettes or comic books?",
+    prompt: "Slide to your answer and click anywhere on the dial to lock it in.",
+    leftLabel: "CIGARETTES",
+    rightLabel: "COMIC BOOKS",
+  },
+  {
+    // The same trap on a second subject. See social-cigarettes above — the
+    // vagueness is deliberate, and the same warning applies: no explanatory
+    // copy. If the dissociation shows up for one subject and not the other,
+    // that contrast is more interesting than either result alone.
+    id: "porn-cigarettes",
+    subject: "Internet porn",
+    axis: "Cigarettes or comics?",
+    question: "Is internet porn more akin to cigarettes or comic books?",
+    prompt: "Slide to your answer and click anywhere on the dial to lock it in.",
     leftLabel: "CIGARETTES",
     rightLabel: "COMIC BOOKS",
   },

@@ -9,14 +9,24 @@ are much cheaper to change now than after real answers exist.
 ## The hypothesis on the table
 
 **H1.** The public's "addictive" is a colloquial intensifier, not the clinical
-construct. People will rate shortform social media as highly addictive *and*
-place it nearer comic books — the moral panic that amounted to nothing — than
-cigarettes. Holding both positions at once is the evidence.
+construct. Clinical addiction *requires* impairment; colloquial "addictive" only
+means hard to stop. So the question is how two judgements intertwine in lay
+reasoning: **how addictive** something is, and **how harmful** it is.
 
-The cigarettes/comic-books board is the trap. Its vagueness is load-bearing:
-explain what the two poles stand for and you tell the respondent which answer is
-consistent, and anyone who notices the tension will resolve it. That's why the
-prompt is now the same generic one as every other board.
+If lay "addictive" carried the clinical meaning, the two would move together —
+calling something addictive would imply calling it harmful. **Weak coupling
+between them is the finding.**
+
+That makes the primary measure a within-person correlation, not an average.
+"Average addictiveness is 78%" and "average harm is 30%" says nothing about
+whether the same people hold both views.
+
+**Sign convention, because it is easy to get backwards.** Every board puts the
+negative pole at 0 — addictive, harmful, cigarettes. So two people-consistent
+judgements move the same way, and **consistency is a POSITIVE correlation**:
+someone scoring low on addictiveness (very addictive) also scoring low on health
+(harmful). H1 predicts that correlation is *weak*. A strong positive r would be
+evidence against it.
 
 ---
 
@@ -140,36 +150,39 @@ everything, then offer the rest as a browsable grid.
 
 ### Core run — everyone, fixed order, no results until the end
 
-Three constructs, one per board, all about shortform social media:
-
-| # | Construct | Board | Poles |
+| # | Role | Board | Poles |
 | --- | --- | --- | --- |
-| 1 | Addictiveness | `social-addictive` | ADDICTIVE ↔ NOT ADDICTIVE *(anchored: like gambling / like watching paint dry)* |
-| 2 | Destructive potential | `social-destructive` | CIGARETTES ↔ EXERCISE |
-| 3 | Health impact | `social-healthy` | HARMFUL ↔ HEALTHY |
+| 1 | Component: addictiveness | `social-addictive` | ADDICTIVE ↔ NOT ADDICTIVE *(anchored: like gambling / like watching paint dry)* |
+| 2 | Component: health impact | `social-healthy` | HARMFUL ↔ HEALTHY |
+| 3 | **Interaction** | `social-destructive` | CIGARETTES ↔ EXERCISE |
 
-**Why destructiveness replaced cigarettes-vs-comic-books.** The old item asked
-which precedent history would judge this to resemble — partly a prediction about
-*society's* future verdict rather than the respondent's own view. Destructiveness
-asks directly: given that it's compelling, is the compulsion damaging? That is a
-tighter test, because clinical addiction *requires* impairment. Calling something
-highly addictive and then calling the habit exercise-like states
-compelling-but-harmless, which is exactly not the clinical construct.
+**Board 3 is not a third construct.** Both its poles are compelling habits, so it
+holds "hard to stop" roughly constant and varies only health valence: cigarettes
+are addictive-and-harmful, exercise is addictive-and-healthy. Exercise is the
+canonical thing people call addictive in the non-clinical sense — which is
+exactly why it belongs there. Someone placing shortform video near exercise has
+said compelling but fine.
 
-The comic-books item survives as an optional board. It's a good question about
-moral panics; it just isn't the cleanest test of H1.
+So there are two readings of the same question. Boards 1 and 2 give it as a
+correlation; board 3 gives it as a forced choice. Agreement between the two is a
+consistency check; disagreement is itself interesting.
 
-**Order.** Addictive first, destructive immediately after — that pair is the
-whole of H1 and its direction is load-bearing. Health goes last so it can't
-prime either. The run enforces this on entry: arriving on a later core board
-from a shared link redirects to the one you should be on, so nobody can run the
-sequence backwards.
+**Order.** Components first, composite last — a composite asked first would prime
+the parts it's made of.
 
-**Known weakness in board 2.** Exercise is also *healthy*, so an answer there may
-partly reflect a health judgement — which is board 3's job. If boards 2 and 3
-come back nearly identical, that's the likely cause. A benign-but-not-virtuous
-pole ("a coffee habit") would separate the constructs at some cost in vividness.
-Recorded in the code so it isn't rediscovered later.
+Boards 1 and 2 being adjacent does invite people to answer them consistently,
+which would inflate the correlation and therefore bias *against* H1. That is the
+right direction to be wrong in: finding weak coupling despite a layout nudging
+toward consistency is harder to dismiss than finding it in a design tuned to
+produce it.
+
+The run enforces order on entry, so arriving on a later board from a shared link
+redirects rather than running the sequence out of order.
+
+**Residual caveat on board 3.** Cigarettes and exercise differ on more than
+health: substance vs behaviour, stigmatised vs virtuous, physiologically
+dependence-forming vs not. An answer can pick up any of those. The pairing
+controls for compellingness, not for everything.
 
 ### Second set — optional, browsable, order doesn't matter
 

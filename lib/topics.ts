@@ -30,29 +30,30 @@ export interface Topic {
    * Optional reference points printed on the dial face, to give the scale an
    * external referent — "78% addictive" means nothing without one.
    *
-   * NEVER anchor an addictive scale with cigarettes, nicotine or opioids. The
-   * trap boards' left pole is CIGARETTES, and naming it here one screen earlier
-   * welds the two scales together, suppressing the very dissociation being
-   * measured. A null result would then be uninterpretable: no dissociation, or
-   * primed away?
+   * NEVER anchor an addictive scale with cigarettes, nicotine or opioids.
+   * CIGARETTES is a pole of the interaction item, and naming it here one screen
+   * earlier welds the two scales together, suppressing the very dissociation
+   * being measured. A null result would then be uninterpretable: no
+   * dissociation, or primed away?
    *
-   * The trap boards get no anchors at all. Their vagueness is the mechanism.
+   * The cigarettes-poled boards get no anchors at all. Their vagueness is the
+   * mechanism.
    */
   anchors?: { left: string; right: string };
   /**
    * Position in the guided run, 1-based. Boards without this are optional and
    * browsable in any order.
    *
-   * Order matters: the target must come before the trap, because the
-   * dissociation being measured is "says addictive, then says comic books".
-   * Reversed, it measures something else.
+   * Order is deliberate: the two component constructs (addictiveness, health
+   * impact) are measured first, then the item that combines them. A composite
+   * asked first would prime the parts it is made of.
    */
   core?: number;
 }
 
 export const TOPICS: Topic[] = [
   {
-    // Construct 2 of 3: addictiveness. First in the run.
+    // Addictiveness. First in the run.
     id: "social-addictive",
     subject: "Shortform social media",
     axis: "Addictive?",
@@ -73,8 +74,20 @@ export const TOPICS: Topic[] = [
     rightLabel: "NOT ADDICTIVE",
   },
   {
-    // Construct 1 of 3: health impact. Last in the run so it can't prime the
-    // addictive -> destructive pair, which is the comparison H1 rests on.
+    /*
+     * Health impact. Second in the run.
+     *
+     * Its relationship with social-addictive IS the finding: if lay "addictive"
+     * carried the clinical meaning, calling something addictive would imply
+     * calling it harmful, and the two would move together. Weak coupling is the
+     * evidence that "addictive" is being used as an intensifier.
+     *
+     * Sitting next to social-addictive invites people to answer the two
+     * consistently, which would inflate that correlation — i.e. bias AGAINST
+     * the hypothesis. That is the right direction to be wrong in: finding the
+     * dissociation despite a layout that nudges toward consistency makes it
+     * harder to dismiss.
+     */
     id: "social-healthy",
     subject: "Shortform social media",
     axis: "Harmful?",
@@ -82,7 +95,7 @@ export const TOPICS: Topic[] = [
     prompt: "Slide to your answer and click anywhere on the dial to lock it in.",
     leftLabel: "HARMFUL",
     rightLabel: "HEALTHY",
-    core: 3,
+    core: 2,
   },
   {
     id: "porn-healthy",
@@ -138,23 +151,23 @@ export const TOPICS: Topic[] = [
   },
   {
     /*
-     * Construct 3 of 3, and the trap. THE VAGUENESS IS THE POINT — no
-     * explanatory copy, for the same reason as social-cigarettes.
+     * The interaction item. THE VAGUENESS IS THE POINT — no explanatory copy,
+     * for the same reason as social-cigarettes.
      *
-     * Clinical addiction requires impairment; colloquial "addictive" only means
-     * hard to stop. So this asks the destructiveness question directly: given
-     * that it's compelling, is the compulsion damaging? Someone who calls
-     * shortform video highly addictive and then calls the habit exercise-like
-     * has said compelling-but-harmless, which is not the clinical construct.
+     * Not a third construct. Both poles are compelling habits, so this holds
+     * "hard to stop" roughly constant and varies only the health valence:
+     * cigarettes are addictive-and-harmful, exercise is addictive-and-healthy.
+     * Someone placing shortform video near exercise has said compelling but
+     * fine — which is the whole question, since clinical addiction requires
+     * impairment and colloquial "addictive" only means hard to stop.
      *
-     * It sits immediately after the addictive board on purpose. That pair is
-     * the whole of H1 and its order is load-bearing.
+     * It runs LAST, after both components have been measured separately. A
+     * composite item asked first would prime the parts it is made of.
      *
-     * KNOWN WEAKNESS: exercise is also healthy, so an answer here may partly
-     * reflect a health judgement rather than a destructiveness one — which is
-     * construct 1's job. If addictive/destructive and harmful/healthy turn out
-     * near-identical, that's the likely reason, and a benign-but-not-virtuous
-     * pole ("a coffee habit") would separate them.
+     * Residual caveat: cigarettes and exercise differ on more than health —
+     * substance vs behaviour, stigmatised vs virtuous, physiologically
+     * dependence-forming vs not. An answer here can pick up any of those. The
+     * pairing controls for compellingness, not for everything.
      */
     id: "social-destructive",
     subject: "Shortform social media",
@@ -163,7 +176,7 @@ export const TOPICS: Topic[] = [
     prompt: "Slide to your answer and click anywhere on the dial to lock it in.",
     leftLabel: "CIGARETTES",
     rightLabel: "EXERCISE",
-    core: 2,
+    core: 3,
   },
   {
     // The same trap on a second subject. See social-cigarettes above — the

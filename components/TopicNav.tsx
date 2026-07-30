@@ -3,15 +3,24 @@
 import { useEffect, useState } from "react";
 import MiniBoard from "./MiniBoard";
 import type { TopicSummary } from "@/app/api/summary/route";
-import { TOPICS, voteStorageKey } from "@/lib/topics";
+import { OPTIONAL_TOPICS, voteStorageKey, type Topic } from "@/lib/topics";
 
 interface TopicNavProps {
   activeId: string;
   /** Bumped by the parent after a vote lands, to refresh the tiles. */
   refreshKey: number;
+  /**
+   * Which boards to show. Defaults to the optional ones: the core boards are
+   * the guided run, and listing them here shows the same questions twice.
+   */
+  topics?: Topic[];
 }
 
-export default function TopicNav({ activeId, refreshKey }: TopicNavProps) {
+export default function TopicNav({
+  activeId,
+  refreshKey,
+  topics = OPTIONAL_TOPICS,
+}: TopicNavProps) {
   const [summary, setSummary] = useState<TopicSummary[]>([]);
   const [answered, setAnswered] = useState<Set<string>>(new Set());
 
@@ -20,7 +29,7 @@ export default function TopicNav({ activeId, refreshKey }: TopicNavProps) {
     // server never renders a revealed average into the HTML.
     setAnswered(
       new Set(
-        TOPICS.filter((t) => window.localStorage.getItem(voteStorageKey(t.id)) !== null).map(
+        topics.filter((t) => window.localStorage.getItem(voteStorageKey(t.id)) !== null).map(
           (t) => t.id,
         ),
       ),
@@ -38,11 +47,11 @@ export default function TopicNav({ activeId, refreshKey }: TopicNavProps) {
     return () => {
       cancelled = true;
     };
-  }, [refreshKey]);
+  }, [refreshKey, topics]);
 
   return (
     <nav className="topic-nav" aria-label="Boards">
-      {TOPICS.map((topic) => {
+      {topics.map((topic) => {
         const s = summary.find((x) => x.id === topic.id);
         const isAnswered = answered.has(topic.id);
         return (

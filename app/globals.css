@@ -419,6 +419,16 @@ body::after {
   text-decoration: none;
 }
 
+.board-index-run {
+  margin: 0.5rem 0 0;
+  font-size: 0.9rem;
+  color: rgba(242, 235, 218, 0.6);
+}
+
+.board-index-run a {
+  color: var(--teal);
+}
+
 /* -------------------------------------------------- standing disclosure */
 
 .disclosure {

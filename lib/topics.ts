@@ -70,7 +70,6 @@ export const TOPICS: Topic[] = [
     prompt: "Slide to your answer and click anywhere on the dial to lock it in.",
     leftLabel: "ADDICTIVE",
     rightLabel: "NOT ADDICTIVE",
-    anchors: { left: "like gambling", right: "like watching paint dry" },
   },
   {
     id: "social-healthy",
@@ -197,3 +196,10 @@ export const CORE_TOPICS: Topic[] = TOPICS.filter((t) => t.core !== undefined).s
 );
 
 export const isCore = (topic: Topic): boolean => topic.core !== undefined;
+
+/**
+ * Everything outside the guided run. The browse grid shows only these — the
+ * core boards are the run, and listing them again presents the same questions
+ * twice.
+ */
+export const OPTIONAL_TOPICS: Topic[] = TOPICS.filter((t) => t.core === undefined);

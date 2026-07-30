@@ -26,31 +26,59 @@ const STORE_VERSION = "v4";
  * THESE ARE NOT FINDINGS.
  *
  * Every board runs negative-on-the-left: 0 = addictive / harmful / cigarettes,
- * 1 = not addictive / healthy / comic books. So a board where opinion leans
- * negative has a LOW mean.
+ * 1 = not addictive / healthy / coffee. So a board where opinion leans negative
+ * has a LOW mean.
  */
 const SHAPES = {
   "social-addictive": { mean: 0.22, sd: 0.13 },
-  "porn-addictive": { mean: 0.28, sd: 0.17 },
-  "social-healthy": { mean: 0.27, sd: 0.15 },
-  "porn-healthy": { mean: 0.22, sd: 0.16 },
+  "social-healthy": { mean: 0.45, sd: 0.18 },
+  "social-coffee": { mean: 0.62, sd: 0.2 },
   "social-cigarettes": { mean: 0.55, sd: 0.2 },
+  "social-disorder": { mean: 0.6, sd: 0.19 },
+  "porn-addictive": { mean: 0.28, sd: 0.17 },
+  "porn-healthy": { mean: 0.22, sd: 0.16 },
   "porn-cigarettes": { mean: 0.45, sd: 0.2 },
   "social-polarizing": { mean: 0.18, sd: 0.14 },
   "social-society": { mean: 0.3, sd: 0.18 },
   "porn-society": { mean: 0.26, sd: 0.17 },
 };
 
+/*
+ * Fail loudly when a board exists without a shape. The seeder has silently
+ * drifted out of step with lib/topics.ts before — it kept writing v3 files of
+ * bare numbers after the record format changed, and produced nothing at all
+ * while reporting success. Reading the ids straight from the source means a new
+ * board breaks this immediately rather than being quietly skipped.
+ */
+const topicsSource = await fs.readFile(
+  path.join(process.cwd(), "lib", "topics.ts"),
+  "utf8",
+);
+const declaredIds = [...topicsSource.matchAll(/^\s{4}id: "([a-z-]+)",$/gm)].map((m) => m[1]);
+if (declaredIds.length === 0) {
+  console.error("Could not read any board ids from lib/topics.ts.");
+  process.exit(1);
+}
+const missing = declaredIds.filter((id) => !(id in SHAPES));
+const extra = Object.keys(SHAPES).filter((id) => !declaredIds.includes(id));
+if (missing.length || extra.length) {
+  if (missing.length) console.error("Boards with no shape in this script:", missing.join(", "));
+  if (extra.length) console.error("Shapes for boards that no longer exist:", extra.join(", "));
+  console.error("Update SHAPES in scripts/seed.mjs to match lib/topics.ts.");
+  process.exit(1);
+}
+
 /**
  * The hypothesis, written as data: someone who calls shortform social media
- * highly addictive (a LOW score) also leans toward comic books (a HIGH score).
- * That's a negative within-person relationship between the two boards, and it's
- * the thing the real analysis has to be able to detect.
+ * highly addictive (a LOW score) also leans toward the harmless pole (a HIGH
+ * score). That's a negative within-person relationship, and it's the thing the
+ * real analysis has to be able to detect.
  *
  * Seeding it means a wrong analysis shows up as "no effect in data that
  * definitely contains one" rather than passing quietly.
  */
 const TRAP_PAIRS = [
+  ["social-addictive", "social-coffee"],
   ["social-addictive", "social-cigarettes"],
   ["porn-addictive", "porn-cigarettes"],
 ];

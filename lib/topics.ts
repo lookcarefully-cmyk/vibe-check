@@ -154,28 +154,38 @@ export const TOPICS: Topic[] = [
      * The interaction item. THE VAGUENESS IS THE POINT — no explanatory copy,
      * for the same reason as social-cigarettes.
      *
-     * Not a third construct. Both poles are compelling habits, so this holds
-     * "hard to stop" roughly constant and varies only the health valence:
-     * cigarettes are addictive-and-harmful, exercise is addictive-and-healthy.
-     * Someone placing shortform video near exercise has said compelling but
-     * fine — which is the whole question, since clinical addiction requires
-     * impairment and colloquial "addictive" only means hard to stop.
+     * Not a third construct. Both poles are compelling daily habits, so this
+     * holds "hard to stop" roughly constant and varies mainly the health
+     * valence: cigarettes wreck you, coffee doesn't. Someone placing shortform
+     * video near coffee has said compelling but fine — which is the whole
+     * question, since clinical addiction requires impairment and colloquial
+     * "addictive" only means hard to stop.
+     *
+     * Coffee rather than exercise, deliberately. Exercise carries a virtue
+     * halo, so choosing it can express "it's actively good for you" rather than
+     * "the compulsion is harmless" — an over-strong positive that drags the
+     * item back toward board 2's construct. Coffee is health-neutral, and it is
+     * the most common non-clinical use of the word addicted there is.
+     *
+     * It is also a far better matched pair. Cigarettes vs exercise differed on
+     * substance vs behaviour, stigma, and physiological dependence all at once.
+     * Cigarettes vs coffee holds those roughly constant — both substances, both
+     * daily rituals, both legal, both genuinely dependence-forming (caffeine
+     * withdrawal is in the DSM). What mainly differs is the harm.
+     *
+     * Named for its poles, like social-cigarettes, rather than for the construct:
+     * a URL reading "/social-destructive" telegraphs the answer being looked for.
      *
      * It runs LAST, after both components have been measured separately. A
      * composite item asked first would prime the parts it is made of.
-     *
-     * Residual caveat: cigarettes and exercise differ on more than health —
-     * substance vs behaviour, stigmatised vs virtuous, physiologically
-     * dependence-forming vs not. An answer here can pick up any of those. The
-     * pairing controls for compellingness, not for everything.
      */
-    id: "social-destructive",
+    id: "social-coffee",
     subject: "Shortform social media",
-    axis: "Destructive?",
-    question: "Is compulsive shortform scrolling more like a cigarette habit or an exercise habit?",
+    axis: "Cigarettes or coffee?",
+    question: "Is compulsive shortform scrolling more like a cigarette habit or a coffee habit?",
     prompt: "Slide to your answer and click anywhere on the dial to lock it in.",
     leftLabel: "CIGARETTES",
-    rightLabel: "EXERCISE",
+    rightLabel: "COFFEE",
     core: 3,
   },
   {

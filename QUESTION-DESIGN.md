@@ -154,14 +154,24 @@ everything, then offer the rest as a browsable grid.
 | --- | --- | --- | --- |
 | 1 | Component: addictiveness | `social-addictive` | ADDICTIVE ↔ NOT ADDICTIVE *(anchored: like gambling / like watching paint dry)* |
 | 2 | Component: health impact | `social-healthy` | HARMFUL ↔ HEALTHY |
-| 3 | **Interaction** | `social-destructive` | CIGARETTES ↔ EXERCISE |
+| 3 | **Interaction** | `social-coffee` | CIGARETTES ↔ COFFEE |
 
-**Board 3 is not a third construct.** Both its poles are compelling habits, so it
-holds "hard to stop" roughly constant and varies only health valence: cigarettes
-are addictive-and-harmful, exercise is addictive-and-healthy. Exercise is the
-canonical thing people call addictive in the non-clinical sense — which is
-exactly why it belongs there. Someone placing shortform video near exercise has
-said compelling but fine.
+**Board 3 is not a third construct.** Both its poles are compelling daily
+habits, so it holds "hard to stop" roughly constant and varies mainly the health
+valence: cigarettes wreck you, coffee doesn't. Someone placing shortform video
+near coffee has said compelling but fine.
+
+**Coffee rather than exercise.** Exercise carries a virtue halo, so choosing it
+can express "it's actively good for you" rather than "the compulsion is
+harmless" — an over-strong positive that drags the item back toward board 2's
+construct. Coffee is health-neutral, and "I'm addicted to coffee" is the most
+common non-clinical use of the word there is.
+
+It is also far better matched. Cigarettes vs exercise differed on substance vs
+behaviour, stigma, and physiological dependence all at once. Cigarettes vs
+coffee holds those roughly constant — both substances, both daily rituals, both
+legal, both genuinely dependence-forming (caffeine withdrawal is in the DSM).
+What mainly differs is the harm, which is the one thing the item should vary.
 
 So there are two readings of the same question. Boards 1 and 2 give it as a
 correlation; board 3 gives it as a forced choice. Agreement between the two is a
@@ -179,10 +189,20 @@ produce it.
 The run enforces order on entry, so arriving on a later board from a shared link
 redirects rather than running the sequence out of order.
 
-**Residual caveat on board 3.** Cigarettes and exercise differ on more than
-health: substance vs behaviour, stigmatised vs virtuous, physiologically
-dependence-forming vs not. An answer can pick up any of those. The pairing
-controls for compellingness, not for everything.
+**That enforcement is client-side only.** The server accepts a vote on any board
+regardless of run state, so anyone clearing their storage, or posting to the API
+directly, can answer out of order or skip boards. Making it server-enforced
+would mean tracking run progress per session on the server, which is more
+machinery than this is worth.
+
+The mitigation is analytical, and it's the same filter the analysis already
+needs: **join on session id and keep only complete runs.** Partial and
+out-of-order sessions are visible as such and get dropped. Report the completion
+rate alongside the result — it's a fair question and you'll have the answer.
+
+**Residual caveat on board 3.** Cigarettes are stigmatised in a way coffee
+isn't, so some of the signal is social disapproval rather than perceived harm.
+Much smaller than the exercise version's problem, but not zero.
 
 ### Second set — optional, browsable, order doesn't matter
 

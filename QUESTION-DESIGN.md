@@ -140,22 +140,36 @@ everything, then offer the rest as a browsable grid.
 
 ### Core run — everyone, fixed order, no results until the end
 
-| # | Board | Role |
-| --- | --- | --- |
-| 1 | Is shortform social media addictive? *(dial labelled gambling ↔ watching paint dry)* | **target** |
-| 2 | Is shortform social media more akin to cigarettes or comic books? | **the trap** |
-| 3 | Should compulsive shortform video use be a diagnosable condition? | clinical frame |
+Three constructs, one per board, all about shortform social media:
 
-Items 1 and 2 are the whole of H1. Item 3 makes the dissociation explicit rather
-than inferred: someone who calls it addictive and says it shouldn't be
-diagnosable has stated it outright, no inference needed.
+| # | Construct | Board | Poles |
+| --- | --- | --- | --- |
+| 1 | Addictiveness | `social-addictive` | ADDICTIVE ↔ NOT ADDICTIVE *(anchored: like gambling / like watching paint dry)* |
+| 2 | Destructive potential | `social-destructive` | CIGARETTES ↔ EXERCISE |
+| 3 | Health impact | `social-healthy` | HARMFUL ↔ HEALTHY |
 
-Three items, not five. The gambling and crossword anchors became dial labels
-rather than boards, which is what bought the room to keep this short.
+**Why destructiveness replaced cigarettes-vs-comic-books.** The old item asked
+which precedent history would judge this to resemble — partly a prediction about
+*society's* future verdict rather than the respondent's own view. Destructiveness
+asks directly: given that it's compelling, is the compulsion damaging? That is a
+tighter test, because clinical addiction *requires* impairment. Calling something
+highly addictive and then calling the habit exercise-like states
+compelling-but-harmless, which is exactly not the clinical construct.
 
-Order is fixed and matters: the target comes before the trap, because the
-dissociation is "says addictive, then says comic books." Reversing it measures
-something else.
+The comic-books item survives as an optional board. It's a good question about
+moral panics; it just isn't the cleanest test of H1.
+
+**Order.** Addictive first, destructive immediately after — that pair is the
+whole of H1 and its direction is load-bearing. Health goes last so it can't
+prime either. The run enforces this on entry: arriving on a later core board
+from a shared link redirects to the one you should be on, so nobody can run the
+sequence backwards.
+
+**Known weakness in board 2.** Exercise is also *healthy*, so an answer there may
+partly reflect a health judgement — which is board 3's job. If boards 2 and 3
+come back nearly identical, that's the likely cause. A benign-but-not-virtuous
+pole ("a coffee habit") would separate the constructs at some cost in vividness.
+Recorded in the code so it isn't rediscovered later.
 
 ### Second set — optional, browsable, order doesn't matter
 

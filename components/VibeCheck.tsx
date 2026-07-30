@@ -77,9 +77,16 @@ export default function VibeCheck({ topic }: { topic: Topic }) {
     const saved = window.localStorage.getItem(storageKey);
     const midRun = isCore(topic) && !state.complete;
 
-    if (midRun && saved !== null) {
-      // Already answered this one but the run isn't finished. Revealing here
-      // would contaminate the boards still to come, so move them along instead.
+    if (midRun && state.next && topic.id !== state.next.id) {
+      /*
+       * Not the board they should be on. Two ways to get here: revisiting one
+       * already answered, or arriving on a later core board from a shared link.
+       *
+       * The second is why this checks position rather than just "answered".
+       * Landing on board 2 first would run the sequence 2 -> 1 -> 3, and the
+       * order is load-bearing: the dissociation is "says addictive, THEN says
+       * the habit is harmless". Reversed, it measures something else.
+       */
       router.replace(nextHref(state));
       return;
     }
@@ -178,7 +185,7 @@ export default function VibeCheck({ topic }: { topic: Topic }) {
     <main className="shell">
       {midRun ? (
         <p className="run-progress">
-          Question {(run?.answeredCount ?? 0) + 1} of {run?.total ?? 0}
+          Question {topic.core} of {run?.total ?? 0}
         </p>
       ) : (
         <TopicNav activeId={topic.id} refreshKey={navKey} />

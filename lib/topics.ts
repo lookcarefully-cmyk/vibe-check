@@ -52,6 +52,7 @@ export interface Topic {
 
 export const TOPICS: Topic[] = [
   {
+    // Construct 2 of 3: addictiveness. First in the run.
     id: "social-addictive",
     subject: "Shortform social media",
     axis: "Addictive?",
@@ -72,6 +73,8 @@ export const TOPICS: Topic[] = [
     rightLabel: "NOT ADDICTIVE",
   },
   {
+    // Construct 1 of 3: health impact. Last in the run so it can't prime the
+    // addictive -> destructive pair, which is the comparison H1 rests on.
     id: "social-healthy",
     subject: "Shortform social media",
     axis: "Harmful?",
@@ -79,6 +82,7 @@ export const TOPICS: Topic[] = [
     prompt: "Slide to your answer and click anywhere on the dial to lock it in.",
     leftLabel: "HARMFUL",
     rightLabel: "HEALTHY",
+    core: 3,
   },
   {
     id: "porn-healthy",
@@ -111,7 +115,6 @@ export const TOPICS: Topic[] = [
     prompt: "Slide to your answer and click anywhere on the dial to lock it in.",
     leftLabel: "CIGARETTES",
     rightLabel: "COMIC BOOKS",
-    core: 2,
   },
   {
     /*
@@ -132,7 +135,35 @@ export const TOPICS: Topic[] = [
     prompt: "Slide to your answer and click anywhere on the dial to lock it in.",
     leftLabel: "REAL DISORDER",
     rightLabel: "JUST A HABIT",
-    core: 3,
+  },
+  {
+    /*
+     * Construct 3 of 3, and the trap. THE VAGUENESS IS THE POINT — no
+     * explanatory copy, for the same reason as social-cigarettes.
+     *
+     * Clinical addiction requires impairment; colloquial "addictive" only means
+     * hard to stop. So this asks the destructiveness question directly: given
+     * that it's compelling, is the compulsion damaging? Someone who calls
+     * shortform video highly addictive and then calls the habit exercise-like
+     * has said compelling-but-harmless, which is not the clinical construct.
+     *
+     * It sits immediately after the addictive board on purpose. That pair is
+     * the whole of H1 and its order is load-bearing.
+     *
+     * KNOWN WEAKNESS: exercise is also healthy, so an answer here may partly
+     * reflect a health judgement rather than a destructiveness one — which is
+     * construct 1's job. If addictive/destructive and harmful/healthy turn out
+     * near-identical, that's the likely reason, and a benign-but-not-virtuous
+     * pole ("a coffee habit") would separate them.
+     */
+    id: "social-destructive",
+    subject: "Shortform social media",
+    axis: "Destructive?",
+    question: "Is compulsive shortform scrolling more like a cigarette habit or an exercise habit?",
+    prompt: "Slide to your answer and click anywhere on the dial to lock it in.",
+    leftLabel: "CIGARETTES",
+    rightLabel: "EXERCISE",
+    core: 2,
   },
   {
     // The same trap on a second subject. See social-cigarettes above — the

@@ -378,6 +378,28 @@ export default function Dial({
         {topic.rightLabel}
       </text>
 
+      {/*
+        Reference points for the scale, on the face. "78% addictive" has no
+        meaning without them. Deliberately small and muted: they calibrate,
+        they don't compete with the answer.
+      */}
+      {topic.anchors && (
+        <g className="anchors" aria-hidden="true">
+          <text className="anchor-label" x={CX - R_FACE + 40} y={CY - 20} paintOrder="stroke">
+            {topic.anchors.left}
+          </text>
+          <text
+            className="anchor-label"
+            x={CX + R_FACE - 40}
+            y={CY - 20}
+            textAnchor="end"
+            paintOrder="stroke"
+          >
+            {topic.anchors.right}
+          </text>
+        </g>
+      )}
+
       {/* ------------------------------------------------ track + handle */}
       <g className={`slider ${isResult ? "muted" : ""}`}>
         <line

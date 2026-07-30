@@ -26,6 +26,28 @@ export interface Topic {
   leftLabel: string;
   /** The positive pole. Always the right/1 end. */
   rightLabel: string;
+  /**
+   * Optional reference points printed on the dial face, to give the scale an
+   * external referent — "78% addictive" means nothing without one.
+   *
+   * NEVER anchor an addictive scale with cigarettes, nicotine or opioids. The
+   * trap boards' left pole is CIGARETTES, and naming it here one screen earlier
+   * welds the two scales together, suppressing the very dissociation being
+   * measured. A null result would then be uninterpretable: no dissociation, or
+   * primed away?
+   *
+   * The trap boards get no anchors at all. Their vagueness is the mechanism.
+   */
+  anchors?: { left: string; right: string };
+  /**
+   * Position in the guided run, 1-based. Boards without this are optional and
+   * browsable in any order.
+   *
+   * Order matters: the target must come before the trap, because the
+   * dissociation being measured is "says addictive, then says comic books".
+   * Reversed, it measures something else.
+   */
+  core?: number;
 }
 
 export const TOPICS: Topic[] = [
@@ -37,6 +59,8 @@ export const TOPICS: Topic[] = [
     prompt: "Slide to your answer and click anywhere on the dial to lock it in.",
     leftLabel: "ADDICTIVE",
     rightLabel: "NOT ADDICTIVE",
+    anchors: { left: "like gambling", right: "like watching paint dry" },
+    core: 1,
   },
   {
     id: "porn-addictive",
@@ -46,6 +70,7 @@ export const TOPICS: Topic[] = [
     prompt: "Slide to your answer and click anywhere on the dial to lock it in.",
     leftLabel: "ADDICTIVE",
     rightLabel: "NOT ADDICTIVE",
+    anchors: { left: "like gambling", right: "like watching paint dry" },
   },
   {
     id: "social-healthy",
@@ -87,6 +112,28 @@ export const TOPICS: Topic[] = [
     prompt: "Slide to your answer and click anywhere on the dial to lock it in.",
     leftLabel: "CIGARETTES",
     rightLabel: "COMIC BOOKS",
+    core: 2,
+  },
+  {
+    /*
+     * The clinical frame, stated in plain words. Someone who calls shortform
+     * video addictive and then calls compulsive use "just a habit" has stated
+     * the dissociation outright, with no inference needed.
+     *
+     * Orientation follows the rule: the clinically serious pole is on the left,
+     * matching ADDICTIVE and CIGARETTES on the boards either side of it. So the
+     * H1 pattern is a LOW score on board 1 with HIGH scores on boards 2 and 3 —
+     * all three relationships point the same way, which makes the analysis
+     * simpler to state and harder to fool yourself with.
+     */
+    id: "social-disorder",
+    subject: "Shortform social media",
+    axis: "Disorder or habit?",
+    question: "Is compulsive shortform scrolling a real disorder or just a bad habit?",
+    prompt: "Slide to your answer and click anywhere on the dial to lock it in.",
+    leftLabel: "REAL DISORDER",
+    rightLabel: "JUST A HABIT",
+    core: 3,
   },
   {
     // The same trap on a second subject. See social-cigarettes above — the
@@ -143,3 +190,10 @@ export function getTopic(id: string | undefined): Topic | undefined {
 export function voteStorageKey(topicId: string): string {
   return `vibecheck:${topicId}:vote`;
 }
+
+/** Boards in the guided run, in order. */
+export const CORE_TOPICS: Topic[] = TOPICS.filter((t) => t.core !== undefined).sort(
+  (a, b) => (a.core ?? 0) - (b.core ?? 0),
+);
+
+export const isCore = (topic: Topic): boolean => topic.core !== undefined;

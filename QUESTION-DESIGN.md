@@ -203,6 +203,26 @@ are doing any real work in an argument.
 
 ---
 
+## Built
+
+The guided run is live. `lib/run.ts` derives run state from which core boards
+have a stored answer — one source of truth, nothing to fall out of step.
+
+- Core run: `social-addictive` -> `social-cigarettes` -> `social-disorder`,
+  fixed order, marked by `core: 1|2|3` in `lib/topics.ts`.
+- No core result is revealed until all three are answered; then `/results`
+  shows every one at once.
+- The eight-tile nav is hidden during the run. It's an escape hatch out of the
+  sequence, and it shows "Addictive?" and "Cigarettes or comics?" side by side,
+  which invites people to spot the tension before answering either.
+- Revisiting an already-answered core board mid-run redirects to the next
+  unanswered one rather than revealing anything.
+- Anchors render on the dial face via `Topic.anchors`. The addictive boards get
+  "like gambling" / "like watching paint dry". The trap boards get none.
+
+Verified end to end: a complete run stores three answers under one session id,
+and joining on it recovers the paired data H1 needs.
+
 ## Decided
 
 1. **Anchors** — dial labels, not boards. Gambling ↔ watching paint dry on the

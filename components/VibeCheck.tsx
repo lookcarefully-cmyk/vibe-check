@@ -1,12 +1,14 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import Dial, { type Phase } from "./Dial";
 import InfoDialog from "./InfoDialog";
 import TopicNav from "./TopicNav";
 import { BIN_COUNT, MARGIN_COVERAGE, type Aggregate } from "@/lib/aggregate";
+import { nextHref, readRunState, type RunState } from "@/lib/run";
 import { getSessionId } from "@/lib/session";
-import { voteStorageKey, type Topic } from "@/lib/topics";
+import { isCore, voteStorageKey, type Topic } from "@/lib/topics";
 
 /*
  * Every poll is a read of the whole vote list, which costs a database command.
@@ -37,7 +39,10 @@ export default function VibeCheck({ topic }: { topic: Topic }) {
   const [error, setError] = useState<string | null>(null);
   const [flash, setFlash] = useState(false);
   const [navKey, setNavKey] = useState(0);
+  // null until read on the client, so server and first client render agree.
+  const [run, setRun] = useState<RunState | null>(null);
 
+  const router = useRouter();
   const lastCount = useRef(0);
   const storageKey = voteStorageKey(topic.id);
   const endpoint = `/api/votes/${topic.id}`;
@@ -66,8 +71,20 @@ export default function VibeCheck({ topic }: { topic: Topic }) {
     setError(null);
     lastCount.current = 0;
 
+    const state = readRunState();
+    setRun(state);
+
     const saved = window.localStorage.getItem(storageKey);
-    if (saved !== null && Number.isFinite(Number(saved))) {
+    const midRun = isCore(topic) && !state.complete;
+
+    if (midRun && saved !== null) {
+      // Already answered this one but the run isn't finished. Revealing here
+      // would contaminate the boards still to come, so move them along instead.
+      router.replace(nextHref(state));
+      return;
+    }
+
+    if (!midRun && saved !== null && Number.isFinite(Number(saved))) {
       setPick(Number(saved));
       setPhase("result");
     } else {
@@ -75,7 +92,7 @@ export default function VibeCheck({ topic }: { topic: Topic }) {
       setPhase("choose");
     }
     void load();
-  }, [storageKey, load]);
+  }, [storageKey, load, topic, router]);
 
   useEffect(() => {
     let id = 0;
@@ -116,6 +133,19 @@ export default function VibeCheck({ topic }: { topic: Topic }) {
         const data = await res.json();
         if (!res.ok) throw new Error(data?.error ?? "Something went wrong.");
         window.localStorage.setItem(storageKey, String(value));
+
+        // Re-read after writing: this answer may have completed the run.
+        const state = readRunState();
+        if (isCore(topic) && !state.complete) {
+          // Straight to the next core board. No reveal — see lib/run.ts.
+          router.push(nextHref(state));
+          return;
+        }
+        if (isCore(topic)) {
+          router.push("/results");
+          return;
+        }
+
         lastCount.current = data.count;
         setAgg(data);
         setPhase("result");
@@ -126,7 +156,7 @@ export default function VibeCheck({ topic }: { topic: Topic }) {
         setPending(false);
       }
     },
-    [pending, phase, endpoint, storageKey],
+    [pending, phase, endpoint, storageKey, topic, router],
   );
 
   const reset = () => {
@@ -136,13 +166,23 @@ export default function VibeCheck({ topic }: { topic: Topic }) {
   };
 
   const isResult = phase === "result";
+  // During the run the eight-tile nav is hidden: it's an escape hatch out of
+  // the sequence, and it shows "Addictive?" and "Cigarettes or comics?" side by
+  // side, which invites people to spot the tension before answering either.
+  const midRun = run !== null && isCore(topic) && !run.complete;
   const outside = Math.round(((1 - MARGIN_COVERAGE) / 2) * 100);
   const inTen = Math.round(MARGIN_COVERAGE * 10);
   const hasSpread = agg.count > 1;
 
   return (
     <main className="shell">
-      <TopicNav activeId={topic.id} refreshKey={navKey} />
+      {midRun ? (
+        <p className="run-progress">
+          Question {(run?.answeredCount ?? 0) + 1} of {run?.total ?? 0}
+        </p>
+      ) : (
+        <TopicNav activeId={topic.id} refreshKey={navKey} />
+      )}
 
       <header className="masthead">
         {/* A div, not a p: it contains a <dialog>, which isn't phrasing content. */}

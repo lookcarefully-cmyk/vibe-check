@@ -364,6 +364,61 @@ body::after {
   background: var(--red);
 }
 
+/* ------------------------------------------------------- the guided run */
+
+.run-progress {
+  margin: 0;
+  font-size: clamp(0.65rem, 1.6vw, 0.8rem);
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: rgba(95, 211, 212, 0.75);
+}
+
+.run-result {
+  width: 100%;
+  max-width: 820px;
+  margin-top: clamp(1.5rem, 4vw, 2.5rem);
+}
+
+.run-result h2 {
+  margin: 0 0 0.5rem;
+  font-size: clamp(1.05rem, 2.8vw, 1.4rem);
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+.run-result-line {
+  margin: 0.75rem 0 0;
+  font-size: clamp(0.85rem, 2.1vw, 1rem);
+  color: rgba(242, 235, 218, 0.7);
+}
+
+.run-result-line strong {
+  color: var(--cream);
+  font-weight: 700;
+}
+
+.run-more {
+  margin-top: clamp(2rem, 5vw, 3rem);
+  max-width: 40rem;
+}
+
+.run-more h2 {
+  margin: 0 0 0.4rem;
+  font-size: clamp(1rem, 2.6vw, 1.25rem);
+}
+
+.run-more p {
+  margin: 0 0 1rem;
+  font-size: 0.9rem;
+  color: rgba(242, 235, 218, 0.6);
+}
+
+.run-more .reset {
+  display: inline-block;
+  text-decoration: none;
+}
+
 /* -------------------------------------------------- standing disclosure */
 
 .disclosure {
@@ -484,6 +539,28 @@ body::after {
   50% {
     opacity: 0.15;
   }
+}
+
+/* scale references on the dial face — calibration, not competition */
+
+.anchor-label {
+  font-size: calc(18px * var(--te, 1));
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  font-style: italic;
+  fill: rgba(10, 18, 56, 0.42);
+  /* halo in the face colour so a ray reaching the edge can pass behind */
+  stroke: var(--face-color, var(--cream));
+  stroke-width: calc(6px * var(--te, 1));
+  stroke-linejoin: round;
+}
+
+.dial.is-choose {
+  --face-color: var(--teal);
+}
+
+.dial.is-result {
+  --face-color: var(--cream);
 }
 
 /* endpoint labels sit in the navy band below the dial face */

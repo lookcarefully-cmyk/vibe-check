@@ -33,6 +33,9 @@ const SHAPES = {
   "social-addictive": { mean: 0.22, sd: 0.13 },
   "social-healthy": { mean: 0.45, sd: 0.18 },
   "social-coffee": { mean: 0.62, sd: 0.2 },
+  "social-treatment": { mean: 0.55, sd: 0.22 },
+  // Calibration: clustered mid-scale, with a few people not engaging at all.
+  "social-slime": { mean: 0.5, sd: 0.14 },
   "social-cigarettes": { mean: 0.55, sd: 0.2 },
   "social-disorder": { mean: 0.6, sd: 0.19 },
   "porn-addictive": { mean: 0.28, sd: 0.17 },

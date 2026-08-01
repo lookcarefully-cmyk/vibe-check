@@ -27,17 +27,19 @@ export interface Topic {
   /** The positive pole. Always the right/1 end. */
   rightLabel: string;
   /**
-   * Optional reference points printed on the dial face, to give the scale an
-   * external referent — "78% addictive" means nothing without one.
+   * Optional reference points printed on the dial face.
    *
-   * NEVER anchor an addictive scale with cigarettes, nicotine or opioids.
-   * CIGARETTES is a pole of the interaction item, and naming it here one screen
-   * earlier welds the two scales together, suppressing the very dissociation
-   * being measured. A null result would then be uninterpretable: no
-   * dissociation, or primed away?
+   * CURRENTLY UNUSED, deliberately. Anchors were on the addictive board and came
+   * off: the hypothesis is about the public's own concept of "addictive", and
+   * printing referents replaces that concept with ours — the answer becomes
+   * "where does this sit relative to gambling" instead of "how addictive is
+   * this". The game's convention is that the guesser forms their own extremes.
    *
-   * The cigarettes-poled boards get no anchors at all. Their vagueness is the
-   * mechanism.
+   * Kept because a future board might want them. If you ever use them on a
+   * board measuring a lay concept, be clear you have changed what it measures.
+   * And never anchor with cigarettes, nicotine or opioids: CIGARETTES is a pole
+   * of social-coffee, and naming it a screen earlier welds the two scales
+   * together.
    */
   anchors?: { left: string; right: string };
   /**
@@ -49,11 +51,29 @@ export interface Topic {
    * asked first would prime the parts it is made of.
    */
   core?: number;
+  /**
+   * Marks an item with a defensible correct answer, used to check the
+   * respondent is using the continuum rather than treating it as a two-way
+   * switch. Not an opinion measure — exclude it from every substantive result.
+   */
+  calibration?: boolean;
 }
 
 export const TOPICS: Topic[] = [
   {
-    // Addictiveness. First in the run.
+    /*
+     * Addictiveness. First in the run, and deliberately UNANCHORED.
+     *
+     * The hypothesis is about the public's concept of "addictive" — whether it
+     * carries the clinical meaning or is just an intensifier. Printing referents
+     * on the scale would replace that concept with ours: the answer would become
+     * "where does this sit relative to gambling", not "how addictive is this".
+     * The measure has to let the respondent supply their own extremes.
+     *
+     * The cost is interpretability — 78% of a self-defined scale is harder to
+     * quote. social-slime is the partial answer: it checks people are using the
+     * continuum sensibly at all.
+     */
     id: "social-addictive",
     subject: "Shortform social media",
     axis: "Addictive?",
@@ -61,7 +81,6 @@ export const TOPICS: Topic[] = [
     prompt: "Slide to your answer and click anywhere on the dial to lock it in.",
     leftLabel: "ADDICTIVE",
     rightLabel: "NOT ADDICTIVE",
-    anchors: { left: "like gambling", right: "like watching paint dry" },
     core: 1,
   },
   {
@@ -87,11 +106,17 @@ export const TOPICS: Topic[] = [
      * the hypothesis. That is the right direction to be wrong in: finding the
      * dissociation despite a layout that nudges toward consistency makes it
      * harder to dismiss.
+     *
+     * "Mental health", not "health": bare "health" reads as physical, and a lot
+     * of people would answer "well, it isn't smoking" while privately agreeing
+     * it wrecks their attention. "Cognitive health" is the more precise term and
+     * the wrong one — it's jargon most respondents don't use. "Mental health"
+     * has wide lay currency and covers the domain.
      */
     id: "social-healthy",
     subject: "Shortform social media",
-    axis: "Harmful?",
-    question: "Is shortform social media harmful or healthy?",
+    axis: "Mental health?",
+    question: "Is shortform social media bad or good for your mental health?",
     prompt: "Slide to your answer and click anywhere on the dial to lock it in.",
     leftLabel: "HARMFUL",
     rightLabel: "HEALTHY",
@@ -200,6 +225,51 @@ export const TOPICS: Topic[] = [
     prompt: "Slide to your answer and click anywhere on the dial to lock it in.",
     leftLabel: "CIGARETTES",
     rightLabel: "COMIC BOOKS",
+  },
+  {
+    /*
+     * Consequence: does perceived addiction translate into thinking sufferers
+     * deserve care? Asked after the harm and addiction items so the judgement is
+     * informed by them rather than made cold.
+     *
+     * Framed around a third person rather than the respondent — "someone says",
+     * not "if you" — so nobody has to self-identify as impaired to answer.
+     */
+    id: "social-treatment",
+    subject: "Shortform social media",
+    axis: "Treatment?",
+    question:
+      "Someone says shortform video has taken over their life. What treatment should they be able to get?",
+    prompt: "Slide to your answer and click anywhere on the dial to lock it in.",
+    leftLabel: "NONE",
+    rightLabel: "FULL CLINICAL CARE",
+    core: 4,
+  },
+  {
+    /*
+     * Calibration, not opinion. Slime has a defensible right answer — the middle
+     * — so an answer slammed at either extreme means the person is not using the
+     * continuum, and their other answers can be filtered out.
+     *
+     * It runs LAST on purpose. An item with a correct answer, asked first, tells
+     * people the game has right answers and nudges them from "what do I think"
+     * toward "what is the expected answer" on every item that follows. Placing
+     * it at the end costs nothing analytically: the analysis only uses complete
+     * runs anyway, so the check covers exactly the people being analysed.
+     *
+     * Judge it with a wide band. Slime is a non-Newtonian fluid and reasonable
+     * people land anywhere from ~30 to ~70. This is meant to catch non-engagement,
+     * not to grade physics.
+     */
+    id: "social-slime",
+    subject: "Warm-up",
+    axis: "Liquid or solid?",
+    question: "Is slime a liquid or a solid?",
+    prompt: "Slide to your answer and click anywhere on the dial to lock it in.",
+    leftLabel: "LIQUID",
+    rightLabel: "SOLID",
+    core: 5,
+    calibration: true,
   },
   {
     id: "social-polarizing",

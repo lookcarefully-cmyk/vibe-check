@@ -8,7 +8,8 @@ import TopicNav from "./TopicNav";
 import { BIN_COUNT, MARGIN_COVERAGE, type Aggregate } from "@/lib/aggregate";
 import { nextHref, readRunState, type RunState } from "@/lib/run";
 import { getSessionId } from "@/lib/session";
-import { isCore, voteStorageKey, type Topic } from "@/lib/topics";
+import { isExperimentTopic, positionInArm } from "@/lib/experiment";
+import { voteStorageKey, type Topic } from "@/lib/topics";
 
 /*
  * Every poll is a read of the whole vote list, which costs a database command.
@@ -75,7 +76,7 @@ export default function VibeCheck({ topic }: { topic: Topic }) {
     setRun(state);
 
     const saved = window.localStorage.getItem(storageKey);
-    const midRun = isCore(topic) && !state.complete;
+    const midRun = isExperimentTopic(topic.id) && !state.complete;
 
     if (midRun && state.next && topic.id !== state.next.id) {
       /*
@@ -131,25 +132,30 @@ export default function VibeCheck({ topic }: { topic: Topic }) {
       setPending(true);
       setError(null);
       setPick(value);
+      const state = readRunState();
+      const inExperiment = isExperimentTopic(topic.id);
       try {
         const res = await fetch(endpoint, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ value, session: getSessionId() }),
+          body: JSON.stringify({
+            value,
+            session: getSessionId(),
+            // Experiment metadata, recorded on the vote itself so a partial run
+            // is still analysable. See lib/experiment.ts.
+            arm: inExperiment ? state.arm : "",
+            position: inExperiment ? positionInArm(state.arm, topic.id) : 0,
+          }),
         });
         const data = await res.json();
         if (!res.ok) throw new Error(data?.error ?? "Something went wrong.");
         window.localStorage.setItem(storageKey, String(value));
 
         // Re-read after writing: this answer may have completed the run.
-        const state = readRunState();
-        if (isCore(topic) && !state.complete) {
-          // Straight to the next core board. No reveal — see lib/run.ts.
-          router.push(nextHref(state));
-          return;
-        }
-        if (isCore(topic)) {
-          router.push("/results");
+        const after = readRunState();
+        if (inExperiment) {
+          // Straight on, or to the results. No reveal — see lib/run.ts.
+          router.push(nextHref(after));
           return;
         }
 
@@ -176,7 +182,7 @@ export default function VibeCheck({ topic }: { topic: Topic }) {
   // During the run the eight-tile nav is hidden: it's an escape hatch out of
   // the sequence, and it shows "Addictive?" and "Cigarettes or comics?" side by
   // side, which invites people to spot the tension before answering either.
-  const midRun = run !== null && isCore(topic) && !run.complete;
+  const midRun = run !== null && isExperimentTopic(topic.id) && !run.complete;
   const outside = Math.round(((1 - MARGIN_COVERAGE) / 2) * 100);
   const inTen = Math.round(MARGIN_COVERAGE * 10);
   const hasSpread = agg.count > 1;
@@ -185,7 +191,7 @@ export default function VibeCheck({ topic }: { topic: Topic }) {
     <main className="shell">
       {midRun ? (
         <p className="run-progress">
-          Question {topic.core} of {run?.total ?? 0}
+          Question {run ? positionInArm(run.arm, topic.id) : 1} of {run?.total ?? 0}
         </p>
       ) : (
         <TopicNav activeId={topic.id} refreshKey={navKey} />

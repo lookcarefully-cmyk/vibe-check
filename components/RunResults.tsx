@@ -5,13 +5,17 @@ import { useEffect, useState } from "react";
 import Dial from "./Dial";
 import InfoDialog from "./InfoDialog";
 import { BIN_COUNT, type Aggregate } from "@/lib/aggregate";
-import { CORE_TOPICS, voteStorageKey } from "@/lib/topics";
+import { bandFor } from "@/lib/likert";
+import { readRunState } from "@/lib/run";
+import { voteStorageKey, type Topic } from "@/lib/topics";
 
 /**
- * The payoff at the end of the run: every core board revealed at once.
+ * The payoff at the end of the run: every board this browser answered, revealed
+ * at once.
  *
- * Nothing here is shown until the run is finished, which is what keeps each
- * answer independent of the crowd's view on the boards before it.
+ * Nothing here is shown until the run is finished. That is what keeps the second
+ * answer independent of the crowd's view on the first, which is the comparison
+ * the whole experiment rests on.
  */
 
 const EMPTY: Aggregate = {
@@ -28,12 +32,18 @@ const EMPTY: Aggregate = {
 const pct = (v: number) => `${Math.round(v * 100)}%`;
 
 export default function RunResults() {
+  const [topics, setTopics] = useState<Topic[]>([]);
   const [aggs, setAggs] = useState<Record<string, Aggregate>>({});
   const [picks, setPicks] = useState<Record<string, number>>({});
 
   useEffect(() => {
+    // Which boards to show depends on this browser's arm, so it can only be
+    // resolved on the client.
+    const state = readRunState();
+    setTopics(state.topics);
+
     const own: Record<string, number> = {};
-    for (const topic of CORE_TOPICS) {
+    for (const topic of state.topics) {
       const saved = window.localStorage.getItem(voteStorageKey(topic.id));
       if (saved !== null && Number.isFinite(Number(saved))) own[topic.id] = Number(saved);
     }
@@ -41,7 +51,7 @@ export default function RunResults() {
 
     let cancelled = false;
     Promise.all(
-      CORE_TOPICS.map((topic) =>
+      state.topics.map((topic) =>
         fetch(`/api/votes/${topic.id}`, { cache: "no-store" })
           .then((r) => (r.ok ? r.json() : EMPTY))
           .then((a: Aggregate) => [topic.id, a] as const)
@@ -64,14 +74,15 @@ export default function RunResults() {
         </div>
         <h1>Here&rsquo;s where you landed</h1>
         <p className="lede">
-          Your answer is the teal line. The crowd&rsquo;s average is the red needle.
+          Your answer is the teal line. Everyone else&rsquo;s average is the red needle.
         </p>
       </header>
 
-      {CORE_TOPICS.map((topic) => {
+      {topics.map((topic) => {
         const agg = aggs[topic.id] ?? EMPTY;
         const pick = picks[topic.id] ?? 0.5;
         const diff = Math.round((pick - agg.mean) * 100);
+        const yourBand = bandFor(pick, topic.likert);
         return (
           <section key={topic.id} className="run-result">
             <h2>{topic.question}</h2>
@@ -87,9 +98,15 @@ export default function RunResults() {
               />
             </div>
             <p className="run-result-line">
-              You said <strong>{pct(pick)}</strong> · average{" "}
-              <strong>{pct(agg.mean)}</strong> · {agg.count.toLocaleString()}{" "}
-              {agg.count === 1 ? "answer" : "answers"}
+              You said <strong>{pct(pick)}</strong>
+              {yourBand && (
+                <>
+                  {" — "}
+                  <strong>{yourBand}</strong>
+                </>
+              )}{" "}
+              · average <strong>{pct(agg.mean)}</strong> ·{" "}
+              {agg.count.toLocaleString()} {agg.count === 1 ? "answer" : "answers"}
               {agg.count > 0 && (
                 <>
                   {" "}

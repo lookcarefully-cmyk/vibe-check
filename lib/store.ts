@@ -19,8 +19,11 @@ import path from "node:path";
  *
  * v3: negative pole moved to the left on every board.
  * v4: records gained a timestamp and a session id; the 20k cap was removed.
+ * v5: the addictive boards flipped to NOT ADDICTIVE -> ADDICTIVE, matching the
+ *     Likert bands, and records gained the experiment arm and the position the
+ *     board occupied in that arm.
  */
-export const STORE_VERSION = "v4";
+export const STORE_VERSION = "v5";
 
 const NS = "vibecheck";
 
@@ -39,6 +42,22 @@ export interface VoteRecord {
    * feeds into it, and it is never returned by any public endpoint.
    */
   s: string;
+  /**
+   * Experiment arm this answer was given under ("A" | "B" | "C"), or "" for
+   * boards outside the experiment.
+   *
+   * Recorded on the vote rather than reconstructed later. Deriving it from
+   * timestamps would need both answers present, which throws away everyone who
+   * answered only the first item — and the first item is the uncontaminated
+   * measure, so those are among the most valuable responses there are.
+   */
+  g: string;
+  /**
+   * 1-based position within the arm, 0 outside the experiment. Derivable from
+   * arm + board today, but stored so the export stays readable if the arm
+   * definitions ever change.
+   */
+  p: number;
 }
 
 export interface RateResult {
@@ -64,7 +83,13 @@ function parseRecords(raw: unknown[]): VoteRecord[] {
     try {
       const r = typeof item === "string" ? JSON.parse(item) : item;
       if (r && Number.isFinite(r.v) && r.v >= 0 && r.v <= 1) {
-        out.push({ v: r.v, t: Number(r.t) || 0, s: typeof r.s === "string" ? r.s : "" });
+        out.push({
+          v: r.v,
+          t: Number(r.t) || 0,
+          s: typeof r.s === "string" ? r.s : "",
+          g: typeof r.g === "string" ? r.g : "",
+          p: Number.isFinite(r.p) ? Number(r.p) : 0,
+        });
       }
     } catch {
       /* skip anything unreadable rather than failing the whole request */

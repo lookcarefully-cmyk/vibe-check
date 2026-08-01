@@ -3,15 +3,17 @@
 import { useEffect, useState } from "react";
 import MiniBoard from "./MiniBoard";
 import type { TopicSummary } from "@/app/api/summary/route";
-import { OPTIONAL_TOPICS, voteStorageKey, type Topic } from "@/lib/topics";
+import { EXTRA_TOPICS } from "@/lib/experiment";
+import { voteStorageKey, type Topic } from "@/lib/topics";
 
 interface TopicNavProps {
   activeId: string;
   /** Bumped by the parent after a vote lands, to refresh the tiles. */
   refreshKey: number;
   /**
-   * Which boards to show. Defaults to the optional ones: the core boards are
-   * the guided run, and listing them here shows the same questions twice.
+   * Which boards to show. Defaults to the non-experiment boards: the
+   * experiment's items are the guided run, and listing them here would show the
+   * same questions twice and let people take them out of order.
    */
   topics?: Topic[];
 }
@@ -19,7 +21,7 @@ interface TopicNavProps {
 export default function TopicNav({
   activeId,
   refreshKey,
-  topics = OPTIONAL_TOPICS,
+  topics = EXTRA_TOPICS,
 }: TopicNavProps) {
   const [summary, setSummary] = useState<TopicSummary[]>([]);
   const [answered, setAnswered] = useState<Set<string>>(new Set());

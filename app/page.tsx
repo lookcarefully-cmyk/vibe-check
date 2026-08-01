@@ -1,6 +1,9 @@
-import { redirect } from "next/navigation";
-import { DEFAULT_TOPIC } from "@/lib/topics";
+import Start from "@/components/Start";
+
+// Arm assignment happens in the browser, so this page cannot be prerendered
+// into a fixed destination.
+export const dynamic = "force-dynamic";
 
 export default function Home() {
-  redirect(`/${DEFAULT_TOPIC.id}`);
+  return <Start />;
 }

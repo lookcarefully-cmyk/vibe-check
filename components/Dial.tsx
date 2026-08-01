@@ -370,35 +370,18 @@ export default function Dial({
         These sit in the navy band below the baseline, not on the face. On the
         face they collided with the ray fan, and with the bracket labels
         whenever a band ran out to either extreme.
+
+        Neither end is styled as the "bad" one. Orientation now varies per board
+        (see lib/topics.ts) — NOT ADDICTIVE sits on the left of the addictive
+        boards while HARMFUL sits on the left of the harm boards — so colouring
+        the left label as alarming would be wrong half the time.
       */}
-      <text className="end-label alarm" x={CX - R_FACE + 6} y={CY + 38}>
+      <text className="end-label" x={CX - R_FACE + 6} y={CY + 38}>
         {topic.leftLabel}
       </text>
       <text className="end-label" x={CX + R_FACE - 6} y={CY + 38} textAnchor="end">
         {topic.rightLabel}
       </text>
-
-      {/*
-        Reference points for the scale, on the face. "78% addictive" has no
-        meaning without them. Deliberately small and muted: they calibrate,
-        they don't compete with the answer.
-      */}
-      {topic.anchors && (
-        <g className="anchors" aria-hidden="true">
-          <text className="anchor-label" x={CX - R_FACE + 40} y={CY - 20} paintOrder="stroke">
-            {topic.anchors.left}
-          </text>
-          <text
-            className="anchor-label"
-            x={CX + R_FACE - 40}
-            y={CY - 20}
-            textAnchor="end"
-            paintOrder="stroke"
-          >
-            {topic.anchors.right}
-          </text>
-        </g>
-      )}
 
       {/* ------------------------------------------------ track + handle */}
       <g className={`slider ${isResult ? "muted" : ""}`}>

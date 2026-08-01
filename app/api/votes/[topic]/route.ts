@@ -48,20 +48,28 @@ export async function POST(req: Request, { params }: Params) {
     return noStore({ error: "Requests from this origin aren't accepted." }, 403);
   }
 
-  let body: { value?: unknown; session?: unknown };
+  let body: { value?: unknown; session?: unknown; arm?: unknown; position?: unknown };
   try {
     body = (await req.json()) as typeof body;
   } catch {
     return noStore({ error: "Body must be JSON." }, 400);
   }
 
-  const { value, session } = body;
+  const { value, session, arm, position } = body;
   if (typeof value !== "number" || !Number.isFinite(value) || value < 0 || value > 1) {
     return noStore({ error: "`value` must be a number between 0 and 1." }, 400);
   }
   if (!isValidSessionId(session)) {
     return noStore({ error: "`session` must be a 32-character hex id." }, 400);
   }
+  // Arm and position are experiment metadata. Boards outside the experiment
+  // send "" and 0. Anything malformed is stored as "unknown" rather than
+  // rejected — losing a real answer over a bad label would be the worse error.
+  const armValue = typeof arm === "string" && /^[ABC]$/.test(arm) ? arm : "";
+  const positionValue =
+    typeof position === "number" && Number.isInteger(position) && position >= 0 && position <= 20
+      ? position
+      : 0;
 
   try {
     const caller = callerToken(req);
@@ -82,6 +90,8 @@ export async function POST(req: Request, { params }: Params) {
       v: Math.round(value * 1000) / 1000,
       t: Date.now(),
       s: session,
+      g: armValue,
+      p: positionValue,
     };
     await store.push(topic.id, record);
 

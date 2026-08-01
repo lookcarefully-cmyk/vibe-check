@@ -1,37 +1,33 @@
-import { CORE_TOPICS, voteStorageKey, type Topic } from "./topics";
+import { armTopics, getArm, type Arm } from "./experiment";
+import { voteStorageKey, type Topic } from "./topics";
 
 /**
- * The guided run.
+ * Progress through this browser's assigned arm.
  *
- * Two things it exists to protect, both of which the per-board anchoring gate
- * does not cover:
+ * Derived from which boards have a stored answer rather than kept in a separate
+ * flag — one source of truth, nothing to fall out of step.
  *
- *  1. **Pairing.** H1 is a within-person claim, so separate averages can't test
- *     it — only answers from the same person can. If people answer the trap
- *     without the target, the response count goes up and the argument
- *     disappears.
- *  2. **Independence.** No core result is revealed until every core board is
- *     answered. Someone who has just seen "the crowd says 78% addictive" answers
- *     the trap in a different frame of mind, and that lands directly on the
- *     comparison the hypothesis rests on.
- *
- * State is derived from which boards have a stored answer rather than kept in a
- * separate flag — one source of truth, and nothing to get out of step.
+ * No result is revealed until the arm is finished. The whole design rests on the
+ * second answer being uncontaminated by the crowd's view of the first: someone
+ * who has just seen "everyone says 78%" is answering the next item in a
+ * different frame, and that lands directly on the comparison being measured.
  */
-
 export interface RunState {
-  /** Core board ids this browser has answered. */
+  arm: Arm;
+  /** The boards in this arm, in order. */
+  topics: Topic[];
   answered: Set<string>;
-  /** The next unanswered core board, or null when the run is finished. */
+  /** Next unanswered board, or null when the arm is finished. */
   next: Topic | null;
   complete: boolean;
-  answeredCount: number;
   total: number;
 }
 
 export function readRunState(): RunState {
+  const arm = getArm();
+  const topics = armTopics(arm);
   const answered = new Set<string>();
-  for (const topic of CORE_TOPICS) {
+  for (const topic of topics) {
     try {
       if (window.localStorage.getItem(voteStorageKey(topic.id)) !== null) {
         answered.add(topic.id);
@@ -40,17 +36,18 @@ export function readRunState(): RunState {
       /* private browsing can throw; treat as unanswered */
     }
   }
-  const next = CORE_TOPICS.find((t) => !answered.has(t.id)) ?? null;
+  const next = topics.find((t) => !answered.has(t.id)) ?? null;
   return {
+    arm,
+    topics,
     answered,
     next,
     complete: next === null,
-    answeredCount: answered.size,
-    total: CORE_TOPICS.length,
+    total: topics.length,
   };
 }
 
-/** Where to send someone after they answer a core board. */
+/** Where to send someone after they answer a board in the run. */
 export function nextHref(state: RunState): string {
   return state.next ? `/${state.next.id}` : "/results";
 }

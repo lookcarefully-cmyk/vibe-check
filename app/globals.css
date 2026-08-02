@@ -451,6 +451,44 @@ body::after {
   color: var(--teal);
 }
 
+.dev-block {
+  width: 100%;
+  max-width: 42rem;
+}
+
+.dev-block h2 {
+  margin: 0 0 0.6rem;
+  font-size: 0.72rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--teal);
+}
+
+.dev-state {
+  margin: 0 0 0.4rem;
+  font-size: 0.85rem;
+  color: rgba(242, 235, 218, 0.7);
+}
+
+.dev-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  justify-content: center;
+}
+
+.dev-buttons .reset {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  align-items: center;
+}
+
+.dev-buttons small {
+  font-size: 0.7rem;
+  opacity: 0.6;
+}
+
 /* -------------------------------------------------- standing disclosure */
 
 .disclosure {

@@ -51,6 +51,11 @@ npm install && npm run dev
 Either way it lives at http://localhost:3210. It runs on this machine only;
 nobody else can reach it until it's deployed (see Deploying, below).
 
+## Trying it
+
+`/dev` lets you start a fresh run on any arm. Answers from it are real votes;
+`npm run reset` clears every board back to zero.
+
 ## How it works
 
 **The flow.** The dial starts in *choose* mode — a teal handle on a horizontal

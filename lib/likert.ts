@@ -11,9 +11,10 @@
  * The scale is continuous, so nothing in the analysis should use these; they
  * exist to make a percentage speakable.
  *
- * The ladder is symmetric about the midpoint — mildly/mildly, clearly/clearly,
- * strongly/strongly — so the two halves are equally weighted in words as well as
- * in numbers. Lopsided wording is its own kind of bias: "very addictive" against
+ * The ladder is symmetric about the midpoint and uses one consistent family of
+ * intensity words — mildly, moderately, strongly — so the two halves are equally
+ * weighted in wording as well as in numbers. ("Clearly" was tried and dropped:
+ * it expresses confidence, not intensity, so it doesn't sit on the same ladder.) Lopsided wording is its own kind of bias: "very addictive" against
  * "slightly not addictive" makes the addictive half sound louder at equal
  * distances from neutral.
  *
@@ -33,12 +34,12 @@ export interface Band {
 export const ADDICTIVE_BANDS: Band[] = [
   { from: 0, to: 10, label: "not addictive at all" },
   { from: 10, to: 20, label: "strongly not addictive" },
-  { from: 20, to: 30, label: "clearly not addictive" },
+  { from: 20, to: 30, label: "moderately not addictive" },
   { from: 30, to: 40, label: "mildly not addictive" },
   { from: 40, to: 50, label: "borderline, leaning not addictive" },
   { from: 50, to: 60, label: "borderline, leaning addictive" },
   { from: 60, to: 70, label: "mildly addictive" },
-  { from: 70, to: 80, label: "clearly addictive" },
+  { from: 70, to: 80, label: "moderately addictive" },
   { from: 80, to: 90, label: "strongly addictive" },
   { from: 90, to: 100, label: "as addictive as it gets" },
 ];

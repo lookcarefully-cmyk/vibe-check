@@ -131,6 +131,11 @@ Port 3210. **Don't run `npm run build` while the dev server is running** — the
 share `.next` and the build pulls files out from under the running server, which
 makes every page 500. Stop it first.
 
+**Trying the run yourself:** `/dev` is a test harness — pick an arm and it
+starts a fresh run in your browser. It only touches your own `localStorage`.
+Answers given there are **real votes and do land in the store**, so clear them
+with `npm run reset` before launch.
+
 `npm run seed -- 300` writes synthetic respondents with a deliberate order effect
 baked in, so a broken analysis fails loudly instead of quietly reporting "no
 effect". It refuses to run if a board has no shape defined. **Never run it

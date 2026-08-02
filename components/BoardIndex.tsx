@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import TopicNav from "./TopicNav";
 import InfoDialog from "./InfoDialog";
 import { readRunState } from "@/lib/run";
+import { groupedExtraTopics } from "@/lib/experiment";
 
 /** Every board, browsable. Reached from the end of the run, or directly. */
 export default function BoardIndex() {
@@ -25,7 +26,12 @@ export default function BoardIndex() {
         </p>
       </header>
 
-      <TopicNav activeId="" refreshKey={0} />
+      {groupedExtraTopics().map((group) => (
+        <section key={group.title} className="board-group">
+          <h2>{group.title}</h2>
+          <TopicNav activeId="" refreshKey={0} topics={group.topics} showSubject={false} />
+        </section>
+      ))}
 
       {/* The core three live in the run, not in the grid above. */}
       {runComplete !== null && (

@@ -150,17 +150,6 @@ export const TOPICS: Topic[] = [
     highMeans: "more like a harmless habit",
   },
   {
-    // Same principle — no explanatory copy.
-    id: "social-cigarettes",
-    subject: "Shortform social media",
-    axis: "Cigarettes or comics?",
-    question: "Is shortform social media more akin to cigarettes or comic books?",
-    prompt: "Slide to your answer and click anywhere on the dial to lock it in.",
-    leftLabel: "CIGARETTES",
-    rightLabel: "COMIC BOOKS",
-    highMeans: "more like a moral panic than a real harm",
-  },
-  {
     id: "social-disorder",
     subject: "Shortform social media",
     axis: "Disorder or habit?",
@@ -190,16 +179,6 @@ export const TOPICS: Topic[] = [
     leftLabel: "HARMFUL",
     rightLabel: "HEALTHY",
     highMeans: "healthier",
-  },
-  {
-    id: "porn-cigarettes",
-    subject: "Internet porn",
-    axis: "Cigarettes or comics?",
-    question: "Is internet porn more akin to cigarettes or comic books?",
-    prompt: "Slide to your answer and click anywhere on the dial to lock it in.",
-    leftLabel: "CIGARETTES",
-    rightLabel: "COMIC BOOKS",
-    highMeans: "more like a moral panic than a real harm",
   },
   {
     id: "social-polarizing",

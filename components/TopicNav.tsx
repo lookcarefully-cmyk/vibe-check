@@ -16,12 +16,15 @@ interface TopicNavProps {
    * same questions twice and let people take them out of order.
    */
   topics?: Topic[];
+  /** Passed through to each tile; false when a heading already names the subject. */
+  showSubject?: boolean;
 }
 
 export default function TopicNav({
   activeId,
   refreshKey,
   topics = EXTRA_TOPICS,
+  showSubject = true,
 }: TopicNavProps) {
   const [summary, setSummary] = useState<TopicSummary[]>([]);
   const [answered, setAnswered] = useState<Set<string>>(new Set());
@@ -62,6 +65,7 @@ export default function TopicNav({
             topic={topic}
             active={topic.id === activeId}
             answered={isAnswered}
+            showSubject={showSubject}
             // Withheld entirely unless answered, so nothing can leak it early.
             mean={isAnswered && s && s.count > 0 ? s.mean : null}
             count={s?.count ?? 0}

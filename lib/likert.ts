@@ -10,6 +10,15 @@
  *
  * The scale is continuous, so nothing in the analysis should use these; they
  * exist to make a percentage speakable.
+ *
+ * The ladder is symmetric about the midpoint — mildly/mildly, clearly/clearly,
+ * strongly/strongly — so the two halves are equally weighted in words as well as
+ * in numbers. Lopsided wording is its own kind of bias: "very addictive" against
+ * "slightly not addictive" makes the addictive half sound louder at equal
+ * distances from neutral.
+ *
+ * Only the wording has changed since these were fixed. The BOUNDARIES are the
+ * thing that must not move once data exists, and they haven't.
  */
 
 export interface Band {
@@ -23,15 +32,15 @@ export interface Band {
 /** Applies to boards where a HIGH score means more addictive. */
 export const ADDICTIVE_BANDS: Band[] = [
   { from: 0, to: 10, label: "not addictive at all" },
-  { from: 10, to: 20, label: "extremely not addictive" },
-  { from: 20, to: 30, label: "very not addictive" },
-  { from: 30, to: 40, label: "slightly not addictive" },
-  { from: 40, to: 50, label: "neutral, leaning not addictive" },
-  { from: 50, to: 60, label: "neutral, leaning addictive" },
-  { from: 60, to: 70, label: "slightly addictive" },
-  { from: 70, to: 80, label: "very addictive" },
-  { from: 80, to: 90, label: "extremely addictive" },
-  { from: 90, to: 100, label: "the most addictive" },
+  { from: 10, to: 20, label: "strongly not addictive" },
+  { from: 20, to: 30, label: "clearly not addictive" },
+  { from: 30, to: 40, label: "mildly not addictive" },
+  { from: 40, to: 50, label: "borderline, leaning not addictive" },
+  { from: 50, to: 60, label: "borderline, leaning addictive" },
+  { from: 60, to: 70, label: "mildly addictive" },
+  { from: 70, to: 80, label: "clearly addictive" },
+  { from: 80, to: 90, label: "strongly addictive" },
+  { from: 90, to: 100, label: "as addictive as it gets" },
 ];
 
 /** Band label for a 0..1 value, or null if the scale has no bands. */

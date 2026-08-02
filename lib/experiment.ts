@@ -45,6 +45,24 @@ export const isExperimentTopic = (topicId: string): boolean =>
 /** Everything outside the experiment, browsable in any order. */
 export const EXTRA_TOPICS: Topic[] = TOPICS.filter((t) => !isExperimentTopic(t.id));
 
+/**
+ * The browse page grouped by what each board is about.
+ *
+ * Grouped by `subject` rather than by construct (health / addiction / policy)
+ * because that's how someone browsing actually decides what to answer next —
+ * they pick a topic they have opinions about, not a measurement category.
+ * Switching to construct grouping means changing the key here and nothing else.
+ */
+export function groupedExtraTopics(): { title: string; topics: Topic[] }[] {
+  const groups: { title: string; topics: Topic[] }[] = [];
+  for (const topic of EXTRA_TOPICS) {
+    const existing = groups.find((g) => g.title === topic.subject);
+    if (existing) existing.topics.push(topic);
+    else groups.push({ title: topic.subject, topics: [topic] });
+  }
+  return groups;
+}
+
 export function armTopics(arm: Arm): Topic[] {
   return ARM_ORDER[arm]
     .map((id) => getTopic(id))

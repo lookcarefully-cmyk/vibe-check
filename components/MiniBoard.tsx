@@ -47,6 +47,11 @@ interface MiniBoardProps {
   count: number;
   /** Whether the viewer has answered this board. */
   answered: boolean;
+  /**
+   * False when the tile sits under a heading that already names the subject —
+   * repeating it on every tile is noise.
+   */
+  showSubject?: boolean;
 }
 
 export default function MiniBoard({
@@ -55,6 +60,7 @@ export default function MiniBoard({
   mean,
   count,
   answered,
+  showSubject = true,
 }: MiniBoardProps) {
   const reveal = answered && mean !== null;
 
@@ -81,8 +87,8 @@ export default function MiniBoard({
         )}
         <circle cx={CX} cy={CY} r="7" className="mini-hub" />
       </svg>
-      <span className="mini-subject">{topic.subject}</span>
-      <span className="mini-axis">{topic.axis}</span>
+      {showSubject && <span className="mini-subject">{topic.subject}</span>}
+      <span className={`mini-axis${showSubject ? "" : " is-lead"}`}>{topic.axis}</span>
       <span className="mini-stat">
         {reveal
           ? `avg ${Math.round(mean * 100)}% · ${count}`

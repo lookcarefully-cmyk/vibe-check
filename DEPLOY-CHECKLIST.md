@@ -1,7 +1,7 @@
 # Going live — checklist
 
-Decisions made 2026-07-29. Items marked **DONE** are finished and verified;
-the rest are still open.
+Status as of the three-arm experiment build. Read `AGENTS.md` first for what
+the project currently is.
 
 Each item is tagged:
 
@@ -27,12 +27,10 @@ you make a free Upstash database, paste two values into Vercel, done.
 Free tier is 10,000 commands/day. Each vote is ~2 commands, each page view ~1.
 Fine unless a post goes properly viral.
 
-### A2. Wipe the fake seed data **[me]**
+### A2. Wipe the fake seed data — **DONE**
 
-All eight boards currently hold 200 invented votes each. I made those numbers up
-so I could see the graphics working. **If you launch as-is, every "average" on
-the site is fiction**, and any Substack post quoting them would be quoting me
-guessing. Real collection starts from zero.
+Every board sits at zero. `npm run seed` still exists for exercising the
+visualisation and the analysis; it must never be run against real responses.
 
 ### A3. Deploy to Vercel **[both]**
 
@@ -46,12 +44,13 @@ A custom domain looks more legitimate when a stranger lands on it from Substack.
 
 ---
 
-## B. Decide before collection starts — these can't be fixed later
+## B. Decide before collection starts — **ALL DONE**
 
-This is the section I'd most want you to actually read. Everything here is
-cheap now and impossible to backfill once real people have voted.
+Everything here was unbackfillable, and all of it is now in the record shape:
+`{ v, t, s, g, p }` — position, timestamp, session id, experiment arm, position
+within the arm. Store is at `v5`. Details in `AGENTS.md`.
 
-### B1. Store a timestamp with each vote? **[you decides, me implements]**
+### B1. Timestamps — **DONE**
 
 Right now a vote is a bare number. No date, no time. That means you can never
 write "responses in the first week skewed harder than later ones," or chart
@@ -64,7 +63,7 @@ voted means those 500 are permanently undated.
 My recommendation: add it. It costs nothing and it's the difference between a
 dataset and a running total.
 
-### B2. Store which board-set a session answered? **[you]**
+### B2. Session id linking answers — **DONE**
 
 Deliberately not collected today, and the disclosure promises this: nothing links
 your answers across boards. That's a real privacy property — but it also means
@@ -85,7 +84,7 @@ My recommendation: keep it unlinked for launch. It's the more defensible promise
 for these particular topics, and a weaker privacy claim is not something you can
 walk back after people have answered.
 
-### B3. Raise or remove the 20,000-vote cap **[me]**
+### B3. Vote cap removed — **DONE**
 
 At 20,000 votes per board, the oldest votes get silently deleted to make room.
 Averages would then quietly start meaning "the most recent 20,000 people"
@@ -116,10 +115,15 @@ Pick one:
   kind). ~2 hours, adds a third-party script, and the disclosure would need to
   say so since it currently promises no third-party scripts.
 
-My recommendation: Level 1. Level 2's cost is a promise you've already made to
-visitors.
+**Level 1 is DONE**: five answers per board per day per hashed IP, thirty
+across all boards. The IP is salted and hashed, only a counter is kept, and it
+expires within a day. Set `RATE_LIMIT_SALT` in production — without it the hash
+is still one-way but reproducible by anyone who has the code.
 
-### C1. Reject POSTs from other websites **[me]**
+Note it only actually works with Upstash. The local file backend's limiter is
+per-process, which is useless across serverless instances.
+
+### C1. Reject POSTs from other websites — **DONE**
 
 Separate from rate limiting and quick (~20 min). Right now any website can post
 votes to your API from its own pages. Checking the request's origin closes the
@@ -141,7 +145,11 @@ on-brand thing available and it's the first thing anyone sees.
 A mistyped board URL shows Next.js's default error page, which looks nothing
 like the site. ~15 minutes.
 
-### D3. How does this reach Substack readers? **[you]**
+### D3. How does this reach readers? — **DECIDED: a plain link**
+
+X first, then a Substack/X piece. No embed work needed.
+
+### D3b. (superseded, kept for context)
 
 Worth deciding before launch, because it changes what I build:
 
@@ -153,7 +161,7 @@ Worth deciding before launch, because it changes what I build:
 
 If email subscribers are most of your audience, the link is the safe answer.
 
-### D4. A results page you can read without voting **[you]**
+### D4. Reading results without voting — **DECIDED: export**
 
 You will want to look at all eight boards' numbers to write about them. But
 you've answered every board already, so you'd see them anyway — and a *public*

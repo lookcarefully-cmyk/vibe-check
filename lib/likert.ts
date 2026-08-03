@@ -16,7 +16,13 @@
  * results stay comparable across questions even though the words differ.
  */
 
-export type ScaleFamily = "addictive" | "bipolar" | "amount" | "proximity" | "pace";
+export type ScaleFamily =
+  | "addictive"
+  | "bipolar"
+  | "amount"
+  | "proximity"
+  | "pace"
+  | "permission";
 
 export interface Band {
   /** Lower bound as a percentage, inclusive. */
@@ -135,6 +141,26 @@ const PACE_LABELS = [
   "far slower",
 ];
 
+/**
+ * How permissible something should be. 0 = never allowed, 1 = always allowed.
+ *
+ * Its own family because a never/always axis is about the breadth of cases an
+ * allowance covers, not resemblance to one of two poles — the bipolar ladder
+ * would produce "slightly never".
+ */
+const PERMISSION_LABELS = [
+  "never, under any circumstances",
+  "almost never",
+  "only in rare cases",
+  "only in limited cases",
+  "borderline, leaning against",
+  "borderline, leaning in favour",
+  "in most cases",
+  "in nearly all cases",
+  "almost always",
+  "always, without restriction",
+];
+
 /** How many bands every family shares. */
 export const BAND_COUNT = BOUNDS.length;
 
@@ -191,6 +217,7 @@ export function bandFor(
   if (scale === "amount") return AMOUNT_LABELS[i];
   if (scale === "proximity") return PROXIMITY_LABELS[i];
   if (scale === "pace") return PACE_LABELS[i];
+  if (scale === "permission") return PERMISSION_LABELS[i];
 
   if (!poles) return null;
   return BIPOLAR_TEMPLATES[i]
@@ -208,6 +235,7 @@ export function labelsFor(
     if (scale === "amount") return AMOUNT_LABELS[i];
     if (scale === "proximity") return PROXIMITY_LABELS[i];
     if (scale === "pace") return PACE_LABELS[i];
+    if (scale === "permission") return PERMISSION_LABELS[i];
     return BIPOLAR_TEMPLATES[i]
       .replace("{left}", forProse(poles?.left ?? "the first", poles?.leftProse))
       .replace("{right}", forProse(poles?.right ?? "the second", poles?.rightProse));

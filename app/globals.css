@@ -489,6 +489,46 @@ body::after {
   opacity: 0.6;
 }
 
+.consensus-band {
+  margin: 0.15rem 0 0;
+  font-size: clamp(0.95rem, 2.4vw, 1.15rem);
+  color: var(--mustard);
+  font-weight: 600;
+}
+
+.board-filter {
+  width: 100%;
+  max-width: 26rem;
+  padding: 0.6rem 1rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--cream);
+  font: inherit;
+  font-size: 0.9rem;
+  text-align: center;
+}
+
+.board-filter::placeholder {
+  color: rgba(242, 235, 218, 0.4);
+}
+
+.board-filter:focus-visible {
+  outline: 2px solid var(--teal);
+  outline-offset: 2px;
+}
+
+.board-progress {
+  margin: 0;
+  font-size: 0.8rem;
+  color: rgba(242, 235, 218, 0.5);
+}
+
+.board-empty {
+  margin: 1.5rem 0;
+  color: rgba(242, 235, 218, 0.5);
+}
+
 /* -------------------------------------------------- standing disclosure */
 
 .disclosure {

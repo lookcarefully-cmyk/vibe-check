@@ -7,8 +7,9 @@ import InfoDialog from "./InfoDialog";
 import TopicNav from "./TopicNav";
 import { BIN_COUNT, MARGIN_COVERAGE, type Aggregate } from "@/lib/aggregate";
 import { nextHref, readRunState, type RunState } from "@/lib/run";
+import { bandFor } from "@/lib/likert";
 import { getSessionId } from "@/lib/session";
-import { isExperimentTopic, positionInArm } from "@/lib/experiment";
+import { EXPERIMENT_ENABLED, isExperimentTopic, positionInArm } from "@/lib/experiment";
 import { voteStorageKey, type Topic } from "@/lib/topics";
 
 /*
@@ -76,7 +77,7 @@ export default function VibeCheck({ topic }: { topic: Topic }) {
     setRun(state);
 
     const saved = window.localStorage.getItem(storageKey);
-    const midRun = isExperimentTopic(topic.id) && !state.complete;
+    const midRun = (EXPERIMENT_ENABLED && isExperimentTopic(topic.id)) && !state.complete;
 
     if (midRun && state.next && topic.id !== state.next.id) {
       /*
@@ -133,7 +134,7 @@ export default function VibeCheck({ topic }: { topic: Topic }) {
       setError(null);
       setPick(value);
       const state = readRunState();
-      const inExperiment = isExperimentTopic(topic.id);
+      const inExperiment = (EXPERIMENT_ENABLED && isExperimentTopic(topic.id));
       try {
         const res = await fetch(endpoint, {
           method: "POST",
@@ -182,7 +183,7 @@ export default function VibeCheck({ topic }: { topic: Topic }) {
   // During the run the eight-tile nav is hidden: it's an escape hatch out of
   // the sequence, and it shows "Addictive?" and "Cigarettes or comics?" side by
   // side, which invites people to spot the tension before answering either.
-  const midRun = run !== null && isExperimentTopic(topic.id) && !run.complete;
+  const midRun = run !== null && (EXPERIMENT_ENABLED && isExperimentTopic(topic.id)) && !run.complete;
   const outside = Math.round(((1 - MARGIN_COVERAGE) / 2) * 100);
   const inTen = Math.round(MARGIN_COVERAGE * 10);
   const hasSpread = agg.count > 1;
@@ -232,6 +233,11 @@ export default function VibeCheck({ topic }: { topic: Topic }) {
           <p className="consensus">
             The average answer is <strong>{pct(agg.mean)}</strong>
           </p>
+          {(() => {
+            const poles = { left: topic.leftLabel, right: topic.rightLabel };
+            const band = bandFor(agg.mean, topic.scale, poles);
+            return band ? <p className="consensus-band">— {band}</p> : null;
+          })()}
           {hasSpread ? (
             <p className="margin-copy">
               Most answers — {inTen} in 10 — land between <strong>{pct(agg.p10)}</strong> and{" "}

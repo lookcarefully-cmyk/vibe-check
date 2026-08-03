@@ -82,7 +82,10 @@ export default function RunResults() {
         const agg = aggs[topic.id] ?? EMPTY;
         const pick = picks[topic.id] ?? 0.5;
         const diff = Math.round((pick - agg.mean) * 100);
-        const yourBand = bandFor(pick, topic.likert);
+        const yourBand = bandFor(pick, topic.scale, {
+          left: topic.leftLabel,
+          right: topic.rightLabel,
+        });
         return (
           <section key={topic.id} className="run-result">
             <h2>{topic.question}</h2>

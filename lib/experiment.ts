@@ -23,6 +23,20 @@ import { TOPICS, getTopic, type Topic } from "./topics";
  * uncontaminated rating with a known arm.
  */
 
+/**
+ * The order experiment is PARKED. The shortform-social-media questionnaire is
+ * being reworked, so the site's front door is the browsable topics rather than
+ * the guided run.
+ *
+ * Nothing has been deleted. Flip this to true and the run comes back exactly as
+ * it was: `/` sends visitors into an arm, arm and position are recorded on every
+ * vote, and results are held until the arm finishes. The record shape already
+ * carries `g` and `p`, so re-enabling costs nothing and loses nothing.
+ *
+ * While parked, the experiment's boards behave as ordinary browsable boards.
+ */
+export const EXPERIMENT_ENABLED = false;
+
 export const ARMS = ["A", "B", "C"] as const;
 export type Arm = (typeof ARMS)[number];
 
@@ -42,26 +56,32 @@ export const EXPERIMENT_TOPIC_IDS = Array.from(
 export const isExperimentTopic = (topicId: string): boolean =>
   EXPERIMENT_TOPIC_IDS.includes(topicId);
 
-/** Everything outside the experiment, browsable in any order. */
-export const EXTRA_TOPICS: Topic[] = TOPICS.filter((t) => !isExperimentTopic(t.id));
+/**
+ * Boards shown on the browse page. With the experiment parked that's all of
+ * them; with it running, its items are withheld so they can't be taken out of
+ * order or previewed.
+ */
+export const EXTRA_TOPICS: Topic[] = EXPERIMENT_ENABLED
+  ? TOPICS.filter((t) => !isExperimentTopic(t.id))
+  : TOPICS;
 
 /**
  * The browse page grouped by what each board is about.
  *
- * Grouped by `subject` rather than by construct (health / addiction / policy)
- * because that's how someone browsing actually decides what to answer next —
- * they pick a topic they have opinions about, not a measurement category.
- * Switching to construct grouping means changing the key here and nothing else.
+ * Grouped by `category`, which is free text on each board. Adding a new section
+ * to the browse page is just typing a new category string in lib/topics.ts.
  */
-export function groupedExtraTopics(): { title: string; topics: Topic[] }[] {
+export function groupTopics(topics: Topic[]): { title: string; topics: Topic[] }[] {
   const groups: { title: string; topics: Topic[] }[] = [];
-  for (const topic of EXTRA_TOPICS) {
-    const existing = groups.find((g) => g.title === topic.subject);
+  for (const topic of topics) {
+    const existing = groups.find((g) => g.title === topic.category);
     if (existing) existing.topics.push(topic);
-    else groups.push({ title: topic.subject, topics: [topic] });
+    else groups.push({ title: topic.category, topics: [topic] });
   }
   return groups;
 }
+
+export const groupedExtraTopics = () => groupTopics(EXTRA_TOPICS);
 
 export function armTopics(arm: Arm): Topic[] {
   return ARM_ORDER[arm]

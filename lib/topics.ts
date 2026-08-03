@@ -15,6 +15,8 @@
  * inverts the meaning of every vote already collected.
  */
 
+import type { ScaleFamily } from "./likert";
+
 export interface Topic {
   /** URL slug and storage key. Never change one after votes exist. */
   id: string;
@@ -36,10 +38,21 @@ export interface Topic {
    */
   highMeans: string;
   /**
-   * Which Likert band set applies, if any. Only the addictiveness boards have
-   * one, because the bands are written in terms of addictiveness.
+   * Which wording family translates this board's percentage into words.
+   *
+   *   addictive — one property varying in degree ("moderately addictive")
+   *   bipolar   — which of two named poles it sits near ("mostly coffee")
+   *   amount    — how much of something there should be ("a good deal")
+   *
+   * See lib/likert.ts. All three share the same band boundaries, so a
+   * percentage means the same distance from neutral on every board.
    */
-  likert?: "addictive";
+  scale?: ScaleFamily;
+  /**
+   * Which section of the browse page this appears under. Free text — adding a
+   * new category is just typing a new string here.
+   */
+  category: string;
   /**
    * True for items with a defensible correct answer, used to check the
    * respondent is using the continuum rather than treating it as a switch.
@@ -66,7 +79,8 @@ export const TOPICS: Topic[] = [
     leftLabel: "NOT ADDICTIVE",
     rightLabel: "ADDICTIVE",
     highMeans: "more addictive",
-    likert: "addictive",
+    scale: "addictive",
+    category: "Screens & attention",
   },
   {
     /*
@@ -86,7 +100,8 @@ export const TOPICS: Topic[] = [
     leftLabel: "NOT ADDICTIVE",
     rightLabel: "ADDICTIVE",
     highMeans: "more addictive",
-    likert: "addictive",
+    scale: "addictive",
+    category: "Everyday habits",
   },
   {
     /*
@@ -112,6 +127,8 @@ export const TOPICS: Topic[] = [
     leftLabel: "LIQUID",
     rightLabel: "SOLID",
     highMeans: "more solid",
+    scale: "bipolar",
+    category: "Just for fun",
     calibration: true,
   },
 
@@ -125,6 +142,8 @@ export const TOPICS: Topic[] = [
     leftLabel: "HARMFUL",
     rightLabel: "HEALTHY",
     highMeans: "better for mental health",
+    scale: "bipolar",
+    category: "Screens & attention",
   },
   {
     id: "social-treatment",
@@ -136,6 +155,8 @@ export const TOPICS: Topic[] = [
     leftLabel: "NONE",
     rightLabel: "FULL CLINICAL CARE",
     highMeans: "more access to treatment",
+    scale: "amount",
+    category: "Screens & attention",
   },
   {
     // THE VAGUENESS IS THE POINT. No explanatory copy: naming what the poles
@@ -148,6 +169,8 @@ export const TOPICS: Topic[] = [
     leftLabel: "CIGARETTES",
     rightLabel: "COFFEE",
     highMeans: "more like a harmless habit",
+    scale: "bipolar",
+    category: "Screens & attention",
   },
   {
     id: "social-disorder",
@@ -158,6 +181,8 @@ export const TOPICS: Topic[] = [
     leftLabel: "REAL DISORDER",
     rightLabel: "JUST A HABIT",
     highMeans: "less clinically serious",
+    scale: "bipolar",
+    category: "Screens & attention",
   },
   {
     id: "porn-addictive",
@@ -168,7 +193,8 @@ export const TOPICS: Topic[] = [
     leftLabel: "NOT ADDICTIVE",
     rightLabel: "ADDICTIVE",
     highMeans: "more addictive",
-    likert: "addictive",
+    scale: "addictive",
+    category: "Sex & relationships",
   },
   {
     id: "porn-healthy",
@@ -179,6 +205,8 @@ export const TOPICS: Topic[] = [
     leftLabel: "HARMFUL",
     rightLabel: "HEALTHY",
     highMeans: "healthier",
+    scale: "bipolar",
+    category: "Sex & relationships",
   },
   {
     id: "social-polarizing",
@@ -189,6 +217,8 @@ export const TOPICS: Topic[] = [
     leftLabel: "POLARIZING",
     rightLabel: "UNIFYING",
     highMeans: "more unifying",
+    scale: "bipolar",
+    category: "Screens & attention",
   },
   {
     id: "social-society",
@@ -199,6 +229,8 @@ export const TOPICS: Topic[] = [
     leftLabel: "BAD FOR SOCIETY",
     rightLabel: "GOOD FOR SOCIETY",
     highMeans: "better for society",
+    scale: "bipolar",
+    category: "Screens & attention",
   },
   {
     id: "porn-society",
@@ -209,6 +241,8 @@ export const TOPICS: Topic[] = [
     leftLabel: "BAD FOR SOCIETY",
     rightLabel: "GOOD FOR SOCIETY",
     highMeans: "better for society",
+    scale: "bipolar",
+    category: "Sex & relationships",
   },
 ];
 

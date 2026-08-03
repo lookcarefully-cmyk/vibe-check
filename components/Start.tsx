@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { readRunState, nextHref } from "@/lib/run";
+import { EXPERIMENT_ENABLED } from "@/lib/experiment";
 
 /**
  * The entry point. Assigns an experiment arm on first visit (see
@@ -16,6 +17,10 @@ export default function Start() {
   const router = useRouter();
 
   useEffect(() => {
+    if (!EXPERIMENT_ENABLED) {
+      router.replace("/boards");
+      return;
+    }
     const state = readRunState();
     router.replace(state.complete ? "/results" : nextHref(state));
   }, [router]);

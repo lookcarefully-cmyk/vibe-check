@@ -11,43 +11,134 @@
  * The scale is continuous, so nothing in the analysis should use these; they
  * exist to make a percentage speakable.
  *
- * The ladder is symmetric about the midpoint and uses one consistent family of
- * intensity words — mildly, moderately, strongly — so the two halves are equally
- * weighted in wording as well as in numbers. ("Clearly" was tried and dropped:
- * it expresses confidence, not intensity, so it doesn't sit on the same ladder.) Lopsided wording is its own kind of bias: "very addictive" against
- * "slightly not addictive" makes the addictive half sound louder at equal
- * distances from neutral.
- *
- * Only the wording has changed since these were fixed. The BOUNDARIES are the
- * thing that must not move once data exists, and they haven't.
+ * EVERY family uses the same ten 10-point bands, symmetric about the midpoint.
+ * That's deliberate: 74% sits the same distance from neutral on every board, so
+ * results stay comparable across questions even though the words differ.
  */
+
+export type ScaleFamily = "addictive" | "bipolar" | "amount";
 
 export interface Band {
   /** Lower bound as a percentage, inclusive. */
   from: number;
   /** Upper bound as a percentage, exclusive (except the last, which includes 100). */
   to: number;
-  label: string;
 }
 
-/** Applies to boards where a HIGH score means more addictive. */
-export const ADDICTIVE_BANDS: Band[] = [
-  { from: 0, to: 10, label: "not addictive at all" },
-  { from: 10, to: 20, label: "strongly not addictive" },
-  { from: 20, to: 30, label: "moderately not addictive" },
-  { from: 30, to: 40, label: "mildly not addictive" },
-  { from: 40, to: 50, label: "borderline, leaning not addictive" },
-  { from: 50, to: 60, label: "borderline, leaning addictive" },
-  { from: 60, to: 70, label: "mildly addictive" },
-  { from: 70, to: 80, label: "moderately addictive" },
-  { from: 80, to: 90, label: "strongly addictive" },
-  { from: 90, to: 100, label: "as addictive as it gets" },
+/** The shared geometry. Only the wording changes between families. */
+export const BOUNDS: Band[] = [
+  { from: 0, to: 10 },
+  { from: 10, to: 20 },
+  { from: 20, to: 30 },
+  { from: 30, to: 40 },
+  { from: 40, to: 50 },
+  { from: 50, to: 60 },
+  { from: 60, to: 70 },
+  { from: 70, to: 80 },
+  { from: 80, to: 90 },
+  { from: 90, to: 100 },
 ];
 
-/** Band label for a 0..1 value, or null if the scale has no bands. */
-export function bandFor(value: number, scale?: "addictive"): string | null {
-  if (scale !== "addictive") return null;
+/**
+ * How addictive something is. One property varying in degree, so the words are
+ * degree words: mildly / moderately / strongly.
+ */
+const ADDICTIVE_LABELS = [
+  "not addictive at all",
+  "strongly not addictive",
+  "moderately not addictive",
+  "mildly not addictive",
+  "borderline, leaning not addictive",
+  "borderline, leaning addictive",
+  "mildly addictive",
+  "moderately addictive",
+  "strongly addictive",
+  "as addictive as it gets",
+];
+
+/**
+ * Which of two named things it resembles — cigarettes or coffee, polarizing or
+ * unifying, harmful or healthy.
+ *
+ * Different grammar from the addictive family, deliberately. With two named
+ * poles you say how close you are to one of them ("mostly coffee"), not how much
+ * of a property you have ("moderately coffee-ish"). The pole names are
+ * substituted in so the label reads as a sentence about the actual question.
+ */
+const BIPOLAR_TEMPLATES = [
+  "fully {left}",
+  "mostly {left}",
+  "moderately {left}",
+  "slightly {left}",
+  "neutral, leaning {left}",
+  "neutral, leaning {right}",
+  "slightly {right}",
+  "moderately {right}",
+  "mostly {right}",
+  "fully {right}",
+];
+
+/**
+ * How much of something there should be — none through to all of it. A
+ * magnitude, so quantity words rather than degree or proximity words.
+ */
+const AMOUNT_LABELS = [
+  "none at all",
+  "barely any",
+  "a little",
+  "some",
+  "a moderate amount, on the low side",
+  "a moderate amount, on the high side",
+  "a good deal",
+  "a lot",
+  "almost all of it",
+  "everything available",
+];
+
+/** Index of the band a 0..1 value falls in. */
+function bandIndex(value: number): number {
   const pct = Math.max(0, Math.min(100, value * 100));
-  const band = ADDICTIVE_BANDS.find((b) => pct >= b.from && pct < b.to);
-  return (band ?? ADDICTIVE_BANDS[ADDICTIVE_BANDS.length - 1]).label;
+  const i = BOUNDS.findIndex((b) => pct >= b.from && pct < b.to);
+  return i === -1 ? BOUNDS.length - 1 : i;
+}
+
+/** Pole labels are stored in caps for the dial; lower-case them for prose. */
+const forProse = (label: string) => label.toLowerCase();
+
+/**
+ * Band label for a 0..1 value.
+ *
+ * `poles` is required by the bipolar family and ignored by the others. Returns
+ * null when the board has no scale family, so callers can omit the label rather
+ * than print something meaningless.
+ */
+export function bandFor(
+  value: number,
+  scale: ScaleFamily | undefined,
+  poles?: { left: string; right: string },
+): string | null {
+  if (!scale) return null;
+  const i = bandIndex(value);
+
+  if (scale === "addictive") return ADDICTIVE_LABELS[i];
+  if (scale === "amount") return AMOUNT_LABELS[i];
+
+  if (!poles) return null;
+  return BIPOLAR_TEMPLATES[i]
+    .replace("{left}", forProse(poles.left))
+    .replace("{right}", forProse(poles.right));
+}
+
+/** Every label for a family, for documentation and for the "?" panel. */
+export function labelsFor(
+  scale: ScaleFamily,
+  poles?: { left: string; right: string },
+): string[] {
+  return BOUNDS.map((_, i) => {
+    if (scale === "addictive") return ADDICTIVE_LABELS[i];
+    if (scale === "amount") return AMOUNT_LABELS[i];
+    return BIPOLAR_TEMPLATES[i]
+      .replace("{left}", forProse(poles?.left ?? "the first"))
+      .replace("{right}", forProse(poles?.right ?? "the second"));
+  });
 }

@@ -17,7 +17,22 @@ Owner: Will Keller, PsyD student. Non-programmer. Explain reasoning, don't
 assume familiarity with the stack, and say plainly when something is a trade-off
 rather than a fact.
 
-## The experiment (this is the point of the whole codebase)
+## Current focus
+
+The order experiment is **PARKED** — `EXPERIMENT_ENABLED = false` in
+`lib/experiment.ts`. Will is reworking the shortform-social-media questionnaire.
+Nothing was deleted; flipping the flag brings the whole run back.
+
+Right now the site is a browsable set of hot-topic dials, and the work is
+breadth: more questions, in more categories, easy to move around. Long term he
+wants visitors to be able to add their own boards — not built, don't build it
+speculatively.
+
+Adding a board is one object in `lib/topics.ts`. It needs `category` (free text,
+creates a new browse section if unused) and `scale` (which wording family
+translates its percentage into words).
+
+## The experiment, while parked
 
 Everyone rates how addictive shortform social media is. What's randomised is
 **what they answered immediately before**:
@@ -80,6 +95,21 @@ Each of these was arrived at by making the opposite mistake first.
 7. **Likert band boundaries in `lib/likert.ts` are fixed.** Wording can be
    improved; the cut points must not move once real data exists, because they
    can always be nudged so the number lands in a more quotable band.
+
+8. **Three wording families, one shared geometry.** All use the same ten
+   10-point bands, so a percentage sits the same distance from neutral on every
+   board and results stay comparable. What differs is grammar, because the
+   questions differ in kind:
+
+   | Family | For | Reads like |
+   | --- | --- | --- |
+   | `addictive` | one property varying in degree | "moderately addictive" |
+   | `bipolar` | which of two named poles | "mostly coffee" |
+   | `amount` | how much there should be | "a good deal" |
+
+   The bipolar labels interpolate the board's own pole names, so they read as a
+   sentence about the actual question. Don't collapse these into one family —
+   "moderately coffee-ish" is not English.
 
 ## Layout
 

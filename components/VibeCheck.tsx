@@ -1,6 +1,7 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import Dial, { type Phase } from "./Dial";
 import InfoDialog from "./InfoDialog";
@@ -10,7 +11,12 @@ import { BIN_COUNT, MARGIN_COVERAGE, type Aggregate } from "@/lib/aggregate";
 import { nextHref, readRunState, type RunState } from "@/lib/run";
 import { bandCounts, bandFor, bandIndex } from "@/lib/likert";
 import { getSessionId } from "@/lib/session";
-import { EXPERIMENT_ENABLED, isExperimentTopic, positionInArm } from "@/lib/experiment";
+import {
+  EXPERIMENT_ENABLED,
+  EXTRA_TOPICS,
+  isExperimentTopic,
+  positionInArm,
+} from "@/lib/experiment";
 import { revealStorageKey, voteStorageKey, type Topic } from "@/lib/topics";
 
 /*
@@ -236,6 +242,28 @@ export default function VibeCheck({ topic }: { topic: Topic }) {
     setPick(0.5);
   };
 
+  /**
+   * A short shelf of other boards, shown *below* this one.
+   *
+   * The full grid used to sit above the dial, which meant clicking a board
+   * landed you on a wall of tiles with the actual question below the fold. Only
+   * a handful are shown here; the rest are one link away.
+   *
+   * Picked as the boards following this one in declaration order (wrapping), so
+   * it's deterministic — a random pick would differ between the server and the
+   * client and blow up hydration.
+   */
+  const moreTopics = useMemo(() => {
+    const pool = EXTRA_TOPICS;
+    const start = Math.max(0, pool.findIndex((t) => t.id === topic.id)) + 1;
+    const out: Topic[] = [];
+    for (let k = 0; k < pool.length && out.length < 4; k += 1) {
+      const candidate = pool[(start + k) % pool.length];
+      if (candidate.id !== topic.id) out.push(candidate);
+    }
+    return out;
+  }, [topic.id]);
+
   const isResult = phase === "result";
   // During the run the eight-tile nav is hidden: it's an escape hatch out of
   // the sequence, and it shows "Addictive?" and "Cigarettes or comics?" side by
@@ -247,12 +275,15 @@ export default function VibeCheck({ topic }: { topic: Topic }) {
 
   return (
     <main className="shell">
-      {midRun ? (
+      {/*
+        Nothing but the question above the dial. The board grid lives at the
+        bottom now — see moreTopics — because arriving on a board should put you
+        on that board, not on a page of links to other ones.
+      */}
+      {midRun && (
         <p className="run-progress">
           Question {run ? positionInArm(run.arm, topic.id) : 1} of {run?.total ?? 0}
         </p>
-      ) : (
-        <TopicNav activeId={topic.id} refreshKey={navKey} />
       )}
 
       <header className="masthead">
@@ -496,6 +527,17 @@ export default function VibeCheck({ topic }: { topic: Topic }) {
             )}
           </div>
         </>
+      )}
+
+      {/* Where to go next. Hidden during the run, which must not offer exits. */}
+      {!midRun && moreTopics.length > 0 && (
+        <section className="board-group more-boards">
+          <h2>More questions</h2>
+          <TopicNav activeId={topic.id} refreshKey={navKey} topics={moreTopics} />
+          <p className="board-index-run">
+            <Link href="/boards">Browse all {EXTRA_TOPICS.length} questions &rarr;</Link>
+          </p>
+        </section>
       )}
 
       {/* Standing disclosure, so it's readable without opening the dialog. */}

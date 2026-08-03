@@ -539,6 +539,17 @@ body::after {
   color: rgba(242, 235, 218, 0.5);
 }
 
+/* the "more questions" shelf at the foot of a board page */
+.more-boards {
+  margin-top: clamp(2rem, 5vw, 3rem);
+  padding-top: clamp(1.25rem, 3vw, 1.75rem);
+  border-top: 1px solid rgba(255, 255, 255, 0.09);
+}
+
+.more-boards .board-index-run {
+  margin-top: 1rem;
+}
+
 /* ------------------------------------------------------- how to play */
 
 .how-to-play {

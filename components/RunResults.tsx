@@ -85,6 +85,8 @@ export default function RunResults() {
         const yourBand = bandFor(pick, topic.scale, {
           left: topic.leftLabel,
           right: topic.rightLabel,
+          leftProse: topic.leftProse,
+          rightProse: topic.rightProse,
         });
         return (
           <section key={topic.id} className="run-result">

@@ -234,7 +234,12 @@ export default function VibeCheck({ topic }: { topic: Topic }) {
             The average answer is <strong>{pct(agg.mean)}</strong>
           </p>
           {(() => {
-            const poles = { left: topic.leftLabel, right: topic.rightLabel };
+            const poles = {
+              left: topic.leftLabel,
+              right: topic.rightLabel,
+              leftProse: topic.leftProse,
+              rightProse: topic.rightProse,
+            };
             const band = bandFor(agg.mean, topic.scale, poles);
             return band ? <p className="consensus-band">— {band}</p> : null;
           })()}

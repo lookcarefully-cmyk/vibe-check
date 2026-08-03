@@ -106,10 +106,20 @@ Each of these was arrived at by making the opposite mistake first.
    | `addictive` | one property varying in degree | "moderately addictive" |
    | `bipolar` | which of two named poles | "mostly coffee" |
    | `amount` | how much there should be | "a good deal" |
+   | `proximity` | how close something is to happening | "a long way off" |
+   | `pace` | how much faster or slower | "much slower" |
 
-   The bipolar labels interpolate the board's own pole names, so they read as a
-   sentence about the actual question. Don't collapse these into one family —
-   "moderately coffee-ish" is not English.
+   Only `bipolar` interpolates the board's pole names. The others have fixed
+   wording because their questions aren't about resembling one of two things.
+
+   Don't collapse these into one family. Each exists because the bipolar
+   template produced nonsense: "moderately coffee-ish", "fully we're there",
+   "fully faster".
+
+   Dial labels are caps and get lower-cased for prose, which mangles proper
+   nouns and nouns needing an adjective form. `leftProse` / `rightProse` on a
+   board override that — "SF-coded" not "sf-coded", "slightly optimistic" not
+   "slightly optimist".
 
 ## Layout
 

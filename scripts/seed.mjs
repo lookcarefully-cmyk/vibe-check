@@ -46,6 +46,23 @@ const BASE = {
   "social-polarizing": { mean: 0.18, sd: 0.14 },
   "social-society": { mean: 0.3, sd: 0.18 },
   "porn-society": { mean: 0.26, sd: 0.17 },
+  "ai-optimist": { mean: 0.55, sd: 0.24 },
+  "ai-pace": { mean: 0.52, sd: 0.26 },
+  "agi-here": { mean: 0.6, sd: 0.24 },
+  "singularity-here": { mean: 0.75, sd: 0.2 },
+  "opensource-gap": { mean: 0.45, sd: 0.22 },
+  "anthropic-mandate": { mean: 0.62, sd: 0.22 },
+  "openai-mandate": { mean: 0.45, sd: 0.24 },
+  "fable-coded": { mean: 0.45, sd: 0.25 },
+  "opus-coded": { mean: 0.4, sd: 0.25 },
+  "cursor-coded": { mean: 0.25, sd: 0.22 },
+  "chatgpt-coded": { mean: 0.35, sd: 0.24 },
+  "grok-coded": { mean: 0.3, sd: 0.25 },
+  "us-hegemony-end": { mean: 0.55, sd: 0.24 },
+  "college-end": { mean: 0.5, sd: 0.24 },
+  "kids-social": { mean: 0.15, sd: 0.15 },
+  "online-gambling": { mean: 0.4, sd: 0.28 },
+  "prediction-markets": { mean: 0.68, sd: 0.24 },
 };
 
 /**

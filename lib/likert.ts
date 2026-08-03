@@ -16,7 +16,7 @@
  * results stay comparable across questions even though the words differ.
  */
 
-export type ScaleFamily = "addictive" | "bipolar" | "amount";
+export type ScaleFamily = "addictive" | "bipolar" | "amount" | "proximity" | "pace";
 
 export interface Band {
   /** Lower bound as a percentage, inclusive. */
@@ -95,6 +95,46 @@ const AMOUNT_LABELS = [
   "everything available",
 ];
 
+/**
+ * How close something is to having happened. 0 = already here, 1 = nowhere near.
+ *
+ * Its own family because the bipolar templates fall apart here: "fully we're
+ * there" isn't English. This is a distance, not a resemblance to one of two
+ * named poles.
+ */
+const PROXIMITY_LABELS = [
+  "already here",
+  "essentially here",
+  "very close",
+  "fairly close",
+  "borderline, leaning close",
+  "borderline, leaning far off",
+  "a fair way off",
+  "a long way off",
+  "very far off",
+  "nowhere near",
+];
+
+/**
+ * How much something should speed up or slow down. 0 = far faster, 1 = far
+ * slower, with the midpoint meaning roughly the current rate.
+ *
+ * Also its own family: the bipolar ladder would produce "fully faster", and the
+ * neutral band here means "about the current pace" rather than "undecided".
+ */
+const PACE_LABELS = [
+  "far faster",
+  "much faster",
+  "moderately faster",
+  "slightly faster",
+  "about right, leaning faster",
+  "about right, leaning slower",
+  "slightly slower",
+  "moderately slower",
+  "much slower",
+  "far slower",
+];
+
 /** Index of the band a 0..1 value falls in. */
 function bandIndex(value: number): number {
   const pct = Math.max(0, Math.min(100, value * 100));
@@ -102,8 +142,12 @@ function bandIndex(value: number): number {
   return i === -1 ? BOUNDS.length - 1 : i;
 }
 
-/** Pole labels are stored in caps for the dial; lower-case them for prose. */
-const forProse = (label: string) => label.toLowerCase();
+/**
+ * Pole labels are stored in caps for the dial. Lower-casing is the right default
+ * for ordinary words but wrong for proper nouns, so a board can supply its own
+ * prose form instead — see leftProse/rightProse in lib/topics.ts.
+ */
+const forProse = (label: string, override?: string) => override ?? label.toLowerCase();
 
 /**
  * Band label for a 0..1 value.
@@ -115,30 +159,34 @@ const forProse = (label: string) => label.toLowerCase();
 export function bandFor(
   value: number,
   scale: ScaleFamily | undefined,
-  poles?: { left: string; right: string },
+  poles?: { left: string; right: string; leftProse?: string; rightProse?: string },
 ): string | null {
   if (!scale) return null;
   const i = bandIndex(value);
 
   if (scale === "addictive") return ADDICTIVE_LABELS[i];
   if (scale === "amount") return AMOUNT_LABELS[i];
+  if (scale === "proximity") return PROXIMITY_LABELS[i];
+  if (scale === "pace") return PACE_LABELS[i];
 
   if (!poles) return null;
   return BIPOLAR_TEMPLATES[i]
-    .replace("{left}", forProse(poles.left))
-    .replace("{right}", forProse(poles.right));
+    .replace("{left}", forProse(poles.left, poles.leftProse))
+    .replace("{right}", forProse(poles.right, poles.rightProse));
 }
 
 /** Every label for a family, for documentation and for the "?" panel. */
 export function labelsFor(
   scale: ScaleFamily,
-  poles?: { left: string; right: string },
+  poles?: { left: string; right: string; leftProse?: string; rightProse?: string },
 ): string[] {
   return BOUNDS.map((_, i) => {
     if (scale === "addictive") return ADDICTIVE_LABELS[i];
     if (scale === "amount") return AMOUNT_LABELS[i];
+    if (scale === "proximity") return PROXIMITY_LABELS[i];
+    if (scale === "pace") return PACE_LABELS[i];
     return BIPOLAR_TEMPLATES[i]
-      .replace("{left}", forProse(poles?.left ?? "the first"))
-      .replace("{right}", forProse(poles?.right ?? "the second"));
+      .replace("{left}", forProse(poles?.left ?? "the first", poles?.leftProse))
+      .replace("{right}", forProse(poles?.right ?? "the second", poles?.rightProse));
   });
 }

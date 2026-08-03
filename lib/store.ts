@@ -100,8 +100,12 @@ function parseRecords(raw: unknown[]): VoteRecord[] {
 
 /* ------------------------------------------------------------------ upstash */
 
-const UPSTASH_URL = process.env.UPSTASH_REDIS_REST_URL;
-const UPSTASH_TOKEN = process.env.UPSTASH_REDIS_REST_TOKEN;
+// Accept either naming. Upstash's own console gives UPSTASH_REDIS_REST_*, but
+// when the database is provisioned through the Vercel integration the same REST
+// URL and token are injected as KV_REST_API_* instead. Reading both means the
+// store works no matter which way the database was created.
+const UPSTASH_URL = process.env.UPSTASH_REDIS_REST_URL ?? process.env.KV_REST_API_URL;
+const UPSTASH_TOKEN = process.env.UPSTASH_REDIS_REST_TOKEN ?? process.env.KV_REST_API_TOKEN;
 
 async function upstash(command: (string | number)[]): Promise<unknown> {
   const res = await fetch(UPSTASH_URL!, {

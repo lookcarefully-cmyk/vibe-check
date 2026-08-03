@@ -726,7 +726,14 @@ body::after {
   /* keep the dial inside the fold on short/wide screens */
   max-height: 64vh;
   overflow: visible;
+  /* none: the drag steers the dial, so the browser must not claim the gesture
+     for scrolling or pinch-zoom mid-answer */
   touch-action: none;
+  /* iOS pops a selection/callout menu on press-and-hold, which lands exactly on
+     someone taking their time to aim — it would swallow the drag. */
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
 }
 
 .dial.is-choose {
@@ -1068,6 +1075,43 @@ body::after {
 .hint {
   font-size: 0.8rem;
   color: rgba(242, 235, 218, 0.45);
+}
+
+/* ------------------------------------------------- the commit button */
+
+.lock-in {
+  margin-top: 1.25rem;
+  padding: 0.85rem 2.2rem;
+  border: 0;
+  border-radius: 999px;
+  background: var(--teal);
+  color: var(--navy);
+  font: inherit;
+  font-size: clamp(0.95rem, 2.2vw, 1.05rem);
+  font-weight: 800;
+  letter-spacing: 0.01em;
+  cursor: pointer;
+  /* comfortably past the 44px touch-target guidance on a phone */
+  min-height: 48px;
+  transition: transform 200ms var(--ease-out), background 200ms ease;
+}
+
+.lock-in:hover:not(:disabled) {
+  background: #7fe3e4;
+  transform: translateY(-2px);
+}
+
+.lock-in:focus-visible {
+  outline: 3px solid var(--cream);
+  outline-offset: 3px;
+}
+
+/* Visibly inert until the dial has been touched, so it reads as "do that
+   first" rather than as a button that failed to work. */
+.lock-in:disabled {
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(242, 235, 218, 0.4);
+  cursor: not-allowed;
 }
 
 /* ------------------------------- view results without voting (the opt-out) */

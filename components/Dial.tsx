@@ -159,14 +159,22 @@ export default function Dial({
     }));
   }, [agg.counts, topic]);
 
+  /*
+   * Never let a bad value reach the geometry. A NaN pick propagates into every
+   * coordinate derived from it, and an SVG carrying NaN attributes collapses to
+   * a 0x0 box — the whole dial vanishes, which is a far worse failure than a
+   * misplaced handle.
+   */
+  const safePick = Number.isFinite(pick) ? Math.min(1, Math.max(0, pick)) : 0.5;
+
   // -1 never matches a band index, so nothing is marked as "yours".
-  const ownBand = showOwn ? bandIndex(pick) : -1;
+  const ownBand = showOwn ? bandIndex(safePick) : -1;
   // --te is gentler than --t: the endpoint labels sit on a fixed-width baseline
   // and would run into the hub if they grew as much as the rest of the type.
   const typeScaleVars = { "--t": t, "--te": 1 + (t - 1) * 0.45 } as React.CSSProperties;
 
   const isResult = phase === "result";
-  const needleValue = isResult ? agg.mean : pick;
+  const needleValue = isResult ? agg.mean : safePick;
 
   // Where the marker line should land: the tip of the tallest (mean) ray.
   const markerRadius = rays.length
@@ -186,12 +194,61 @@ export default function Dial({
     const svg = svgRef.current;
     if (!svg) return pick;
     const box = svg.getBoundingClientRect();
+    // A zero-width box (not laid out yet, or hidden) would divide to NaN, and a
+    // NaN pick propagates straight into the handle position and the vote body.
+    if (!box.width) return pick;
     const userX = ((e.clientX - box.left) / box.width) * VIEW.w;
-    return Math.min(1, Math.max(0, (userX - (CX - R_FACE)) / (2 * R_FACE)));
+    const value = (userX - (CX - R_FACE)) / (2 * R_FACE);
+    if (!Number.isFinite(value)) return pick;
+    return Math.min(1, Math.max(0, value));
   }
 
-  const handleX = CX - R_FACE + pick * 2 * R_FACE;
-  const [aimX, aimY] = polar(pick, R_FACE - 10);
+  const handleX = CX - R_FACE + safePick * 2 * R_FACE;
+  const [aimX, aimY] = polar(safePick, R_FACE - 10);
+
+  /*
+   * The dial only ever AIMS. Committing is a separate, explicit button.
+   *
+   * It used to commit on pointerdown, which works with a mouse — you aim by
+   * hovering and the click merely confirms a position you already chose. On a
+   * touchscreen there is no hover, so the first contact WAS the answer: the vote
+   * locked wherever a finger happened to land, with no chance to adjust.
+   *
+   * Committing on release fixes the adjusting, but not the bigger problem: a
+   * vote is one-per-board and permanent, so no single stray gesture on the dial
+   * should be able to cast one. Hence aim here, confirm there.
+   */
+  const dragging = useRef(false);
+
+  const beginDrag = (e: React.PointerEvent<SVGSVGElement>) => {
+    if (!interactive) return;
+    e.preventDefault();
+    dragging.current = true;
+    // Capture so a finger that slides off the dial keeps steering it, and so the
+    // matching pointerup still arrives here rather than at whatever is beneath.
+    try {
+      e.currentTarget.setPointerCapture(e.pointerId);
+    } catch {
+      /* capture is an optimisation; dragging still works without it */
+    }
+    onPick(valueFromEvent(e));
+  };
+
+  const moveDrag = (e: React.PointerEvent<SVGSVGElement>) => {
+    if (!interactive) return;
+    // Touch only tracks while pressed; a mouse also aims on plain hover.
+    if (dragging.current || e.pointerType === "mouse") onPick(valueFromEvent(e));
+  };
+
+  // Releasing settles the handle; it does not vote. The confirm button does.
+  const endDrag = (e: React.PointerEvent<SVGSVGElement>) => {
+    dragging.current = false;
+    try {
+      e.currentTarget.releasePointerCapture(e.pointerId);
+    } catch {
+      /* nothing captured */
+    }
+  };
 
   return (
     <svg
@@ -203,7 +260,7 @@ export default function Dial({
       role={interactive ? "slider" : "img"}
       aria-label={
         interactive
-          ? `${topic.question} Click along the spectrum to answer, where 0 percent is ${topic.leftLabel.toLowerCase()} and 100 percent is ${topic.rightLabel.toLowerCase()}.`
+          ? `${topic.question} Drag along the spectrum to place your answer, then confirm it with the button below. 0 percent is ${topic.leftLabel.toLowerCase()} and 100 percent is ${topic.rightLabel.toLowerCase()}.`
           : `Average answer: ${Math.round(agg.mean * 100)} percent toward ${topic.rightLabel.toLowerCase()}, from ${agg.count} responses.`
       }
       aria-valuemin={interactive ? 0 : undefined}
@@ -218,18 +275,13 @@ export default function Dial({
           : undefined
       }
       tabIndex={interactive ? 0 : -1}
-      onPointerMove={interactive ? (e) => onPick(valueFromEvent(e)) : undefined}
+      onPointerDown={interactive ? beginDrag : undefined}
+      onPointerMove={interactive ? moveDrag : undefined}
+      onPointerUp={interactive ? endDrag : undefined}
+      onPointerCancel={interactive ? endDrag : undefined}
       // Leaving the dial drops any band readout; without this it sticks on the
       // last band the pointer crossed on its way out.
       onPointerLeave={!interactive && onBandFocus ? () => onBandFocus(null) : undefined}
-      onPointerDown={
-        interactive
-          ? (e) => {
-              e.preventDefault();
-              onCommit(valueFromEvent(e));
-            }
-          : undefined
-      }
       onKeyDown={
         interactive
           ? (e) => {

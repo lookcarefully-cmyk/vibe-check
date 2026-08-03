@@ -57,6 +57,15 @@ export default function VibeCheck({ topic }: { topic: Topic }) {
   // then closed to them permanently — see revealStorageKey in lib/topics.ts.
   const [revealed, setRevealed] = useState(false);
   const [confirmingReveal, setConfirmingReveal] = useState(false);
+  /*
+   * Whether the viewer has actually placed the handle.
+   *
+   * The confirm button stays disabled until they have. The dial starts at 50%,
+   * and an enabled button next to an untouched dial invites a reflexive click
+   * that records a midpoint nobody chose — which would pile up at exactly the
+   * value the scale is centred on and quietly flatten every result.
+   */
+  const [touched, setTouched] = useState(false);
   // null until read on the client, so server and first client render agree.
   const [run, setRun] = useState<RunState | null>(null);
 
@@ -92,6 +101,7 @@ export default function VibeCheck({ topic }: { topic: Topic }) {
     setLoaded(false);
     setActiveBand(null);
     setConfirmingReveal(false);
+    setTouched(false);
     lastCount.current = 0;
 
     const state = readRunState();
@@ -308,7 +318,10 @@ export default function VibeCheck({ topic }: { topic: Topic }) {
           pick={pick}
           agg={agg}
           topic={topic}
-          onPick={setPick}
+          onPick={(v) => {
+            setPick(v);
+            setTouched(true);
+          }}
           onCommit={commit}
           interactive={!isResult && !pending}
           activeBand={activeBand}
@@ -489,7 +502,25 @@ export default function VibeCheck({ topic }: { topic: Topic }) {
         </section>
       ) : (
         <>
-          <p className="hint">Keyboard: arrow keys to aim, Enter to submit.</p>
+          {/*
+            The commit step, deliberately separate from the dial. No percentage
+            or band label on it: naming the number before it's locked in turns a
+            felt judgement into a number-picking task (rule 1 in AGENTS.md).
+          */}
+          <button
+            type="button"
+            className="lock-in"
+            onClick={() => commit(pick)}
+            disabled={!touched || pending}
+          >
+            {pending ? "Locking it in…" : "Lock in my answer"}
+          </button>
+          <p className="hint">
+            {touched
+              ? "You can keep adjusting until you lock it in."
+              : "Drag the dial to place your answer."}{" "}
+            Keyboard: arrow keys to aim, Enter to submit.
+          </p>
 
           {/*
             The opt-out. Deliberately quiet and two-step: it's the less

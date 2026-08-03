@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import MiniBoard from "./MiniBoard";
 import type { TopicSummary } from "@/app/api/summary/route";
 import { EXTRA_TOPICS } from "@/lib/experiment";
-import { voteStorageKey, type Topic } from "@/lib/topics";
+import { revealStorageKey, voteStorageKey, type Topic } from "@/lib/topics";
 
 interface TopicNavProps {
   activeId: string;
@@ -30,13 +30,18 @@ export default function TopicNav({
   const [answered, setAnswered] = useState<Set<string>>(new Set());
 
   useEffect(() => {
-    // Which boards this viewer has answered. Read on the client only, so the
-    // server never renders a revealed average into the HTML.
+    // Which boards this viewer has already seen the results of — either by
+    // answering, or by trading their vote for a look. Read on the client only,
+    // so the server never renders a revealed average into the HTML.
     setAnswered(
       new Set(
-        topics.filter((t) => window.localStorage.getItem(voteStorageKey(t.id)) !== null).map(
-          (t) => t.id,
-        ),
+        topics
+          .filter(
+            (t) =>
+              window.localStorage.getItem(voteStorageKey(t.id)) !== null ||
+              window.localStorage.getItem(revealStorageKey(t.id)) !== null,
+          )
+          .map((t) => t.id),
       ),
     );
 

@@ -62,6 +62,13 @@ export interface Topic {
    */
   category: string;
   /**
+   * Keep the board and its data, but hide it from the browse library and the
+   * board-page nav. For items that belong to a formal data-collection set and
+   * shouldn't be casually browsable, without deleting the board or orphaning
+   * its votes. Filtered out of EXTRA_TOPICS in lib/experiment.ts.
+   */
+  hiddenFromLibrary?: boolean;
+  /**
    * True for items with a defensible correct answer, used to check the
    * respondent is using the continuum rather than treating it as a switch.
    * Never an opinion measure — exclude from every substantive result.
@@ -89,6 +96,7 @@ export const TOPICS: Topic[] = [
     highMeans: "more addictive",
     scale: "addictive",
     category: "Screens & attention",
+    hiddenFromLibrary: true,
   },
   {
     /*
@@ -110,6 +118,7 @@ export const TOPICS: Topic[] = [
     highMeans: "more addictive",
     scale: "addictive",
     category: "Everyday habits",
+    hiddenFromLibrary: true,
   },
   {
     /*
@@ -138,6 +147,7 @@ export const TOPICS: Topic[] = [
     scale: "bipolar",
     category: "Just for fun",
     calibration: true,
+    hiddenFromLibrary: true,
   },
 
   /* ------------------------------------------ everything else, browsable */
@@ -165,20 +175,7 @@ export const TOPICS: Topic[] = [
     highMeans: "more access to treatment",
     scale: "amount",
     category: "Screens & attention",
-  },
-  {
-    // THE VAGUENESS IS THE POINT. No explanatory copy: naming what the poles
-    // stand for tells respondents which answer is consistent.
-    id: "social-coffee",
-    subject: "Shortform social media",
-    axis: "Cigarettes or coffee?",
-    question: "Is compulsive shortform scrolling more like a cigarette habit or a coffee habit?",
-    prompt: "Slide to your answer and click anywhere on the dial to lock it in.",
-    leftLabel: "CIGARETTES",
-    rightLabel: "COFFEE",
-    highMeans: "more like a harmless habit",
-    scale: "bipolar",
-    category: "Screens & attention",
+    hiddenFromLibrary: true,
   },
   {
     id: "social-disorder",
@@ -189,6 +186,23 @@ export const TOPICS: Topic[] = [
     leftLabel: "REAL DISORDER",
     rightLabel: "JUST A HABIT",
     highMeans: "less clinically serious",
+    scale: "bipolar",
+    category: "Screens & attention",
+    hiddenFromLibrary: true,
+  },
+  {
+    // The word "neurologically" is carried in the question, not repeated on both
+    // poles: two ~22-character end labels ("NEUROLOGICALLY HARMFUL" /
+    // "NEUROLOGICALLY HARMLESS") collide in the middle of the dial baseline. The
+    // question supplies the neurological framing; the poles stay short.
+    id: "social-neuro",
+    subject: "Long-term shortform use",
+    axis: "Neurological harm?",
+    question: "Long-term shortform social media use is, neurologically:",
+    prompt: "Slide to your answer and click anywhere on the dial to lock it in.",
+    leftLabel: "HARMFUL",
+    rightLabel: "HARMLESS",
+    highMeans: "more neurologically harmless",
     scale: "bipolar",
     category: "Screens & attention",
   },
@@ -239,6 +253,7 @@ export const TOPICS: Topic[] = [
     highMeans: "better for society",
     scale: "bipolar",
     category: "Screens & attention",
+    hiddenFromLibrary: true,
   },
   {
     id: "porn-society",
@@ -437,6 +452,21 @@ export const TOPICS: Topic[] = [
     category: "Big shifts",
   },
   {
+    // A yes/no read on the spectrum: the bipolar family renders NO..YES as
+    // "mostly no" .. "fully yes", so a plain two-way question still gets degree
+    // words rather than a hard switch.
+    id: "college-recommend-2026",
+    subject: "College in 2026",
+    axis: "Recommend it?",
+    question: "Would you recommend your kid goes to college in 2026?",
+    prompt: "Slide to your answer and click anywhere on the dial to lock it in.",
+    leftLabel: "NO",
+    rightLabel: "YES",
+    highMeans: "more likely to recommend college",
+    scale: "bipolar",
+    category: "Big shifts",
+  },
+  {
     id: "kids-social",
     subject: "Social media for under-12s",
     axis: "Harmful?",
@@ -479,7 +509,38 @@ export function getTopic(id: string | undefined): Topic | undefined {
   return TOPICS.find((t) => t.id === id);
 }
 
+/**
+ * The boards the front page leads with, in display order. A hand-picked
+ * shortlist rather than a category, because "what's worth putting on the front
+ * door" is an editorial call that doesn't map onto any single `category`.
+ */
+export const FEATURED_TOPIC_IDS = [
+  "kids-social",
+  "ai-optimist",
+  "ai-pace",
+  "opensource-gap",
+  "college-recommend-2026",
+  "social-neuro",
+];
+
+export const FEATURED_TOPICS: Topic[] = FEATURED_TOPIC_IDS.map((id) =>
+  getTopic(id),
+).filter((t): t is Topic => t !== undefined);
+
 /** Where a viewer's own answer to one board is remembered. */
 export function voteStorageKey(topicId: string): string {
   return `vibecheck:${topicId}:vote`;
+}
+
+/**
+ * Set when someone chooses to see a board's results *without* answering it.
+ *
+ * Deliberately a second key rather than a sentinel value in the vote key: this
+ * is the record of a forfeited vote, not an answer, and nothing downstream
+ * should ever mistake it for a position on the scale. Once set, the board is
+ * closed to that browser — having seen the crowd, their answer would be
+ * anchored, which is the whole reason results are withheld in the first place.
+ */
+export function revealStorageKey(topicId: string): string {
+  return `vibecheck:${topicId}:revealed`;
 }

@@ -135,11 +135,34 @@ const PACE_LABELS = [
   "far slower",
 ];
 
+/** How many bands every family shares. */
+export const BAND_COUNT = BOUNDS.length;
+
 /** Index of the band a 0..1 value falls in. */
-function bandIndex(value: number): number {
+export function bandIndex(value: number): number {
   const pct = Math.max(0, Math.min(100, value * 100));
   const i = BOUNDS.findIndex((b) => pct >= b.from && pct < b.to);
   return i === -1 ? BOUNDS.length - 1 : i;
+}
+
+/**
+ * Roll the aggregate's fine-grained histogram up into the ten Likert bands.
+ *
+ * Takes raw bucket counts (any bucket count; each bucket is assigned by its
+ * centre) and returns one count per band. This is what makes the dial readable
+ * as a histogram over the same words the result is quoted in — the bands drawn
+ * on the face are the bands the sentence below it uses.
+ */
+export function bandCounts(counts: number[]): number[] {
+  const out = new Array(BAND_COUNT).fill(0);
+  const bins = counts.length;
+  if (!bins) return out;
+  for (let i = 0; i < bins; i += 1) {
+    const c = counts[i];
+    if (!c) continue;
+    out[bandIndex((i + 0.5) / bins)] += c;
+  }
+  return out;
 }
 
 /**

@@ -133,17 +133,20 @@ easy version of this.
 
 ## D. So it looks right when shared
 
-### D1. Link preview image and favicon **[me]**
+### D1. Link preview image and favicon — **DONE**
 
-There's no `public/` folder, no favicon, no social preview image. A link shared
-on Substack, Twitter or in a text message currently shows a blank box and a bare
-URL. I'd render a preview card from the actual dial artwork — it's the most
-on-brand thing available and it's the first thing anyone sees.
+- Favicon: `app/icon.svg`, the dial motif. Next serves it automatically.
+- Social card: `app/opengraph-image.tsx` renders a 1200×630 PNG from the dial
+  artwork via `next/og` (verified: 200, ~37KB). `openGraph`/`twitter` metadata
+  in `app/layout.tsx` gives it the large-image layout and the right title/text.
+- `metadataBase` is set from `NEXT_PUBLIC_SITE_ORIGIN` (falls back to
+  `VERCEL_URL`, then localhost), so the card URL resolves correctly once
+  deployed. **Set `NEXT_PUBLIC_SITE_ORIGIN` in production** to the final address.
 
-### D2. Styled 404 **[me]**
+### D2. Styled 404 — **DONE**
 
-A mistyped board URL shows Next.js's default error page, which looks nothing
-like the site. ~15 minutes.
+`app/not-found.tsx` — an on-brand "Off the dial" page with links back to the
+featured shelf and the full library. Verified returning a real 404.
 
 ### D3. How does this reach readers? — **DECIDED: a plain link**
 
@@ -161,14 +164,15 @@ Worth deciding before launch, because it changes what I build:
 
 If email subscribers are most of your audience, the link is the safe answer.
 
-### D4. Reading results without voting — **DECIDED: export**
+### D4. Reading results without voting — **BUILT (in-app), export still open**
 
-You will want to look at all eight boards' numbers to write about them. But
-you've answered every board already, so you'd see them anyway — and a *public*
-results page would break the anchoring protection for everyone who hasn't voted.
+There is now an in-app **"view results without voting"** path on every board: it
+shows the crowd's numbers and permanently closes that board to the viewer
+(`revealStorageKey`), so the anchoring protection holds — an anchored answer can
+no longer be recorded. This is the public-facing version.
 
-Options: a private URL only you know, or export the data and read it offline
-(see E1). I lean toward export — it can't leak by being shared.
+For *your* own writing you'll still want the raw numbers rather than reading
+percentages off the screen — that's E1, still open.
 
 ---
 

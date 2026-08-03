@@ -11,12 +11,21 @@ export const runtime = "nodejs";
 type Params = { params: Promise<{ topic: string }> };
 
 /**
- * Rate limits, per hashed caller. Generous enough that nobody answering in good
- * faith — including re-answering via "Answer again" — will notice, and tight
- * enough that a script can't flood a board.
+ * Rate limits, per hashed caller — which means per IP, NOT per person.
+ *
+ * These are a flood stop, not the "one vote each" rule; that is enforced in the
+ * browser (see components/VibeCheck.tsx). The distinction matters because one
+ * IP is routinely many people: a household, an office, and above all mobile
+ * carriers, which put very large numbers of users behind a handful of
+ * addresses. The old per-board cap of 5 was sized for one person re-answering,
+ * and on a link shared to a wide audience it would have started rejecting
+ * ordinary first-time voters — silently, as a 429 they could do nothing about.
+ *
+ * So: high enough that a shared exit IP never trips it in normal use, low
+ * enough that a single address can't sit there stuffing one board all day.
  */
-const PER_BOARD_PER_DAY = 5;
-const ALL_BOARDS_PER_DAY = 30;
+const PER_BOARD_PER_DAY = 60;
+const ALL_BOARDS_PER_DAY = 300;
 const DAY_SECONDS = 24 * 60 * 60;
 
 function noStore(body: unknown, status = 200) {
@@ -78,8 +87,13 @@ export async function POST(req: Request, { params }: Params) {
       store.hit(`${caller}:all`, ALL_BOARDS_PER_DAY, DAY_SECONDS),
     ]);
     if (!board.allowed || !overall.allowed) {
+      // Worded for the shared-connection case as well as the flooding one: the
+      // person reading this may be a first-time voter behind a busy network.
       return noStore(
-        { error: "You've answered this plenty for today. Try again tomorrow." },
+        {
+          error:
+            "This connection has sent a lot of answers today, so this one wasn't recorded. Try again tomorrow.",
+        },
         429,
       );
     }

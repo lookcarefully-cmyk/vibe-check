@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import Dial from "./Dial";
 import InfoDialog from "./InfoDialog";
+import Colophon from "./Colophon";
 import { BIN_COUNT, type Aggregate } from "@/lib/aggregate";
 import { bandFor } from "@/lib/likert";
 import { readRunState } from "@/lib/run";
@@ -140,10 +141,11 @@ export default function RunResults() {
 
       <footer className="disclosure">
         Anonymous: your answer, the time, and a random ID that groups your answers
-        together. No name, email, account or IP. Aggregate results are used for writing
-        on X and Substack.{" "}
+        together. No name, email, account or IP. Results are public, so anyone can see how the crowd answered.{" "}
         <span className="disclosure-cue">Full details under the ? above.</span>
       </footer>
+
+      <Colophon />
     </main>
   );
 }

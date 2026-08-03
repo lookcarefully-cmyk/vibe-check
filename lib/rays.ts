@@ -39,7 +39,7 @@ export interface Ray {
  * one smooth bell that was never in the data. With a normal-ish sample it
  * renders as the bell curve you'd expect.
  */
-export function buildRays(agg: Aggregate): Ray[] {
+export function buildRays(agg: Aggregate, rayMax: number = R_RAY_MAX): Ray[] {
   const bandwidth = Math.max(agg.sd * 0.7, MIN_BANDWIDTH);
   const total = agg.counts.reduce((a, b) => a + b, 0);
 
@@ -70,7 +70,7 @@ export function buildRays(agg: Aggregate): Ray[] {
   });
 
   const peak = max(samples, (s) => s.raw) ?? 0;
-  const toRadius = scaleLinear().domain([0, 1]).range([R_RAY_MIN, R_RAY_MAX]).clamp(true);
+  const toRadius = scaleLinear().domain([0, 1]).range([R_RAY_MIN, rayMax]).clamp(true);
 
   return samples
     // Drop rays out of bounds or in the far tail — they read as visual litter.

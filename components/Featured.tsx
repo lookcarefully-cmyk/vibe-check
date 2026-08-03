@@ -1,0 +1,78 @@
+"use client";
+
+import Link from "next/link";
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+import TopicNav from "./TopicNav";
+import InfoDialog from "./InfoDialog";
+import HowToPlay from "./HowToPlay";
+import Colophon from "./Colophon";
+import { EXPERIMENT_ENABLED, EXTRA_TOPICS } from "@/lib/experiment";
+import { readRunState, nextHref } from "@/lib/run";
+import { FEATURED_TOPICS } from "@/lib/topics";
+
+/**
+ * The front door: a short, hand-picked shelf of boards (see FEATURED_TOPICS in
+ * lib/topics.ts) with a way through to the full library at /boards.
+ *
+ * When the order experiment is live (EXPERIMENT_ENABLED), the front door is the
+ * guided run instead, so this bounces to it — the same behaviour the old Start
+ * screen had. Parked, it renders the shelf.
+ */
+export default function Featured() {
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!EXPERIMENT_ENABLED) return;
+    const state = readRunState();
+    router.replace(state.complete ? "/results" : nextHref(state));
+  }, [router]);
+
+  if (EXPERIMENT_ENABLED) {
+    return (
+      <main className="shell">
+        <p className="lede">Starting…</p>
+      </main>
+    );
+  }
+
+  return (
+    <main className="shell">
+      <header className="masthead">
+        <div className="kicker">
+          <span className="kicker-text">Vibe Check · public data collection</span>
+          <InfoDialog />
+        </div>
+        <h1>Where do you land?</h1>
+        <p className="lede">
+          Place your answer on the dial, then see how everyone else answered. A
+          board stays blank until you&rsquo;ve had your say.
+        </p>
+      </header>
+
+      <HowToPlay />
+
+      <section className="board-group">
+        <h2>Featured questions</h2>
+        {/*
+          The tiles keep their subject: on the front page there's no category
+          heading naming it, and "OPTIMIST OR DOOMER?" over a faceless dial
+          doesn't tell you it's about AI.
+        */}
+        <TopicNav activeId="" refreshKey={0} topics={FEATURED_TOPICS} />
+      </section>
+
+      <p className="board-index-run">
+        <Link href="/boards">Browse all {EXTRA_TOPICS.length} questions &rarr;</Link>
+      </p>
+
+      <footer className="disclosure">
+        Anonymous: your answer, the time, and a random ID that groups your answers
+        together. No name, email, account or IP. Results are public, so anyone can see how the crowd answered.{" "}
+        <span className="disclosure-cue">Full details under the ? above.</span>
+      </footer>
+
+      <Colophon />
+    </main>
+  );
+}

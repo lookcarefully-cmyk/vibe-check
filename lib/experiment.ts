@@ -57,13 +57,19 @@ export const isExperimentTopic = (topicId: string): boolean =>
   EXPERIMENT_TOPIC_IDS.includes(topicId);
 
 /**
- * Boards shown on the browse page. With the experiment parked that's all of
- * them; with it running, its items are withheld so they can't be taken out of
- * order or previewed.
+ * Boards shown on the browse page (and the board-page nav). With the experiment
+ * parked that's most of them; with it running, its items are withheld so they
+ * can't be taken out of order or previewed.
+ *
+ * Boards flagged `hiddenFromLibrary` are excluded either way: they stay in
+ * TOPICS (and keep their votes) but don't appear in the browsable set. That's
+ * how a formal data-collection item is kept off the casual browse page without
+ * being deleted. See lib/topics.ts.
  */
-export const EXTRA_TOPICS: Topic[] = EXPERIMENT_ENABLED
+export const EXTRA_TOPICS: Topic[] = (EXPERIMENT_ENABLED
   ? TOPICS.filter((t) => !isExperimentTopic(t.id))
-  : TOPICS;
+  : TOPICS
+).filter((t) => !t.hiddenFromLibrary);
 
 /**
  * The browse page grouped by what each board is about.

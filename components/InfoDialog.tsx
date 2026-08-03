@@ -82,12 +82,27 @@ export default function InfoDialog() {
               Each board is its own question with its own separate results. Answering one
               doesn&rsquo;t affect any of the others.
             </p>
+            <p>
+              <strong>One answer per board.</strong> Once you&rsquo;ve answered, that
+              board shows you its results whenever you come back — but it won&rsquo;t
+              take a second answer from you.
+            </p>
           </section>
 
           <section>
             <h3>Why you can&rsquo;t see the results first</h3>
             <p>
-              A board stays blank until you&rsquo;ve answered it, to reduce anchoring bias.
+              You cannot view the board before voting to reduce{" "}
+              <a
+                href="https://thedecisionlab.com/biases/anchoring-bias"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                anchoring bias
+              </a>
+              . If you do not want to vote and want to see the results, click the
+              &ldquo;view results without voting&rdquo; tab. NOTE, you will not be able
+              to vote again after clicking this.
             </p>
           </section>
 
@@ -107,6 +122,14 @@ export default function InfoDialog() {
               <dd>
                 Where the middle 80% of answers fall. About one in ten went below the lower
                 number, and one in ten above the higher one.
+              </dd>
+
+              <dt>The ring of ten blocks</dt>
+              <dd>
+                The spectrum split into the ten bands the results are described in — the
+                fuller a block, the more people landed in it. Point at one (or tap it on a
+                phone) and the line under the dial tells you which band it is and how many
+                people chose it. Yours is outlined in teal.
               </dd>
             </dl>
             <p className="info-note">
@@ -153,10 +176,16 @@ export default function InfoDialog() {
           </section>
 
           <section>
-            <h3>What it&rsquo;s used for</h3>
+            <h3>What this is for</h3>
+            <p>
+              This is a public snapshot of where people actually land on questions that
+              usually get argued about in absolutes. It&rsquo;s here for anyone to
+              answer, share, argue with, and use to see how they compare to everyone
+              else. The results are open to all — there&rsquo;s no members-only version.
+            </p>
             <p>
               Aggregate results — averages, spreads, response counts and how answers
-              relate to each other — for writing published on X and Substack. Individual
+              relate to each other — may also be written about publicly. Individual
               answers say nothing on their own. Nothing is sold or handed to third
               parties.
             </p>

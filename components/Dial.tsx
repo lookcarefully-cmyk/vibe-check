@@ -4,9 +4,17 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import type { Aggregate } from "@/lib/aggregate";
 import type { Topic } from "@/lib/topics";
 import { buildRays, RAY_COUNT } from "@/lib/rays";
+import { BAND_COUNT, bandCounts, bandFor, bandIndex } from "@/lib/likert";
 import {
   CX,
   CY,
+  R_BAND_HIT_IN,
+  R_BAND_HIT_OUT,
+  R_BAND_IN,
+  R_BAND_IN_COMPACT,
+  R_BAND_OUT,
+  R_BAND_OUT_COMPACT,
+  R_RAY_MAX_COMPACT,
   R_BRACKET,
   R_BRACKET_LABEL,
   R_FACE,
@@ -15,6 +23,7 @@ import {
   R_RIM,
   R_SCALLOP,
   VIEW,
+  annularSector,
   dome,
   polar,
   rotationOf,
@@ -38,6 +47,19 @@ interface DialProps {
   onPick: (value: number) => void;
   onCommit: (value: number) => void;
   interactive: boolean;
+  /**
+   * Which band the pointer is over, or null. Owned by the parent because the
+   * readout it drives is rendered *below* the dial — share-of-people numbers
+   * must never be drawn on the face. See rule 2 in AGENTS.md.
+   */
+  activeBand?: number | null;
+  onBandFocus?: (index: number | null) => void;
+  /**
+   * False when the viewer forfeited their vote to see the results. There is no
+   * "your answer" to draw, so the aim line and the own-band highlight are
+   * omitted rather than pointed at the meaningless default of 0.5.
+   */
+  showOwn?: boolean;
 }
 
 /** Stars are baked once from a fixed seed so SSR and hydration agree. */
@@ -67,11 +89,11 @@ function rayPoints(value: number, radius: number): string {
 }
 
 /**
- * On a phone the whole dial is ~340px wide, so type set in viewBox units comes
- * out microscopic. Scale in-SVG text up when the viewport is narrow. Starts
- * false so the server and the first client render agree.
+ * True on phone-width viewports. Drives both the in-SVG type scale (type set in
+ * viewBox units comes out microscopic on a ~340px dial) and the fatter band
+ * ring. Starts false so the server and the first client render agree.
  */
-function useTypeScale(): number {
+function useCompact(): boolean {
   const [compact, setCompact] = useState(false);
   useEffect(() => {
     const mq = window.matchMedia("(max-width: 700px)");
@@ -80,7 +102,7 @@ function useTypeScale(): number {
     mq.addEventListener("change", sync);
     return () => mq.removeEventListener("change", sync);
   }, []);
-  return compact ? 1.45 : 1;
+  return compact;
 }
 
 export default function Dial({
@@ -91,10 +113,54 @@ export default function Dial({
   onPick,
   onCommit,
   interactive,
+  activeBand = null,
+  onBandFocus,
+  showOwn = true,
 }: DialProps) {
   const svgRef = useRef<SVGSVGElement>(null);
-  const rays = useMemo(() => buildRays(agg), [agg]);
-  const t = useTypeScale();
+  const compact = useCompact();
+  const t = compact ? 1.45 : 1;
+
+  // On a phone the rays give up length so the band ring can be thick enough to
+  // read. See the *_COMPACT radii in lib/geometry.ts.
+  const rayMax = compact ? R_RAY_MAX_COMPACT : R_RAY_MAX;
+  const bandIn = compact ? R_BAND_IN_COMPACT : R_BAND_IN;
+  const bandOut = compact ? R_BAND_OUT_COMPACT : R_BAND_OUT;
+
+  const rays = useMemo(() => buildRays(agg, rayMax), [agg, rayMax]);
+
+  /*
+   * The ten Likert bands, rolled up from the aggregate's fine histogram. This is
+   * the same banding the result sentence is quoted in, so the picture and the
+   * words describe the crowd in one vocabulary rather than two.
+   *
+   * No share-of-people number is drawn from this — see rule 2 in AGENTS.md.
+   * Length and opacity carry the shape; the counts live in hover titles and in
+   * the prose below the dial.
+   */
+  const bands = useMemo(() => {
+    const counts = bandCounts(agg.counts);
+    const total = counts.reduce((a, b) => a + b, 0);
+    const peak = Math.max(...counts, 1);
+    const poles = {
+      left: topic.leftLabel,
+      right: topic.rightLabel,
+      leftProse: topic.leftProse,
+      rightProse: topic.rightProse,
+    };
+    return counts.map((count, i) => ({
+      i,
+      count,
+      share: total ? count / total : 0,
+      height: count / peak,
+      from: i / BAND_COUNT,
+      to: (i + 1) / BAND_COUNT,
+      label: bandFor((i + 0.5) / BAND_COUNT, topic.scale, poles),
+    }));
+  }, [agg.counts, topic]);
+
+  // -1 never matches a band index, so nothing is marked as "yours".
+  const ownBand = showOwn ? bandIndex(pick) : -1;
   // --te is gentler than --t: the endpoint labels sit on a fixed-width baseline
   // and would run into the hub if they grew as much as the rest of the type.
   const typeScaleVars = { "--t": t, "--te": 1 + (t - 1) * 0.45 } as React.CSSProperties;
@@ -153,6 +219,9 @@ export default function Dial({
       }
       tabIndex={interactive ? 0 : -1}
       onPointerMove={interactive ? (e) => onPick(valueFromEvent(e)) : undefined}
+      // Leaving the dial drops any band readout; without this it sticks on the
+      // last band the pointer crossed on its way out.
+      onPointerLeave={!interactive && onBandFocus ? () => onBandFocus(null) : undefined}
       onPointerDown={
         interactive
           ? (e) => {
@@ -260,18 +329,89 @@ export default function Dial({
         </g>
 
         {/* the viewer's own answer, kept visible next to the crowd's */}
-        <line
-          className="aim"
-          x1={CX}
-          y1={CY}
-          x2={aimX}
-          y2={aimY}
-          stroke="#5FD3D4"
-          strokeWidth={isResult ? 6 : 9}
-          strokeLinecap="round"
-          opacity={isResult ? 0.5 : 0.95}
-        />
+        {showOwn && (
+          <line
+            className="aim"
+            x1={CX}
+            y1={CY}
+            x2={aimX}
+            y2={aimY}
+            stroke="#5FD3D4"
+            strokeWidth={isResult ? 6 : 9}
+            strokeLinecap="round"
+            opacity={isResult ? 0.5 : 0.95}
+          />
+        )}
       </g>
+
+      {/* ------------------------------------------- ten-band histogram ring */}
+      {/*
+        The ray fan is a smoothed estimate; this is the discrete truth, banded
+        into the same ten zones the result is worded in. The viewer's own band is
+        called out in teal — the same colour their aim line uses everywhere else,
+        so "teal means you" stays consistent.
+      */}
+      {isResult && agg.count > 0 && (
+        <g className="bands">
+          {bands.map((b) => {
+            // A hairline gap keeps ten sectors from reading as one solid arc.
+            const gap = 0.0045;
+            const from = b.from + gap;
+            const to = b.to - gap;
+            const isOwn = b.i === ownBand;
+            const isActive = b.i === activeBand;
+            // Floor the length so a band with one vote is still visible.
+            const grown = b.count > 0 ? Math.max(0.14, b.height) : 0;
+            const outer = bandIn + grown * (bandOut - bandIn);
+            const pctOfPeople = Math.round(b.share * 100);
+            const state = `${isOwn ? " is-own" : ""}${isActive ? " is-active" : ""}`;
+            return (
+              <g key={b.i}>
+                {/*
+                  Native <title> must be the FIRST child or browsers won't show
+                  it as a tooltip. It's a fallback here — the real readout is the
+                  line below the dial, which also works on touch.
+                */}
+                <title>
+                  {b.label ? `${b.label}: ` : ""}
+                  {b.count} {b.count === 1 ? "answer" : "answers"} ({pctOfPeople}%)
+                  {isOwn ? " — your band" : ""}
+                </title>
+                <path
+                  className={`band-slot${state}`}
+                  d={annularSector(from, to, bandIn, bandOut)}
+                />
+                {b.count > 0 && (
+                  <path
+                    className={`band-bar${state}`}
+                    d={annularSector(from, to, bandIn, outer)}
+                    // Redundant encoding: the ring is too thin for length alone.
+                    opacity={0.35 + b.height * 0.65}
+                  />
+                )}
+                {isOwn && (
+                  <path
+                    className="band-own"
+                    d={annularSector(from, to, bandIn, bandOut)}
+                  />
+                )}
+                {/*
+                  A tall invisible target over each band. The visible bar is only
+                  a few millimetres on a phone, so the thing you actually point at
+                  spans most of the face's radius.
+                */}
+                <path
+                  className="band-hit"
+                  d={annularSector(b.from, b.to, R_BAND_HIT_IN, R_BAND_HIT_OUT)}
+                  onPointerEnter={() => onBandFocus?.(b.i)}
+                  onPointerDown={() => onBandFocus?.(b.i)}
+                  onPointerLeave={() => onBandFocus?.(null)}
+                />
+              </g>
+            );
+          })}
+        </g>
+      )}
 
       {/* -------------------------------------------- 80% margin bracket */}
       {isResult && agg.count > 1 && (
@@ -384,6 +524,9 @@ export default function Dial({
       </text>
 
       {/* ------------------------------------------------ track + handle */}
+      {/* Omitted entirely when there's no answer of your own — a handle sitting
+          at the default 0.5 reads as a vote you didn't cast. */}
+      {showOwn && (
       <g className={`slider ${isResult ? "muted" : ""}`}>
         <line
           x1={CX - R_FACE}
@@ -410,6 +553,7 @@ export default function Dial({
         <line x1={CX} y1={CY} x2={CX} y2={TRACK_Y} stroke="#5FD3D4" strokeWidth="14" strokeLinecap="round" />
         <circle className="handle" cx={handleX} cy={TRACK_Y} r="24" fill="#7FE3E4" stroke="#0A1238" strokeWidth="5" />
       </g>
+      )}
 
       {/* ---------------------------------------------- needle + red hub */}
       <g
@@ -417,7 +561,8 @@ export default function Dial({
         style={{ transform: `rotate(${rotationOf(needleValue)}deg)` }}
         opacity={isResult ? 1 : 0}
       >
-        <line x1={CX} y1={CY} x2={CX} y2={CY - (R_RAY_MAX + 14)} stroke="#E51D35" strokeWidth="11" strokeLinecap="round" />
+        {/* Stops just inside the band ring, so the ring reads as its own track. */}
+        <line x1={CX} y1={CY} x2={CX} y2={CY - (bandIn - 10)} stroke="#E51D35" strokeWidth="11" strokeLinecap="round" />
       </g>
       <circle cx={CX} cy={CY} r={R_HUB} fill="#E51D35" />
       <circle cx={CX} cy={CY} r={R_HUB - 12} fill="none" stroke="#C4142A" strokeWidth="3" opacity="0.85" />

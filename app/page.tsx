@@ -1,9 +1,9 @@
-import Start from "@/components/Start";
+import Featured from "@/components/Featured";
 
-// Arm assignment happens in the browser, so this page cannot be prerendered
-// into a fixed destination.
+// The featured shelf and (when the experiment is live) arm assignment both read
+// browser state, so this page cannot be prerendered into a fixed destination.
 export const dynamic = "force-dynamic";
 
 export default function Home() {
-  return <Start />;
+  return <Featured />;
 }

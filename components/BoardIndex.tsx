@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import TopicNav from "./TopicNav";
 import InfoDialog from "./InfoDialog";
+import Colophon from "./Colophon";
 import { EXPERIMENT_ENABLED, EXTRA_TOPICS, groupTopics } from "@/lib/experiment";
 import { readRunState } from "@/lib/run";
 import { voteStorageKey } from "@/lib/topics";
@@ -106,10 +107,11 @@ export default function BoardIndex() {
 
       <footer className="disclosure">
         Anonymous: your answer, the time, and a random ID that groups your answers
-        together. No name, email, account or IP. Aggregate results are used for writing
-        on X and Substack.{" "}
+        together. No name, email, account or IP. Results are public, so anyone can see how the crowd answered.{" "}
         <span className="disclosure-cue">Full details under the ? above.</span>
       </footer>
+
+      <Colophon />
     </main>
   );
 }

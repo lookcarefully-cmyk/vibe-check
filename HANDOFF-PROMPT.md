@@ -37,9 +37,9 @@ If I ask for something that will cause a problem, say so before building it.
 | `components/Dial.tsx` | the dial itself (SVG) |
 | `components/VibeCheck.tsx` | one board: state, submission, polling |
 | `components/BoardIndex.tsx` | the browse page — the site's front door |
-| `components/TopicNav.tsx`, `MiniBoard.tsx` | the tile grid |
+| `components/TopicNav.tsx`, `components/MiniBoard.tsx` | the tile grid |
 | `components/InfoDialog.tsx` | the "?" panel: how to play + data disclosure |
-| `components/RunResults.tsx`, `Start.tsx` | parked-experiment screens |
+| `components/RunResults.tsx`, `components/Start.tsx` | parked-experiment screens |
 | `components/DevPanel.tsx` | `/dev` test harness |
 | `app/[topic]/page.tsx` | a single board |
 | `app/boards/page.tsx` | browse |

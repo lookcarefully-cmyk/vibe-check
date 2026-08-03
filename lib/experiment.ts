@@ -77,6 +77,9 @@ export const EXTRA_TOPICS: Topic[] = (EXPERIMENT_ENABLED
  * Grouped by `category`, which is free text on each board. Adding a new section
  * to the browse page is just typing a new category string in lib/topics.ts.
  */
+/** Category name treated as a catch-all and always sorted last. */
+export const CATCH_ALL = "Other";
+
 export function groupTopics(topics: Topic[]): { title: string; topics: Topic[] }[] {
   const groups: { title: string; topics: Topic[] }[] = [];
   for (const topic of topics) {
@@ -84,7 +87,10 @@ export function groupTopics(topics: Topic[]): { title: string; topics: Topic[] }
     if (existing) existing.topics.push(topic);
     else groups.push({ title: topic.category, topics: [topic] });
   }
-  return groups;
+  // Sections otherwise follow the order boards are declared in. "Other" is a
+  // catch-all, so it goes last however its boards happen to be ordered —
+  // a bucket labelled "Other" sitting above real categories reads as a mistake.
+  return groups.sort((a, b) => Number(a.title === CATCH_ALL) - Number(b.title === CATCH_ALL));
 }
 
 export const groupedExtraTopics = () => groupTopics(EXTRA_TOPICS);

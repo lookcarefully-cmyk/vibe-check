@@ -145,7 +145,7 @@ export const TOPICS: Topic[] = [
     rightLabel: "SOLID",
     highMeans: "more solid",
     scale: "bipolar",
-    category: "Just for fun",
+    category: "Other",
     calibration: true,
     hiddenFromLibrary: true,
   },
@@ -657,7 +657,7 @@ export const TOPICS: Topic[] = [
     rightLabel: "ASSET CLASS",
     highMeans: "more of an asset class",
     scale: "bipolar",
-    category: "Just for fun",
+    category: "Other",
   },
   {
     id: "pitbulls",

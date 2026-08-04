@@ -236,8 +236,14 @@ export default function Dial({
 
   const moveDrag = (e: React.PointerEvent<SVGSVGElement>) => {
     if (!interactive) return;
-    // Touch only tracks while pressed; a mouse also aims on plain hover.
-    if (dragging.current || e.pointerType === "mouse") onPick(valueFromEvent(e));
+    // Only track while actually pressed — for the mouse as well as touch.
+    //
+    // A mouse used to aim on plain hover, but that is incompatible with a
+    // separate confirm button: to reach the button the cursor has to leave the
+    // dial, and the last spot it hovered on the way out became the answer. So
+    // the handle appeared to jump the instant you went to lock it in. Press,
+    // drag, release; the handle then stays exactly where you left it.
+    if (dragging.current) onPick(valueFromEvent(e));
   };
 
   // Releasing settles the handle; it does not vote. The confirm button does.

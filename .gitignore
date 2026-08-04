@@ -7,3 +7,6 @@ next-env.d.ts
 .DS_Store
 .vercel
 .env*
+
+# Exported data. public/ is safe to publish; private/ carries session ids.
+export/

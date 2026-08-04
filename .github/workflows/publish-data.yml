@@ -1,0 +1,78 @@
+# Publishes the public aggregates on a schedule.
+#
+# This is what makes the daily snapshot real: it exports from Upstash, copies the
+# PUBLIC files into data/, and commits. The git history of data/ then IS the
+# snapshot archive — every day's numbers, permanently, with no extra storage and
+# no way to quietly rewrite what was already published.
+#
+# The private per-answer export (session ids) is generated in the runner and
+# never committed. Nothing here can leak it: only export/public is copied.
+#
+# NOT ENABLED YET. It needs:
+#   1. this repo pushed to GitHub
+#   2. two repo secrets: KV_REST_API_URL and KV_REST_API_TOKEN
+#      (Vercel > project > Storage > your Upstash database > .env.local tab)
+# Until then it simply never runs.
+
+name: Publish data
+
+on:
+  schedule:
+    # 04:10 UTC daily — after midnight UTC so a full day is closed, and off the
+    # hour because everything on Earth runs at :00 and runners queue.
+    - cron: "10 4 * * *"
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: publish-data
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      - run: npm ci
+
+      - name: Export from the live store
+        env:
+          KV_REST_API_URL: ${{ secrets.KV_REST_API_URL }}
+          KV_REST_API_TOKEN: ${{ secrets.KV_REST_API_TOKEN }}
+        run: npm run export
+
+      - name: Fail if the export somehow produced session ids
+        # Belt and braces. A single leaked id is unrecoverable once pushed, so
+        # this checks the actual bytes about to be committed rather than trusting
+        # the script that wrote them.
+        run: |
+          if grep -rEq '\b[0-9a-f]{32}\b' export/public/; then
+            echo "::error::A 32-hex id appeared in export/public — refusing to publish."
+            exit 1
+          fi
+
+      - name: Copy the public subset into data/
+        run: |
+          mkdir -p data
+          rm -rf data/*
+          cp -R export/public/* data/
+
+      - name: Commit if anything changed
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data
+          if git diff --staged --quiet; then
+            echo "No change today."
+          else
+            git commit -m "Data snapshot $(date -u +%Y-%m-%d)"
+            git push
+          fi

@@ -335,7 +335,7 @@ Each phase is useful alone and doesn't block on the next.
 | Phase | What | Why this order |
 | --- | --- | --- |
 | **1 — BUILT, not deployed** | Epochs + re-voting + returning-voter flow + windowed/labelled headline | Nothing else is meaningful until the time axis exists. Every day without it is a day of data you can't use for trend. |
-| **2** | Daily snapshots + nightly export + codebook + public data repo | Starts accumulating the record. Also delivers the backup that's currently missing. |
+| **2 — BUILT, not enabled** | Daily snapshots + nightly export + codebook + public data repo | Starts accumulating the record. Also delivers the backup that's currently missing. |
 | **3** | History page + sparkline + event annotations + per-board share cards | The visible payoff, and what makes it writable and shareable. |
 | **4** | Community boards | Largest surface, most moderation risk, and it benefits from the data model being settled first. |
 
@@ -369,6 +369,33 @@ Verified: 19 epoch tests (incl. ISO boundary cases like 2020-W53), 15 aggregatio
 tests (incl. "40 answers from one person counts as 1"), the cadence gate refusing
 a same-week second answer, and the full returning-visitor flow in the browser
 with a seeded 12-week drift.
+
+## What phase 2 shipped (local only)
+
+`npm run export` reads whichever store is configured and writes:
+
+| Path | Contains |
+| --- | --- |
+| `export/private/votes-YYYY-MM.csv` | one row per answer, **with session ids — never publish** |
+| `export/public/board-weekly.csv` | per board per ISO week, deduped to people |
+| `export/public/board-daily.csv` | same, by day |
+| `export/public/boards.csv` | the board registry incl. `high_means` |
+| `export/public/codebook.md` | generated from the real modules, so it can't drift |
+| `export/public/README.md` | how to load it, CC BY 4.0 |
+
+**Snapshots need no new storage.** `.github/workflows/publish-data.yml` exports
+nightly, copies only `export/public` into `data/`, and commits — so the git
+history of `data/` *is* the snapshot archive: permanent, diffable, citable, and
+impossible to quietly rewrite after the fact. It also re-greps the actual bytes
+for 32-hex ids before pushing, because one leaked session id can't be recalled.
+
+Not enabled yet: it needs the repo on GitHub plus `KV_REST_API_URL` and
+`KV_REST_API_TOKEN` as repo secrets. Until then it never runs.
+
+Verified against a seeded 12-week panel: the codebook's own SQL recipe
+reproduces the published `mean` and `n_people` exactly; a 30-day window collapsed
+177 answers to 133 people; the leak guard blocks a planted id and passes clean
+output.
 
 ## What I need from you
 

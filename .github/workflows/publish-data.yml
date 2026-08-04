@@ -46,7 +46,14 @@ jobs:
       - name: Export from the live store
         env:
           KV_REST_API_URL: ${{ secrets.KV_REST_API_URL }}
-          KV_REST_API_TOKEN: ${{ secrets.KV_REST_API_TOKEN }}
+          # The READ-ONLY token, mapped onto the variable the store reads.
+          #
+          # Exporting only ever reads, so there is no reason for this job to hold
+          # a credential that can write. If this secret ever leaks, the worst
+          # case is someone reading aggregate vote data — not wiping a board or
+          # stuffing it. Upstash issues this token alongside the read-write one;
+          # Vercel provisions both.
+          KV_REST_API_TOKEN: ${{ secrets.KV_REST_API_READ_ONLY_TOKEN }}
         run: npm run export
 
       - name: Fail if the export somehow produced session ids

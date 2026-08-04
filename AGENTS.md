@@ -92,7 +92,27 @@ Each of these was arrived at by making the opposite mistake first.
    spots the tension resolves it. Don't annotate a board whose whole point is
    the ambiguity.
 
-5. **One answer per board, enforced in the browser.** Once a board is answered
+5. **A board is a series, not a number.** People answer again when their vibe
+   moves (weekly by default — `cadence` in `lib/topics.ts`, maths in
+   `lib/epoch.ts`). That makes the all-time mean the average *person-week*
+   rather than the average person: someone answering thirty weeks running counts
+   thirty times. So every headline figure is **deduped to one answer per person
+   (their latest) and windowed**, and the window is always printed beside it.
+   `aggregateWindow` in `lib/aggregate.ts` is the only correct way to get a
+   board's number; a bare mean over raw rows is wrong.
+
+   **Never delete votes to "refresh" a board.** Resetting destroys the series
+   the whole project exists to show, and with it the panel — the ability to
+   measure the *same people* twice, which is the strongest claim available here
+   and the hardest for anyone else to reproduce. Reset eligibility, never data.
+
+   **Don't show the crowd's current number to someone about to re-answer.** They
+   saw it after their last answer, which is unavoidable; putting today's figure
+   in front of them at the moment they revise anchors the exact quantity being
+   measured. `asking` in `components/VibeCheck.tsx` is what keeps that screen
+   clean.
+
+6. **One answer per board per epoch, enforced on the server.** Once a board is answered
    the saved position in `localStorage` is what makes it show results, forever —
    navigating away and back must never lose it. The "Answer again" button is
    development-only (`NODE_ENV`); it used to ship, and because it cleared the
@@ -100,33 +120,35 @@ Each of these was arrived at by making the opposite mistake first.
    rate limiter on the way back lost their result with no way to see the board
    again. Re-answering also inflates one person into several records.
 
-   **The rate limiter is not the "once" rule.** It buckets by hashed IP, so it
+   **The rate limiter is not the cadence rule.** Cadence is enforced in
+   `app/api/votes/[topic]/route.ts`, which refuses a second answer in the same
+   epoch with a 409. It buckets by hashed IP, so it
    counts *connections*, not people — a household, an office, and especially a
    mobile carrier all share one bucket. Its caps are a flood stop and must stay
    well above what a shared exit IP produces, or ordinary first-time voters get
    rejected with a 429 they can do nothing about.
 
-6. **A result page must never invent numbers.** The empty aggregate has
+7. **A result page must never invent numbers.** The empty aggregate has
    `mean: 0.5`, so anything rendered before the first fetch lands, or after one
    fails, would show a 50% "average" and a difference measured against it. Guard
    on `agg.count === 0`, and distinguish "not fetched yet" from "fetched and
    empty" or the failure notice flashes on every load.
 
-7. **Orientation is per-board, not uniform.** Addictive boards run
+8. **Orientation is per-board, not uniform.** Addictive boards run
    NOT ADDICTIVE → ADDICTIVE; harm boards run HARMFUL → HEALTHY. Every `Topic`
    carries `highMeans` saying what a high score means in plain English. Assuming
    a uniform direction is the mistake that silently inverts a result.
 
-8. **`STORE_VERSION` in `lib/store.ts` must be bumped whenever a board's ends
+9. **`STORE_VERSION` in `lib/store.ts` must be bumped whenever a board's ends
    are swapped or the record shape changes.** Votes are bare 0..1 positions with
    no record of which way the labels ran, so flipping a board turns every
    existing vote into its opposite. Currently `v5`.
 
-9. **Likert band boundaries in `lib/likert.ts` are fixed.** Wording can be
+10. **Likert band boundaries in `lib/likert.ts` are fixed.** Wording can be
    improved; the cut points must not move once real data exists, because they
    can always be nudged so the number lands in a more quotable band.
 
-10. **Three wording families, one shared geometry.** All use the same ten
+11. **Three wording families, one shared geometry.** All use the same ten
    10-point bands, so a percentage sits the same distance from neutral on every
    board and results stay comparable. What differs is grammar, because the
    questions differ in kind:

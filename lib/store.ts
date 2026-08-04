@@ -58,6 +58,26 @@ export interface VoteRecord {
    * definitions ever change.
    */
   p: number;
+  /**
+   * Epoch this answer belongs to — "2026-W31", "2026-08", or "all". Derivable
+   * from `t`, and stored anyway: it's the unit every longitudinal figure is
+   * grouped by, and recomputing it later means re-deriving the cadence rules
+   * that were in force at the time. Absent on records written before epochs
+   * existed; backfill from `t` when exporting.
+   */
+  e?: string;
+  /**
+   * How many times this session has answered THIS board, 1-based. Lets an
+   * analysis separate first-ever answers (the clean cross-section) from
+   * revisions, without reconstructing every session's history first.
+   */
+  n?: number;
+  /**
+   * The board's wording version when this was answered. See `version` in
+   * lib/topics.ts — without it, rewording a board silently changes the meaning
+   * of every answer already collected.
+   */
+  bv?: number;
 }
 
 export interface RateResult {
@@ -89,6 +109,12 @@ function parseRecords(raw: unknown[]): VoteRecord[] {
           s: typeof r.s === "string" ? r.s : "",
           g: typeof r.g === "string" ? r.g : "",
           p: Number.isFinite(r.p) ? Number(r.p) : 0,
+          // Optional and left undefined when absent rather than defaulted:
+          // "written before this field existed" and "genuinely was 1" are
+          // different facts, and only the export should decide how to fill them.
+          ...(typeof r.e === "string" ? { e: r.e } : {}),
+          ...(Number.isFinite(r.n) ? { n: Number(r.n) } : {}),
+          ...(Number.isFinite(r.bv) ? { bv: Number(r.bv) } : {}),
         });
       }
     } catch {

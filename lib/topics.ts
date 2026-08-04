@@ -16,6 +16,7 @@
  */
 
 import type { ScaleFamily } from "./likert";
+import type { Cadence } from "./epoch";
 
 export interface Topic {
   /** URL slug and storage key. Never change one after votes exist. */
@@ -74,6 +75,33 @@ export interface Topic {
    * Never an opinion measure — exclude from every substantive result.
    */
   calibration?: boolean;
+  /**
+   * How often someone may answer this board again. Defaults to weekly, or
+   * `once` for calibration items — a comprehension check measures the person,
+   * not the moment, so re-asking it gains nothing.
+   *
+   * Set `month` for boards whose subject genuinely doesn't move week to week.
+   * Weekly re-voting on a stable question just adds noise and gives people a
+   * chore. See lib/epoch.ts.
+   */
+  cadence?: Cadence;
+  /**
+   * Bumped whenever this board's wording changes in a way that alters what an
+   * answer MEANS — poles swapped, question reframed. Recorded on every vote, so
+   * a reading of old data stays correct without having to know what the board
+   * says today. Typo fixes don't need a bump; meaning changes do.
+   */
+  version?: number;
+}
+
+/** How often this board may be re-answered. See the `cadence` field above. */
+export function cadenceOf(topic: Topic): Cadence {
+  return topic.cadence ?? (topic.calibration ? "once" : "week");
+}
+
+/** This board's current wording version, stamped onto each vote. */
+export function versionOf(topic: Topic): number {
+  return topic.version ?? 1;
 }
 
 export const TOPICS: Topic[] = [
@@ -369,6 +397,7 @@ export const TOPICS: Topic[] = [
     highMeans: "more NYC-coded",
     scale: "bipolar",
     category: "SF or NYC?",
+    cadence: "month",
   },
   {
     id: "opus-coded",
@@ -383,6 +412,7 @@ export const TOPICS: Topic[] = [
     highMeans: "more NYC-coded",
     scale: "bipolar",
     category: "SF or NYC?",
+    cadence: "month",
   },
   {
     id: "cursor-coded",
@@ -397,6 +427,7 @@ export const TOPICS: Topic[] = [
     highMeans: "more NYC-coded",
     scale: "bipolar",
     category: "SF or NYC?",
+    cadence: "month",
   },
   {
     id: "chatgpt-coded",
@@ -411,6 +442,7 @@ export const TOPICS: Topic[] = [
     highMeans: "more NYC-coded",
     scale: "bipolar",
     category: "SF or NYC?",
+    cadence: "month",
   },
   {
     id: "grok-coded",
@@ -425,6 +457,7 @@ export const TOPICS: Topic[] = [
     highMeans: "more NYC-coded",
     scale: "bipolar",
     category: "SF or NYC?",
+    cadence: "month",
   },
   {
     id: "us-hegemony-end",

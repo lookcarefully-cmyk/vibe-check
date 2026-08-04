@@ -1077,6 +1077,93 @@ body::after {
   color: rgba(242, 235, 218, 0.45);
 }
 
+/* --------------------------------- the returning visitor: has your vibe moved? */
+
+.revisit {
+  width: 100%;
+  max-width: 34rem;
+  padding: clamp(1.1rem, 3vw, 1.6rem);
+  border: 1px solid rgba(95, 211, 212, 0.3);
+  border-radius: 18px;
+  background: rgba(95, 211, 212, 0.06);
+}
+
+.revisit-said {
+  margin: 0 0 1rem;
+  font-size: clamp(1rem, 2.6vw, 1.2rem);
+  color: rgba(242, 235, 218, 0.85);
+}
+
+.revisit-said strong {
+  color: var(--mustard);
+  font-weight: 700;
+}
+
+.revisit-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  justify-content: center;
+}
+
+.revisit-actions .lock-in,
+.revisit-actions .reset {
+  margin-top: 0;
+}
+
+.revisit-note {
+  margin: 0.9rem 0 0;
+  font-size: 0.78rem;
+  line-height: 1.5;
+  color: rgba(242, 235, 218, 0.45);
+}
+
+.revisit .reveal-link {
+  margin-top: 0.8rem;
+}
+
+.reopens {
+  margin: 1.25rem 0 0;
+  font-size: 0.85rem;
+  color: var(--teal);
+}
+
+/* ---------------------------------------- what window a number covers */
+
+/*
+ * Always rendered next to the average. A mean with no window attached reads as
+ * a fact about everyone forever, which — once people can answer again — it
+ * isn't. Same family of mistake as printing a share-of-people number beside a
+ * position on the scale.
+ */
+.window-line {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 0.9rem;
+  justify-content: center;
+  align-items: baseline;
+  margin: 0.6rem 0 0;
+  font-size: 0.8rem;
+}
+
+.window-scope {
+  color: rgba(242, 235, 218, 0.5);
+}
+
+.window-change {
+  font-weight: 700;
+}
+
+/* Direction only — never "good" or "bad". Boards run in both orientations, so
+   colouring a rise as alarming would be wrong half the time. */
+.window-change.is-up {
+  color: var(--mint);
+}
+
+.window-change.is-down {
+  color: var(--pink);
+}
+
 /* ------------------------------------------------- the commit button */
 
 .lock-in {

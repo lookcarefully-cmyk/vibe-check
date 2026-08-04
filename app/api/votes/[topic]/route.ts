@@ -1,8 +1,9 @@
 import { NextResponse } from "next/server";
-import { aggregate } from "@/lib/aggregate";
+import { aggregateWindow, weeklySeries } from "@/lib/aggregate";
+import { checkEligibility, epochKey } from "@/lib/epoch";
 import { callerToken, isValidSessionId, originIsAllowed } from "@/lib/request";
 import { store, type VoteRecord } from "@/lib/store";
-import { getTopic } from "@/lib/topics";
+import { cadenceOf, getTopic, versionOf } from "@/lib/topics";
 
 // Votes are mutable state; never let a CDN or the build step freeze this.
 export const dynamic = "force-dynamic";
@@ -41,8 +42,20 @@ export async function GET(_req: Request, { params }: Params) {
 
   try {
     const records = await store.all(topic.id);
-    // Only positions leave the server. Timestamps and session ids stay in.
-    return noStore(aggregate(records.map((r) => r.v)));
+    const now = Date.now();
+    /*
+     * Windowed and deduped to one answer per person — see aggregateWindow. The
+     * all-time raw mean is deliberately NOT what's returned: once people can
+     * answer again it measures person-weeks rather than people, and nothing on
+     * the page would say so.
+     *
+     * Session ids and timestamps still never leave; the series is aggregate-only.
+     */
+    return noStore({
+      ...aggregateWindow(records, now),
+      series: weeklySeries(records, now),
+      cadence: cadenceOf(topic),
+    });
   } catch (err) {
     console.error("[votes] GET failed", err);
     return noStore({ error: "Could not read votes." }, 500);
@@ -98,19 +111,59 @@ export async function POST(req: Request, { params }: Params) {
       );
     }
 
+    /*
+     * Cadence is enforced here, not just in the browser.
+     *
+     * The client hides the dial once you've answered, but localStorage is not a
+     * trust boundary — it can be cleared, edited, or simply not sent. Without a
+     * server-side check, one session could post a hundred answers to the same
+     * board in a minute and the "one answer per person per week" figure would
+     * quietly become a lie. The rate limiter doesn't cover this: it buckets by
+     * IP, which is a whole household or carrier, not a person.
+     */
+    const now = Date.now();
+    const cadence = cadenceOf(topic);
+    const existing = await store.all(topic.id);
+    const mine = existing.filter((r) => r.s === session);
+    const lastMine = mine.length ? Math.max(...mine.map((r) => r.t)) : null;
+    const eligibility = checkEligibility(lastMine, cadence, now);
+
+    if (!eligibility.allowed) {
+      return noStore(
+        {
+          error:
+            eligibility.reason === "once-only"
+              ? "You've already answered this one."
+              : "You've already answered this recently. You can answer again when it reopens.",
+          reason: eligibility.reason,
+          nextAllowedAt: eligibility.nextAllowedAt,
+        },
+        409,
+      );
+    }
+
     const record: VoteRecord = {
       // Round to the nearest 0.1% — plenty of resolution, and it keeps the
       // stored payload small.
       v: Math.round(value * 1000) / 1000,
-      t: Date.now(),
+      t: now,
       s: session,
       g: armValue,
       p: positionValue,
+      e: epochKey(now, cadence),
+      n: mine.length + 1,
+      bv: versionOf(topic),
     };
     await store.push(topic.id, record);
 
-    const records = await store.all(topic.id);
-    return noStore(aggregate(records.map((r) => r.v)));
+    // Aggregate from what was already read plus this answer, rather than
+    // re-reading the whole list — same result, one fewer round trip.
+    const records = [...existing, record];
+    return noStore({
+      ...aggregateWindow(records, now),
+      series: weeklySeries(records, now),
+      cadence,
+    });
   } catch (err) {
     console.error("[votes] POST failed", err);
     return noStore({ error: "Could not record your vote." }, 500);

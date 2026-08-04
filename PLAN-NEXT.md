@@ -334,7 +334,7 @@ Each phase is useful alone and doesn't block on the next.
 
 | Phase | What | Why this order |
 | --- | --- | --- |
-| **1** | Epochs + re-voting + returning-voter flow + windowed/labelled headline | Nothing else is meaningful until the time axis exists. Every day without it is a day of data you can't use for trend. |
+| **1 — BUILT, not deployed** | Epochs + re-voting + returning-voter flow + windowed/labelled headline | Nothing else is meaningful until the time axis exists. Every day without it is a day of data you can't use for trend. |
 | **2** | Daily snapshots + nightly export + codebook + public data repo | Starts accumulating the record. Also delivers the backup that's currently missing. |
 | **3** | History page + sparkline + event annotations + per-board share cards | The visible payoff, and what makes it writable and shareable. |
 | **4** | Community boards | Largest surface, most moderation risk, and it benefits from the data model being settled first. |
@@ -345,6 +345,30 @@ there's no within-person drift to measure yet. The panel starts the day phase 1
 ships.
 
 ---
+
+## Decisions taken
+
+- **Public aggregates, raw private** (gated later if ever shared).
+- **Community boards get a public library**, plus a trending/popular feed —
+  but publishing stays optional, so an unlisted share link remains the default
+  path for someone making a board for their group.
+
+## What phase 1 actually shipped (local only — nothing deployed)
+
+| File | What |
+| --- | --- |
+| `lib/epoch.ts` | ISO weeks, month keys, cadence, eligibility, "3 weeks ago" |
+| `lib/aggregate.ts` | `dedupeLatestPerPerson`, `aggregateWindow` (adaptive ladder + change vs previous window), `weeklySeries` |
+| `lib/mine.ts` | this browser's own answer history, migrating the old single-value key |
+| `lib/topics.ts` | `cadence` and `version` per board; SF/NYC set to monthly |
+| `lib/store.ts` | records gained `e` (epoch), `n` (nth answer), `bv` (board version) |
+| `app/api/votes/[topic]/route.ts` | server-side cadence gate (409), windowed + series response |
+| `components/VibeCheck.tsx` | the returning-visitor screen, window/change line, "reopens in N days" |
+
+Verified: 19 epoch tests (incl. ISO boundary cases like 2020-W53), 15 aggregation
+tests (incl. "40 answers from one person counts as 1"), the cadence gate refusing
+a same-week second answer, and the full returning-visitor flow in the browser
+with a seeded 12-week drift.
 
 ## What I need from you
 

@@ -7,7 +7,12 @@ import Dial, { type Phase } from "./Dial";
 import InfoDialog from "./InfoDialog";
 import TopicNav from "./TopicNav";
 import Colophon from "./Colophon";
-import { BIN_COUNT, MARGIN_COVERAGE, type Aggregate } from "@/lib/aggregate";
+import {
+  BIN_COUNT,
+  MARGIN_COVERAGE,
+  type SeriesPoint,
+  type WindowedAggregate,
+} from "@/lib/aggregate";
 import { nextHref, readRunState, type RunState } from "@/lib/run";
 import { bandCounts, bandFor, bandIndex } from "@/lib/likert";
 import { getSessionId } from "@/lib/session";
@@ -17,7 +22,9 @@ import {
   isExperimentTopic,
   positionInArm,
 } from "@/lib/experiment";
-import { revealStorageKey, voteStorageKey, type Topic } from "@/lib/topics";
+import { cadenceOf, revealStorageKey, voteStorageKey, type Topic } from "@/lib/topics";
+import { humanAgo, humanUntil } from "@/lib/epoch";
+import { clearHistory, myStanding, recordAnswer, type MyStanding } from "@/lib/mine";
 
 /*
  * Every poll is a read of the whole vote list, which costs a database command.
@@ -27,7 +34,12 @@ import { revealStorageKey, voteStorageKey, type Topic } from "@/lib/topics";
  */
 const POLL_MS = 20_000;
 
-const EMPTY: Aggregate = {
+/** What /api/votes/[topic] returns: the windowed aggregate plus its trend. */
+interface BoardResult extends WindowedAggregate {
+  series: SeriesPoint[];
+}
+
+const EMPTY: BoardResult = {
   count: 0,
   mean: 0.5,
   sd: 0,
@@ -36,6 +48,12 @@ const EMPTY: Aggregate = {
   hist: new Array(BIN_COUNT).fill(0),
   counts: new Array(BIN_COUNT).fill(0),
   updatedAt: 0,
+  windowDays: 30,
+  windowLabel: "last 30 days",
+  answers: 0,
+  previousMean: null,
+  changePoints: null,
+  series: [],
 };
 
 const pct = (v: number) => `${Math.round(v * 100)}%`;
@@ -43,7 +61,7 @@ const pct = (v: number) => `${Math.round(v * 100)}%`;
 export default function VibeCheck({ topic }: { topic: Topic }) {
   const [phase, setPhase] = useState<Phase>("choose");
   const [pick, setPick] = useState(0.5);
-  const [agg, setAgg] = useState<Aggregate>(EMPTY);
+  const [agg, setAgg] = useState<BoardResult>(EMPTY);
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [flash, setFlash] = useState(false);
@@ -68,6 +86,21 @@ export default function VibeCheck({ topic }: { topic: Topic }) {
   const [touched, setTouched] = useState(false);
   // null until read on the client, so server and first client render agree.
   const [run, setRun] = useState<RunState | null>(null);
+  /*
+   * Where this browser stands on this board: its past answers, and whether
+   * another is due. Null until read on the client — localStorage doesn't exist
+   * during the server render, and guessing would desync hydration.
+   */
+  const [standing, setStanding] = useState<MyStanding | null>(null);
+  /*
+   * True while showing "you said X; has that changed?" instead of the dial.
+   *
+   * Deliberately shown WITHOUT the crowd's current number. They saw it after
+   * their last answer, which is unavoidable — but re-showing today's figure at
+   * the moment they're about to revise is anchoring on exactly the quantity
+   * being measured. Drift has to be their own.
+   */
+  const [asking, setAsking] = useState(false);
 
   const router = useRouter();
   const lastCount = useRef(0);
@@ -79,7 +112,7 @@ export default function VibeCheck({ topic }: { topic: Topic }) {
     try {
       const res = await fetch(endpoint, { cache: "no-store" });
       if (!res.ok) throw new Error(String(res.status));
-      const data: Aggregate = await res.json();
+      const data: BoardResult = await res.json();
       setLoaded(true);
       setAgg((prev) => {
         if (data.count > lastCount.current && lastCount.current > 0) {
@@ -107,7 +140,6 @@ export default function VibeCheck({ topic }: { topic: Topic }) {
     const state = readRunState();
     setRun(state);
 
-    const saved = window.localStorage.getItem(storageKey);
     const midRun = (EXPERIMENT_ENABLED && isExperimentTopic(topic.id)) && !state.complete;
 
     if (midRun && state.next && topic.id !== state.next.id) {
@@ -125,19 +157,40 @@ export default function VibeCheck({ topic }: { topic: Topic }) {
     }
 
     const wasRevealed = window.localStorage.getItem(revealKey) !== null;
+    const mine = myStanding(topic, Date.now());
+    setStanding(mine);
 
-    if (!midRun && saved !== null && Number.isFinite(Number(saved))) {
-      setPick(Number(saved));
+    /*
+     * Four states, in priority order:
+     *
+     *   answered + due again  -> ask whether their vibe has shifted
+     *   answered + not due    -> their result, with when it reopens
+     *   forfeited the vote    -> results, board closed to them
+     *   never answered        -> the dial
+     */
+    if (!midRun && mine.hasAnswered && mine.eligibility.allowed) {
+      // Start the dial where they left it: their own previous answer is the
+      // honest reference point for "has this changed", and it isn't an anchor
+      // in the way the crowd's number would be.
+      setPick(mine.last!.v);
       setRevealed(false);
+      setAsking(true);
+      setPhase("choose");
+    } else if (!midRun && mine.hasAnswered) {
+      setPick(mine.last!.v);
+      setRevealed(false);
+      setAsking(false);
       setPhase("result");
     } else if (!midRun && wasRevealed) {
       // Results forfeited-for. No own answer, and no way back to the dial.
       setPick(0.5);
       setRevealed(true);
+      setAsking(false);
       setPhase("result");
     } else {
       setPick(0.5);
       setRevealed(false);
+      setAsking(false);
       setPhase("choose");
     }
     void load();
@@ -189,8 +242,24 @@ export default function VibeCheck({ topic }: { topic: Topic }) {
           }),
         });
         const data = await res.json();
+
+        if (res.status === 409) {
+          /*
+           * The server says this browser has already answered recently, and this
+           * one disagreed — cleared storage, a second device on the same session,
+           * or a stale tab. The server is authoritative, so adopt its answer:
+           * show the results and stop offering the dial.
+           */
+          setAsking(false);
+          setPhase("result");
+          setError(data?.error ?? "You've already answered this recently.");
+          void load();
+          return;
+        }
         if (!res.ok) throw new Error(data?.error ?? "Something went wrong.");
-        window.localStorage.setItem(storageKey, String(value));
+
+        recordAnswer(topic.id, value, Date.now());
+        setStanding(myStanding(topic, Date.now()));
 
         // Re-read after writing: this answer may have completed the run.
         const after = readRunState();
@@ -202,6 +271,7 @@ export default function VibeCheck({ topic }: { topic: Topic }) {
 
         lastCount.current = data.count;
         setAgg(data);
+        setAsking(false);
         setPhase("result");
         setNavKey((k) => k + 1);
       } catch (err) {
@@ -210,7 +280,7 @@ export default function VibeCheck({ topic }: { topic: Topic }) {
         setPending(false);
       }
     },
-    [pending, phase, endpoint, storageKey, topic, router],
+    [pending, phase, endpoint, topic, router, load],
   );
 
   /*
@@ -245,11 +315,14 @@ export default function VibeCheck({ topic }: { topic: Topic }) {
 
   const canReanswer = process.env.NODE_ENV === "development";
   const reset = () => {
-    window.localStorage.removeItem(storageKey);
+    clearHistory(topic.id);
     window.localStorage.removeItem(revealKey);
     setRevealed(false);
+    setAsking(false);
+    setStanding(myStanding(topic, Date.now()));
     setPhase("choose");
     setPick(0.5);
+    setTouched(false);
   };
 
   /**
@@ -304,15 +377,75 @@ export default function VibeCheck({ topic }: { topic: Topic }) {
         </div>
         <h1>{topic.question}</h1>
         <p className="lede">
-          {!isResult
-            ? topic.prompt
-            : revealed
-              ? "Here's how everyone answered. You're not on this board."
-              : "You're on the board. Here's where everyone else landed."}
+          {asking
+            ? "You've answered this before. Vibes move — has yours?"
+            : !isResult
+              ? topic.prompt
+              : revealed
+                ? "Here's how everyone answered. You're not on this board."
+                : "You're on the board. Here's where everyone else landed."}
         </p>
       </header>
 
-      <div className={`stage ${pending ? "is-pending" : ""} ${flash ? "is-flash" : ""}`}>
+      {/*
+        The returning-visitor prompt. Deliberately shows their OWN last answer
+        and none of the crowd's current numbers — see `asking` above.
+      */}
+      {asking && standing?.last && (
+        <section className="revisit">
+          <p className="revisit-said">
+            You said{" "}
+            <strong>
+              {bandFor(standing.last.v, topic.scale, {
+                left: topic.leftLabel,
+                right: topic.rightLabel,
+                leftProse: topic.leftProse,
+                rightProse: topic.rightProse,
+              }) ?? pct(standing.last.v)}
+            </strong>
+            {standing.last.t > 0 && <> {humanAgo(standing.last.t, Date.now())}</>}.
+          </p>
+          <div className="revisit-actions">
+            <button
+              type="button"
+              className="lock-in"
+              onClick={() => {
+                setAsking(false);
+                setTouched(false);
+              }}
+            >
+              Move the dial
+            </button>
+            <button
+              type="button"
+              className="reset"
+              onClick={() => commit(standing.last!.v)}
+              disabled={pending}
+            >
+              {pending ? "Recording…" : "Same as before"}
+            </button>
+          </div>
+          <p className="revisit-note">
+            &ldquo;Same as before&rdquo; is recorded too — a steady week only shows
+            up as steady if people say so.
+          </p>
+          <button
+            type="button"
+            className="reveal-link"
+            onClick={() => {
+              setAsking(false);
+              setPhase("result");
+            }}
+          >
+            Skip &mdash; just show me the results
+          </button>
+        </section>
+      )}
+
+      <div
+        className={`stage ${pending ? "is-pending" : ""} ${flash ? "is-flash" : ""}`}
+        hidden={asking}
+      >
         <Dial
           phase={phase}
           pick={pick}
@@ -336,7 +469,7 @@ export default function VibeCheck({ topic }: { topic: Topic }) {
         </p>
       )}
 
-      {isResult ? (
+      {asking ? null : isResult ? (
         <section className="results">
           <p className="consensus">
             {revealed ? (
@@ -387,6 +520,25 @@ export default function VibeCheck({ topic }: { topic: Topic }) {
                 {hasSpread
                   ? `Most — ${inTen} in 10 — land between ${pct(agg.p10)} and ${pct(agg.p90)}, with about ${outside}% either side.`
                   : "Not enough answers yet to describe the spread."}
+              </p>
+
+              {/*
+                The window is not decoration. A mean with no window attached is
+                the same class of error as a share-of-people number sitting next
+                to a position — it reads as a fact about everyone, forever.
+              */}
+              <p className="window-line">
+                <span className="window-scope">
+                  {agg.count} {agg.count === 1 ? "person" : "people"} · {agg.windowLabel}
+                </span>
+                {agg.changePoints !== null && agg.changePoints !== 0 && (
+                  <span
+                    className={`window-change ${agg.changePoints > 0 ? "is-up" : "is-down"}`}
+                  >
+                    {agg.changePoints > 0 ? "▲" : "▼"} {Math.abs(agg.changePoints)} pts vs
+                    the period before
+                  </span>
+                )}
               </p>
 
               {/*
@@ -491,6 +643,21 @@ export default function VibeCheck({ topic }: { topic: Topic }) {
             <p className="reveal-note">
               You chose to see this board without answering, so it&rsquo;s closed to
               you. Every other board is still open.
+            </p>
+          )}
+
+          {/*
+            Tell them the board reopens. Without this, "one answer" reads as
+            permanent — which it no longer is, and the whole point is that they
+            come back when the vibe moves.
+          */}
+          {!revealed && standing?.hasAnswered && !standing.eligibility.allowed && (
+            <p className="reopens">
+              {standing.eligibility.reason === "once-only"
+                ? "This one is asked once — it's a warm-up, not an opinion."
+                : standing.eligibility.nextAllowedAt
+                  ? `Vibes move. You can answer this again ${humanUntil(standing.eligibility.nextAllowedAt, Date.now())}.`
+                  : "You can answer this again once it reopens."}
             </p>
           )}
 

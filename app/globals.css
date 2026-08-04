@@ -1128,6 +1128,100 @@ body::after {
   color: var(--teal);
 }
 
+/* ------------------------------------------------------ the trend line */
+
+.spark-wrap {
+  width: 100%;
+  max-width: 40rem;
+  margin: 1.5rem 0 0;
+}
+
+.spark-wrap h3 {
+  margin: 0 0 0.5rem;
+  font-size: 0.68rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--teal);
+}
+
+.spark {
+  display: block;
+  width: 100%;
+  height: 120px;
+  overflow: visible;
+}
+
+.spark-mid {
+  stroke: rgba(242, 235, 218, 0.16);
+  stroke-width: 1;
+  stroke-dasharray: 4 5;
+  vector-effect: non-scaling-stroke;
+}
+
+/* the viewer's own position — teal, the same "this one is yours" cue as the dial */
+.spark-own {
+  stroke: var(--teal-deep);
+  stroke-width: 1.5;
+  stroke-dasharray: 2 4;
+  opacity: 0.7;
+  vector-effect: non-scaling-stroke;
+}
+
+.spark-line {
+  fill: none;
+  stroke: var(--mustard);
+  stroke-width: 2.5;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+  /* the viewBox is stretched horizontally by preserveAspectRatio="none", which
+     would smear the stroke without this */
+  vector-effect: non-scaling-stroke;
+}
+
+.spark-dot {
+  fill: var(--mustard);
+}
+
+/* a week with barely anyone in it is still drawn, but not as if it were solid */
+.spark-dot.is-thin {
+  fill: rgba(242, 178, 56, 0.35);
+}
+
+.spark-event line {
+  stroke: var(--pink);
+  stroke-width: 1.5;
+  stroke-dasharray: 3 3;
+  opacity: 0.8;
+  vector-effect: non-scaling-stroke;
+}
+
+.spark-scale {
+  display: flex;
+  justify-content: space-between;
+  margin: 0.35rem 0 0;
+  font-size: 0.62rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(242, 235, 218, 0.4);
+}
+
+.spark-events {
+  margin: 0.6rem 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.75rem;
+  color: rgba(242, 235, 218, 0.55);
+  text-align: left;
+}
+
+.spark-events li {
+  margin-bottom: 0.2rem;
+}
+
+.spark-events a {
+  color: var(--teal);
+}
+
 /* ---------------------------------------- what window a number covers */
 
 /*

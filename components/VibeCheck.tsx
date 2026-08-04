@@ -7,6 +7,8 @@ import Dial, { type Phase } from "./Dial";
 import InfoDialog from "./InfoDialog";
 import TopicNav from "./TopicNav";
 import Colophon from "./Colophon";
+import Sparkline from "./Sparkline";
+import { eventsFor } from "@/lib/events";
 import {
   BIN_COUNT,
   MARGIN_COVERAGE,
@@ -601,6 +603,53 @@ export default function VibeCheck({ topic }: { topic: Topic }) {
                 );
               })()}
             </>
+          )}
+
+          {/*
+            The trend. Only rendered once there are at least two weeks with
+            answers in them — a single point is not a line, and drawing one
+            implies a movement nobody has measured.
+          */}
+          {agg.series.length >= 2 && (
+            <section className="spark-wrap">
+              <h3>Week by week</h3>
+              <Sparkline
+                series={agg.series}
+                events={eventsFor(topic.id)}
+                ownValue={revealed ? null : pick}
+              />
+              <p className="spark-scale">
+                <span>{topic.leftLabel}</span>
+                <span>{topic.rightLabel}</span>
+              </p>
+              {(() => {
+                const shown = eventsFor(topic.id).filter((e) => {
+                  const t = Date.parse(`${e.date}T00:00:00Z`);
+                  return (
+                    Number.isFinite(t) &&
+                    t >= agg.series[0].start &&
+                    t <= agg.series[agg.series.length - 1].start
+                  );
+                });
+                if (!shown.length) return null;
+                return (
+                  <ul className="spark-events">
+                    {shown.map((e) => (
+                      <li key={`${e.date}-${e.label}`}>
+                        {e.date} —{" "}
+                        {e.url ? (
+                          <a href={e.url} target="_blank" rel="noopener noreferrer">
+                            {e.label}
+                          </a>
+                        ) : (
+                          e.label
+                        )}
+                      </li>
+                    ))}
+                  </ul>
+                );
+              })()}
+            </section>
           )}
 
           <dl className="stats">

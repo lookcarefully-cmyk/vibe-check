@@ -171,7 +171,19 @@ export default function Dial({
   const ownBand = showOwn ? bandIndex(safePick) : -1;
   // --te is gentler than --t: the endpoint labels sit on a fixed-width baseline
   // and would run into the hub if they grew as much as the rest of the type.
-  const typeScaleVars = { "--t": t, "--te": 1 + (t - 1) * 0.45 } as React.CSSProperties;
+  //
+  // --le shrinks the end labels when they're long, so two wordy poles (e.g.
+  // "UNFETTERED INNOVATION" / "PREEMPTIVE REGULATION", or any community board
+  // whose labels can run to 28 chars) don't collide in the middle. Short labels
+  // are untouched. The floor keeps them legible rather than letting a very long
+  // pole shrink to nothing.
+  const longestEnd = Math.max(topic.leftLabel.length, topic.rightLabel.length);
+  const labelScale = longestEnd <= 14 ? 1 : Math.max(0.58, 14 / longestEnd);
+  const typeScaleVars = {
+    "--t": t,
+    "--te": 1 + (t - 1) * 0.45,
+    "--le": labelScale,
+  } as React.CSSProperties;
 
   const isResult = phase === "result";
   const needleValue = isResult ? agg.mean : safePick;
@@ -200,7 +212,11 @@ export default function Dial({
     const userX = ((e.clientX - box.left) / box.width) * VIEW.w;
     const value = (userX - (CX - R_FACE)) / (2 * R_FACE);
     if (!Number.isFinite(value)) return pick;
-    return Math.min(1, Math.max(0, value));
+    const clamped = Math.min(1, Math.max(0, value));
+    // A detent at dead centre. Without it, landing on exactly neutral by hand is
+    // nearly impossible — you get 49% or 51% — yet "the crowd is split" is a real
+    // answer people want to give. Snap anything within ~2% to true 0.5.
+    return Math.abs(clamped - 0.5) < 0.02 ? 0.5 : clamped;
   }
 
   const handleX = CX - R_FACE + safePick * 2 * R_FACE;

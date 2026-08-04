@@ -16,7 +16,7 @@ import {
   type WindowedAggregate,
 } from "@/lib/aggregate";
 import { nextHref, readRunState, type RunState } from "@/lib/run";
-import { bandCounts, bandFor, bandIndex } from "@/lib/likert";
+import { bandCounts, bandFor, bandIndex, reading } from "@/lib/likert";
 import { getSessionId } from "@/lib/session";
 import {
   EXPERIMENT_ENABLED,
@@ -365,6 +365,25 @@ export default function VibeCheck({
   const inTen = Math.round(MARGIN_COVERAGE * 10);
   const hasSpread = agg.count > 1;
 
+  /*
+   * The headline number, in words that mean something.
+   *
+   * On a bidirectional board (optimist↔doomer, slow↔fast) a raw "13%" is
+   * baffling — it's strongly toward the left pole but reads as "barely
+   * anything". `reading` converts it to "74% optimistic"; unidirectional boards
+   * (how addictive, how much) keep their plain percentage. See lib/likert.ts.
+   */
+  const say = (v: number) => {
+    const r = reading(v, topic.scale, {
+      left: topic.leftLabel,
+      right: topic.rightLabel,
+      leftProse: topic.leftProse,
+      rightProse: topic.rightProse,
+    });
+    if (r.neutral) return "dead neutral";
+    return r.toward ? `${r.pct}% ${r.toward}` : `${r.pct}%`;
+  };
+
   return (
     <main className="shell">
       {/*
@@ -485,11 +504,11 @@ export default function VibeCheck({
           <p className="consensus">
             {revealed ? (
               <>
-                The average answer is <strong>{pct(agg.mean)}</strong>
+                The average answer is <strong>{say(agg.mean)}</strong>
               </>
             ) : (
               <>
-                You said <strong>{pct(pick)}</strong>
+                You said <strong>{say(pick)}</strong>
               </>
             )}
           </p>
@@ -525,7 +544,7 @@ export default function VibeCheck({
               <p className="margin-copy">
                 {!revealed && (
                   <>
-                    The average answer is <strong>{pct(agg.mean)}</strong>.{" "}
+                    The average answer is <strong>{say(agg.mean)}</strong>.{" "}
                   </>
                 )}
                 {hasSpread
@@ -664,7 +683,10 @@ export default function VibeCheck({
           <dl className="stats">
             <div>
               <dt>Your answer</dt>
-              <dd>{revealed ? "—" : pct(pick)}</dd>
+              {/* say() not pct(): keep this consistent with the headline reading
+                  above, or a bidirectional board shows two different numbers for
+                  the same answer. */}
+              <dd>{revealed ? "—" : say(pick)}</dd>
             </div>
             <div>
               <dt>Responses</dt>

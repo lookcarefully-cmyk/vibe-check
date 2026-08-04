@@ -91,6 +91,10 @@ export default function BoardIndex() {
         ))
       )}
 
+      <p className="board-index-run">
+        <Link href="/b">Boards people made</Link> · <Link href="/b/new">Make your own &rarr;</Link>
+      </p>
+
       {EXPERIMENT_ENABLED && runComplete !== null && (
         <p className="board-index-run">
           {runComplete ? (

@@ -312,14 +312,20 @@ export const TOPICS: Topic[] = [
     category: "AI",
   },
   {
-    id: "ai-pace",
+    // New id: the poles flipped direction (SLOWER used to be the high end;
+    // ACCELERATE is now), which would silently invert every old vote. A fresh id
+    // starts this board's collection clean instead — see the file-level note and
+    // rule 9 in AGENTS.md. The handful of old votes stay orphaned under ai-pace.
+    id: "ai-tempo",
     subject: "AI progress",
-    axis: "Faster or slower?",
-    question: "Should AI progress go faster or slower?",
+    axis: "Slow down or speed up?",
+    question: "Should AI progress slow down or speed up?",
     prompt: "Drag to your answer, then lock it in below.",
-    leftLabel: "FASTER",
-    rightLabel: "SLOWER",
-    highMeans: "should go slower",
+    leftLabel: "SLOW DOWN",
+    rightLabel: "ACCELERATE",
+    leftProse: "slow down",
+    rightProse: "accelerate",
+    highMeans: "should accelerate",
     scale: "pace",
     category: "AI",
   },
@@ -381,6 +387,22 @@ export const TOPICS: Topic[] = [
     leftLabel: "LOST THE MANDATE",
     rightLabel: "HAS THE MANDATE",
     highMeans: "still has the mandate",
+    scale: "bipolar",
+    category: "AI labs",
+  },
+  {
+    // The head-to-head. More interesting than either lab's solo board because it
+    // forces a choice rather than two independent thumbs-up/down.
+    id: "mandate-openai-anthropic",
+    subject: "The mandate of heaven",
+    axis: "OpenAI or Anthropic?",
+    question: "Who holds the mandate of heaven — OpenAI or Anthropic?",
+    prompt: "Drag to your answer, then lock it in below.",
+    leftLabel: "OPENAI",
+    rightLabel: "ANTHROPIC",
+    leftProse: "OpenAI",
+    rightProse: "Anthropic",
+    highMeans: "Anthropic over OpenAI",
     scale: "bipolar",
     category: "AI labs",
   },
@@ -602,8 +624,10 @@ export const TOPICS: Topic[] = [
     prompt: "Drag to your answer, then lock it in below.",
     leftLabel: "LOST ME MONEY",
     rightLabel: "MADE ME MONEY",
-    leftProse: "loss-making",
-    rightProse: "money-making",
+    // "fully loss-making" read wrong; "in the red / in the green" survives the
+    // fully/mostly/slightly template ("mostly in the red", "slightly in the green").
+    leftProse: "in the red",
+    rightProse: "in the green",
     highMeans: "made them more money",
     scale: "bipolar",
     category: "AI",
@@ -720,7 +744,7 @@ export function getTopic(id: string | undefined): Topic | undefined {
 export const FEATURED_TOPIC_IDS = [
   "kids-social",
   "ai-optimist",
-  "ai-pace",
+  "ai-tempo",
   "opensource-gap",
   "college-recommend-2026",
   "social-neuro",

@@ -1,6 +1,6 @@
 import { ImageResponse } from "next/og";
 import { aggregateWindow } from "@/lib/aggregate";
-import { bandFor } from "@/lib/likert";
+import { bandFor, reading } from "@/lib/likert";
 import { store } from "@/lib/store";
 import { getTopic } from "@/lib/topics";
 
@@ -176,9 +176,30 @@ export default async function BoardCard({ params }: { params: Promise<{ topic: s
             </div>
 
             <div style={{ display: "flex", flexDirection: "column" }}>
-              <div style={{ fontSize: 96, fontWeight: 800, lineHeight: 1 }}>
-                {`${Math.round(mean * 100)}%`}
-              </div>
+              {/* Same meaningful reading the site shows: "62% doomer", not a raw
+                  position that reads as "barely anything" on a two-sided board. */}
+              {(() => {
+                const r = reading(mean, topic.scale, {
+                  left: topic.leftLabel,
+                  right: topic.rightLabel,
+                  leftProse: topic.leftProse,
+                  rightProse: topic.rightProse,
+                });
+                const text = r.neutral
+                  ? "split"
+                  : r.toward
+                    ? `${r.pct}% ${r.toward}`
+                    : `${r.pct}%`;
+                // Shrink when the pole word makes it long, so it never overruns
+                // the card.
+                return (
+                  <div
+                    style={{ fontSize: text.length > 12 ? 60 : 84, fontWeight: 800, lineHeight: 1 }}
+                  >
+                    {text}
+                  </div>
+                );
+              })()}
               {band && (
                 <div style={{ fontSize: 30, color: MUSTARD, marginTop: 6 }}>{band}</div>
               )}

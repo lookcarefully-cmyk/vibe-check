@@ -1007,7 +1007,8 @@ body::after {
 /* endpoint labels sit in the navy band below the dial face */
 
 .end-label {
-  font-size: calc(25px * var(--te, 1));
+  /* --le shrinks long labels so two wordy poles don't collide (set in Dial.tsx) */
+  font-size: calc(25px * var(--te, 1) * var(--le, 1));
   font-weight: 800;
   letter-spacing: 0.16em;
   fill: rgba(242, 235, 218, 0.7);

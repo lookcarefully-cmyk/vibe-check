@@ -128,17 +128,19 @@ const PROXIMITY_LABELS = [
  * Also its own family: the bipolar ladder would produce "fully faster", and the
  * neutral band here means "about the current pace" rather than "undecided".
  */
+// 0 = full left (slow down), 1 = full right (speed up), so the dial's low end
+// reads as slowing and the high end as accelerating. See the ai-tempo board.
 const PACE_LABELS = [
-  "far faster",
-  "much faster",
-  "moderately faster",
-  "slightly faster",
-  "about right, leaning faster",
-  "about right, leaning slower",
-  "slightly slower",
-  "moderately slower",
+  "slam on the brakes",
   "much slower",
-  "far slower",
+  "moderately slower",
+  "slightly slower",
+  "about right, leaning slower",
+  "about right, leaning faster",
+  "slightly faster",
+  "moderately faster",
+  "much faster",
+  "full speed ahead",
 ];
 
 /**
@@ -150,14 +152,14 @@ const PACE_LABELS = [
  */
 const PERMISSION_LABELS = [
   "never, under any circumstances",
-  "almost never",
-  "only in rare cases",
-  "only in limited cases",
-  "borderline, leaning against",
-  "borderline, leaning in favour",
-  "in most cases",
-  "in nearly all cases",
-  "almost always",
+  "only in the most extreme cases",
+  "rarely, and tightly restricted",
+  "in a narrow set of cases",
+  "leaning against, case by case",
+  "leaning in favour, case by case",
+  "in most cases, with some limits",
+  "yes, barring a few exceptions",
+  "almost always, few restrictions",
   "always, without restriction",
 ];
 
@@ -223,6 +225,57 @@ export function bandFor(
   return BIPOLAR_TEMPLATES[i]
     .replace("{left}", forProse(poles.left, poles.leftProse))
     .replace("{right}", forProse(poles.right, poles.rightProse));
+}
+
+/**
+ * Families whose midpoint is a real neutral, so the meaningful number is how far
+ * you've leaned toward a pole — not the raw 0..1 position.
+ *
+ * On a bipolar board, "13%" is baffling: it's strongly toward the LEFT pole, but
+ * the number reads like "barely anything". What people mean is "strongly
+ * optimistic" — 74% of the way to the optimist end. The other families (a
+ * quantity from none to all, a distance, a degree of addictiveness) genuinely
+ * run 0→100 and are left as they are.
+ */
+export function isBidirectional(scale: ScaleFamily | undefined): boolean {
+  return scale === "bipolar" || scale === "pace";
+}
+
+export interface Reading {
+  /**
+   * The number to show. For bidirectional boards this is the distance toward a
+   * pole (0 at dead centre, 100 at an extreme); for the rest it's the raw
+   * position.
+   */
+  pct: number;
+  /** The pole being leaned toward, in prose, or null at exact neutral. */
+  toward: string | null;
+  /** True only at the exact midpoint of a bidirectional board. */
+  neutral: boolean;
+}
+
+/**
+ * Turn a raw 0..1 position into the number a person should actually see.
+ *
+ * Bidirectional boards report "62% doomer"; everything else reports its raw
+ * percentage. Callers format it — typically `${pct}% ${toward}`, or the word
+ * "neutral" when `neutral` is set.
+ */
+export function reading(
+  value: number,
+  scale: ScaleFamily | undefined,
+  poles?: { left: string; right: string; leftProse?: string; rightProse?: string },
+): Reading {
+  if (isBidirectional(scale) && poles) {
+    const pct = Math.round((Math.abs(value - 0.5) / 0.5) * 100);
+    if (pct === 0) return { pct: 0, toward: null, neutral: true };
+    const toward =
+      value < 0.5
+        ? forProse(poles.left, poles.leftProse)
+        : forProse(poles.right, poles.rightProse);
+    return { pct, toward, neutral: false };
+  }
+  return { pct: Math.round(value * 100), toward: null, neutral: false };
 }
 
 /** Every label for a family, for documentation and for the "?" panel. */

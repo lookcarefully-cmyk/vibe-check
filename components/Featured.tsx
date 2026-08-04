@@ -64,6 +64,8 @@ export default function Featured() {
 
       <p className="board-index-run">
         <Link href="/boards">Browse all {EXTRA_TOPICS.length} questions &rarr;</Link>
+        {" · "}
+        <Link href="/b">Boards people made &rarr;</Link>
       </p>
 
       <footer className="disclosure">

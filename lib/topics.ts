@@ -488,10 +488,12 @@ export const TOPICS: Topic[] = [
     // A yes/no read on the spectrum: the bipolar family renders NO..YES as
     // "mostly no" .. "fully yes", so a plain two-way question still gets degree
     // words rather than a hard switch.
+    // id kept as -2026 even though the wording no longer says so: changing an
+    // id after votes exist orphans them (see the file-level note above).
     id: "college-recommend-2026",
-    subject: "College in 2026",
+    subject: "College today",
     axis: "Recommend it?",
-    question: "Would you recommend your kid goes to college in 2026?",
+    question: "Would you recommend your kid goes to college today?",
     prompt: "Drag to your answer, then lock it in below.",
     leftLabel: "NO",
     rightLabel: "YES",

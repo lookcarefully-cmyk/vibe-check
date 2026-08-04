@@ -2,7 +2,7 @@ import { ImageResponse } from "next/og";
 import { aggregateWindow } from "@/lib/aggregate";
 import { bandFor } from "@/lib/likert";
 import { store } from "@/lib/store";
-import { getTopic, TOPICS } from "@/lib/topics";
+import { getTopic } from "@/lib/topics";
 
 /**
  * The per-board share card: what this board reads RIGHT NOW, as an image.
@@ -22,9 +22,16 @@ export const alt = "Vibe Check board";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
-export function generateStaticParams() {
-  return TOPICS.map((t) => ({ topic: t.id }));
-}
+/*
+ * Rendered per request, NOT at build time.
+ *
+ * This card exists to show what a board reads right now. With
+ * `generateStaticParams` it was prerendered as SSG, which baked whatever the
+ * numbers happened to be during the build and served that forever — so a link
+ * shared in March would still be quoting March's figure in June, with no way to
+ * tell. A card that silently goes stale is worse than no card.
+ */
+export const dynamic = "force-dynamic";
 
 const NAVY = "#0a1238";
 const CREAM = "#f2ebda";

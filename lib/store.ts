@@ -90,6 +90,18 @@ export interface VoteStore {
   push(topic: string, record: VoteRecord): Promise<number>;
   all(topic: string): Promise<VoteRecord[]>;
   /**
+   * Generic key/value, used for community-made boards. Curated boards live in
+   * lib/topics.ts because they're part of the source; boards anyone can create
+   * obviously can't, so they need somewhere to live at runtime.
+   */
+  kvGet(key: string): Promise<string | null>;
+  kvSet(key: string, value: string): Promise<void>;
+  kvDel(key: string): Promise<void>;
+  /** Unordered set membership — the index of which community boards exist. */
+  setAdd(key: string, member: string): Promise<void>;
+  setRemove(key: string, member: string): Promise<void>;
+  setMembers(key: string): Promise<string[]>;
+  /**
    * Fixed-window counter. Returns allowed=false once `limit` is exceeded within
    * `windowSeconds`.
    */
@@ -167,6 +179,24 @@ const upstashStore: VoteStore = {
     if (count === 1) await upstash(["EXPIRE", k, windowSeconds]);
     return { allowed: count <= limit, count };
   },
+  async kvGet(key) {
+    return ((await upstash(["GET", key])) as string | null) ?? null;
+  },
+  async kvSet(key, value) {
+    await upstash(["SET", key, value]);
+  },
+  async kvDel(key) {
+    await upstash(["DEL", key]);
+  },
+  async setAdd(key, member) {
+    await upstash(["SADD", key, member]);
+  },
+  async setRemove(key, member) {
+    await upstash(["SREM", key, member]);
+  },
+  async setMembers(key) {
+    return ((await upstash(["SMEMBERS", key])) as string[] | null) ?? [];
+  },
 };
 
 /* --------------------------------------------------------------------- file */
@@ -199,8 +229,69 @@ const globalCounters = globalThis as typeof globalThis & {
 globalCounters.__vibeCheckCounters ??= new Map();
 const localCounters = globalCounters.__vibeCheckCounters;
 
+/*
+ * One JSON file for all the generic key/value state, serialised through a single
+ * chain so concurrent writes can't lose a read-modify-write race — the same
+ * hazard the per-topic vote files have, and the same fix.
+ */
+const kvFile = () => path.join(process.cwd(), ".data", `kv-${STORE_VERSION}.json`);
+let kvChain: Promise<unknown> = Promise.resolve();
+
+async function readKv(): Promise<Record<string, string | string[]>> {
+  try {
+    const parsed = JSON.parse(await fs.readFile(kvFile(), "utf8"));
+    return parsed && typeof parsed === "object" ? parsed : {};
+  } catch {
+    return {};
+  }
+}
+
+function mutateKv<T>(fn: (kv: Record<string, string | string[]>) => T): Promise<T> {
+  const next = kvChain.then(async () => {
+    const kv = await readKv();
+    const result = fn(kv);
+    await fs.mkdir(path.dirname(kvFile()), { recursive: true });
+    await fs.writeFile(kvFile(), JSON.stringify(kv, null, 2));
+    return result;
+  });
+  kvChain = next.catch(() => {});
+  return next;
+}
+
 const fileStore: VoteStore = {
   kind: "file",
+  async kvGet(key) {
+    const value = (await readKv())[key];
+    return typeof value === "string" ? value : null;
+  },
+  kvSet(key, value) {
+    return mutateKv((kv) => {
+      kv[key] = value;
+    });
+  },
+  kvDel(key) {
+    return mutateKv((kv) => {
+      delete kv[key];
+    });
+  },
+  setAdd(key, member) {
+    return mutateKv((kv) => {
+      const set = new Set(Array.isArray(kv[key]) ? (kv[key] as string[]) : []);
+      set.add(member);
+      kv[key] = [...set];
+    });
+  },
+  setRemove(key, member) {
+    return mutateKv((kv) => {
+      const set = new Set(Array.isArray(kv[key]) ? (kv[key] as string[]) : []);
+      set.delete(member);
+      kv[key] = [...set];
+    });
+  },
+  async setMembers(key) {
+    const value = (await readKv())[key];
+    return Array.isArray(value) ? value : [];
+  },
   push(topic, record) {
     const prior = chains.get(topic) ?? Promise.resolve();
     const next = prior.then(async () => {

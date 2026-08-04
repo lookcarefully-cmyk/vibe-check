@@ -3,7 +3,8 @@ import { aggregateWindow, weeklySeries } from "@/lib/aggregate";
 import { checkEligibility, epochKey } from "@/lib/epoch";
 import { callerToken, isValidSessionId, originIsAllowed } from "@/lib/request";
 import { store, type VoteRecord } from "@/lib/store";
-import { cadenceOf, getTopic, versionOf } from "@/lib/topics";
+import { cadenceOf, versionOf } from "@/lib/topics";
+import { resolveBoard } from "@/lib/boards";
 
 // Votes are mutable state; never let a CDN or the build step freeze this.
 export const dynamic = "force-dynamic";
@@ -37,7 +38,7 @@ function noStore(body: unknown, status = 200) {
 }
 
 export async function GET(_req: Request, { params }: Params) {
-  const topic = getTopic((await params).topic);
+  const topic = await resolveBoard((await params).topic);
   if (!topic) return noStore({ error: "Unknown topic." }, 404);
 
   try {
@@ -63,7 +64,7 @@ export async function GET(_req: Request, { params }: Params) {
 }
 
 export async function POST(req: Request, { params }: Params) {
-  const topic = getTopic((await params).topic);
+  const topic = await resolveBoard((await params).topic);
   if (!topic) return noStore({ error: "Unknown topic." }, 404);
 
   if (!originIsAllowed(req)) {

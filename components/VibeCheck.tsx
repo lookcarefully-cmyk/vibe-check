@@ -60,7 +60,14 @@ const EMPTY: BoardResult = {
 
 const pct = (v: number) => `${Math.round(v * 100)}%`;
 
-export default function VibeCheck({ topic }: { topic: Topic }) {
+export default function VibeCheck({
+  topic,
+  community = false,
+}: {
+  topic: Topic;
+  /** True for a board someone made, which is labelled as such and not ours. */
+  community?: boolean;
+}) {
   const [phase, setPhase] = useState<Phase>("choose");
   const [pick, setPick] = useState(0.5);
   const [agg, setAgg] = useState<BoardResult>(EMPTY);
@@ -374,7 +381,9 @@ export default function VibeCheck({ topic }: { topic: Topic }) {
       <header className="masthead">
         {/* A div, not a p: it contains a <dialog>, which isn't phrasing content. */}
         <div className="kicker">
-          <span className="kicker-text">Vibe Check · public data collection</span>
+          <span className="kicker-text">
+            {community ? "Vibe Check · a board someone made" : "Vibe Check · public data collection"}
+          </span>
           <InfoDialog />
         </div>
         <h1>{topic.question}</h1>
@@ -783,6 +792,12 @@ export default function VibeCheck({ topic }: { topic: Topic }) {
           <TopicNav activeId={topic.id} refreshKey={navKey} topics={moreTopics} />
           <p className="board-index-run">
             <Link href="/boards">Browse all {EXTRA_TOPICS.length} questions &rarr;</Link>
+            {community && (
+              <>
+                {" · "}
+                <Link href="/b">Boards people made &rarr;</Link>
+              </>
+            )}
           </p>
         </section>
       )}

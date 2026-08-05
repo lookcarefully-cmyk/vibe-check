@@ -1,0 +1,45 @@
+board_id,board_version,origin,question,left_label,right_label,high_means,scale_family,category,cadence,is_calibration,hidden_from_library
+social-addictive,1,curated,Is shortform social media addictive?,NOT ADDICTIVE,ADDICTIVE,more addictive,addictive,Screens & attention,week,0,1
+coffee-addictive,1,curated,Is coffee addictive?,NOT ADDICTIVE,ADDICTIVE,more addictive,addictive,Everyday habits,week,0,1
+slime,1,curated,Is slime a liquid or a solid?,LIQUID,SOLID,more solid,bipolar,Other,once,1,1
+social-healthy,1,curated,Is shortform social media bad or good for your mental health?,HARMFUL,HEALTHY,better for mental health,bipolar,Screens & attention,week,0,0
+social-treatment,1,curated,Someone says shortform video has taken over their life. What treatment should they be able to get?,NONE,FULL CLINICAL CARE,more access to treatment,amount,Screens & attention,week,0,1
+social-disorder,1,curated,Is compulsive shortform scrolling a real disorder or just a bad habit?,REAL DISORDER,JUST A HABIT,less clinically serious,bipolar,Screens & attention,week,0,1
+social-neuro,1,curated,"Long-term shortform social media use is, neurologically:",HARMFUL,HARMLESS,more neurologically harmless,bipolar,Screens & attention,week,0,0
+porn-addictive,1,curated,Is internet porn addictive?,NOT ADDICTIVE,ADDICTIVE,more addictive,addictive,Sex & relationships,week,0,0
+porn-healthy,1,curated,Is internet porn harmful or healthy?,HARMFUL,HEALTHY,healthier,bipolar,Sex & relationships,week,0,0
+social-polarizing,1,curated,Is shortform social media politically polarizing or politically unifying?,POLARIZING,UNIFYING,more unifying,bipolar,Screens & attention,week,0,0
+social-society,1,curated,Is shortform social media bad or good for society?,BAD FOR SOCIETY,GOOD FOR SOCIETY,better for society,bipolar,Screens & attention,week,0,1
+porn-society,1,curated,Is internet porn bad or good for society?,BAD FOR SOCIETY,GOOD FOR SOCIETY,better for society,bipolar,Sex & relationships,week,0,0
+ai-optimist,1,curated,"On AI, are you an optimist or a doomer?",OPTIMIST,DOOMER,more doomer,bipolar,AI,week,0,0
+ai-tempo,1,curated,Should AI progress slow down or speed up?,SLOW DOWN,ACCELERATE,should accelerate,pace,AI,week,0,0
+agi-here,1,curated,AGI: are we there yet?,WE'RE THERE,NOT EVEN CLOSE,further away,proximity,AI,week,0,0
+singularity-here,1,curated,The singularity: are we there yet?,WE'RE THERE,NOT EVEN CLOSE,further away,proximity,AI,week,0,0
+opensource-gap,1,curated,Open-source AI catching up to closed frontier models: are we there yet?,WE'RE THERE,NOT EVEN CLOSE,further away,proximity,AI,week,0,0
+anthropic-mandate,1,curated,Does Anthropic still have the mandate of heaven?,LOST THE MANDATE,HAS THE MANDATE,still has the mandate,bipolar,AI labs,week,0,0
+openai-mandate,1,curated,Does OpenAI still have the mandate of heaven?,LOST THE MANDATE,HAS THE MANDATE,still has the mandate,bipolar,AI labs,week,0,0
+mandate-openai-anthropic,1,curated,Who holds the mandate of heaven — OpenAI or Anthropic?,OPENAI,ANTHROPIC,Anthropic over OpenAI,bipolar,AI labs,week,0,0
+fable-coded,1,curated,Is Fable SF-coded or NYC-coded?,SF-CODED,NYC-CODED,more NYC-coded,bipolar,SF or NYC?,month,0,0
+opus-coded,1,curated,Is Opus SF-coded or NYC-coded?,SF-CODED,NYC-CODED,more NYC-coded,bipolar,SF or NYC?,month,0,0
+cursor-coded,1,curated,Is Cursor SF-coded or NYC-coded?,SF-CODED,NYC-CODED,more NYC-coded,bipolar,SF or NYC?,month,0,0
+chatgpt-coded,1,curated,Is ChatGPT SF-coded or NYC-coded?,SF-CODED,NYC-CODED,more NYC-coded,bipolar,SF or NYC?,month,0,0
+grok-coded,1,curated,Is Grok SF-coded or NYC-coded?,SF-CODED,NYC-CODED,more NYC-coded,bipolar,SF or NYC?,month,0,0
+us-hegemony-end,1,curated,The end of US hegemony: are we there yet?,WE'RE THERE,NOT EVEN CLOSE,further away,proximity,Big shifts,week,0,0
+college-end,1,curated,The end of the collegiate model of education: are we there yet?,WE'RE THERE,NOT EVEN CLOSE,further away,proximity,Big shifts,week,0,0
+college-recommend-2026,1,curated,Would you recommend your kid goes to college today?,NO,YES,more likely to recommend college,bipolar,Big shifts,week,0,0
+kids-social,1,curated,Is social media access for children under 12 harmful or beneficial?,HARMFUL,BENEFICIAL,more beneficial,bipolar,Kids & screens,week,0,0
+online-gambling,1,curated,Should online gambling be illegal or legal?,ILLEGAL,LEGAL,should be legal,bipolar,Law & policy,week,0,0
+prediction-markets,1,curated,Should prediction markets be illegal or legal?,ILLEGAL,LEGAL,should be legal,bipolar,Law & policy,week,0,0
+llm-smarter,1,curated,Do LLMs make people smarter or dumber?,SMARTER,DUMBER,people end up dumber,bipolar,AI,week,0,0
+ai-art,1,curated,"AI-generated art: a new creative frontier, or a threat to human artistry?",CREATIVE FRONTIER,THREAT TO ARTISTRY,more of a threat to human artistry,bipolar,AI,week,0,0
+ai-jobs,1,curated,Will AI create jobs or replace them?,CREATE JOBS,REPLACE JOBS,more job replacement,bipolar,AI,week,0,0
+ai-regulation,1,curated,How should society approach the regulation of advanced AI?,UNFETTERED INNOVATION,PREEMPTIVE REGULATION,more regulation,bipolar,AI,week,0,0
+ai-money,1,curated,Has AI lost you money or made you money?,LOST ME MONEY,MADE ME MONEY,made them more money,bipolar,AI,week,0,0
+college-worth,1,curated,A four-year college degree is…,OUTDATED MODEL,FOUNDATIONAL NECESSITY,more of a necessity,bipolar,Big shifts,week,0,0
+opus-chad,1,curated,Is Opus a chud or a chad?,CHUD,CHAD,more chad,bipolar,Chud or Chad?,week,0,0
+fable-chad,1,curated,Is Fable a chud or a chad?,CHUD,CHAD,more chad,bipolar,Chud or Chad?,week,0,0
+chatgpt-chad,1,curated,Is ChatGPT a chud or a chad?,CHUD,CHAD,more chad,bipolar,Chud or Chad?,week,0,0
+gemini-chad,1,curated,Is Gemini a chud or a chad?,CHUD,CHAD,more chad,bipolar,Chud or Chad?,week,0,0
+grok-chad,1,curated,Is Grok a chud or a chad?,CHUD,CHAD,more chad,bipolar,Chud or Chad?,week,0,0
+labubu,1,curated,Labubu: toy or asset class?,TOY,ASSET CLASS,more of an asset class,bipolar,Other,week,0,0
+pitbulls,1,curated,Should people be allowed to own pit bulls?,NEVER,ALWAYS,more permissive,permission,Law & policy,week,0,0

@@ -513,9 +513,13 @@ export default function VibeCheck({
         <section className="results">
           <p className="consensus">
             {revealed ? (
-              <>
-                The average answer is <strong>{say(agg.mean)}</strong>
-              </>
+              agg.count > 0 ? (
+                <>
+                  The average answer is <strong>{say(agg.mean)}</strong>
+                </>
+              ) : (
+                <>No crowd result yet</>
+              )
             ) : (
               <>
                 You said <strong>{say(pick)}</strong>

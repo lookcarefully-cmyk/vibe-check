@@ -293,7 +293,9 @@ export default function Dial({
       aria-label={
         interactive
           ? `${topic.question} Tap along the spectrum to place your answer, then confirm it with the button below. 0 percent is ${topic.leftLabel.toLowerCase()} and 100 percent is ${topic.rightLabel.toLowerCase()}.`
-          : `Average answer: ${Math.round(agg.mean * 100)} percent toward ${topic.rightLabel.toLowerCase()}, from ${agg.count} responses.`
+          : agg.count > 0
+            ? `Average answer: ${Math.round(agg.mean * 100)} percent toward ${topic.rightLabel.toLowerCase()}, from ${agg.count} responses.`
+            : `No crowd answers yet. The scale runs from ${topic.leftLabel.toLowerCase()} to ${topic.rightLabel.toLowerCase()}.`
       }
       aria-valuemin={interactive ? 0 : undefined}
       aria-valuemax={interactive ? 100 : undefined}
@@ -554,7 +556,7 @@ export default function Dial({
       )}
 
       {/* ---------------------------------------- consensus marker + chip */}
-      {isResult && (
+      {isResult && agg.count > 0 && (
         <g className="marker">
           {/* red reads against both the navy sky and the cream face */}
           <line
@@ -639,7 +641,7 @@ export default function Dial({
       {/* Result phase only: the needle points at the crowd mean, and the hub is
           its pivot. In the choosing phase there is no needle and no hub — the
           only thing on the dial is the viewer's own dot. */}
-      {isResult && (
+      {isResult && agg.count > 0 && (
         <>
           <g
             className="needle"

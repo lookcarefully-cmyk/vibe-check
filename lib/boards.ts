@@ -102,7 +102,7 @@ export function toTopic(board: CommunityBoard): Topic {
     subject: board.category || "Community",
     axis: board.question.length > 42 ? `${board.question.slice(0, 40)}…` : board.question,
     question: board.question,
-    prompt: "Drag to your answer, then lock it in below.",
+    prompt: "Tap where you land, then lock it in below.",
     leftLabel: board.leftLabel,
     rightLabel: board.rightLabel,
     highMeans: board.highMeans,

@@ -1,6 +1,7 @@
 :root {
   --navy: #0a1238;
   --navy-mid: #101a4a;
+  --navy-deep: #060a22; /* the vignette edge — a touch deeper than the base */
   --cream: #f2ebda;
   --teal: #5fd3d4;
   --teal-deep: #2ea3ad;
@@ -10,6 +11,10 @@
   --mint: #9bd3a6;
 
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* Set by next/font in app/layout.tsx; the stacks are the no-JS/no-font fallback. */
+  --font-text: "Space Grotesk", ui-sans-serif, system-ui, "Helvetica Neue", Arial, sans-serif;
+  --font-display: "Fraunces", Georgia, "Times New Roman", serif;
 }
 
 * {
@@ -20,9 +25,14 @@ html,
 body {
   margin: 0;
   padding: 0;
-  background: var(--navy);
+  /* A soft radial vignette instead of a flat fill: brighter navy up where the
+     dial sits, deepening toward the edges, so the page has a little depth under
+     the starfield without touching the dial artwork. Fixed so it doesn't scroll. */
+  background:
+    radial-gradient(120% 90% at 50% 22%, var(--navy-mid) 0%, var(--navy) 42%, var(--navy-deep) 100%)
+    fixed var(--navy);
   color: var(--cream);
-  font-family: ui-sans-serif, system-ui, "Helvetica Neue", Arial, sans-serif;
+  font-family: var(--font-text);
   -webkit-font-smoothing: antialiased;
   overflow-x: hidden;
 }
@@ -617,9 +627,10 @@ body::after {
 
 .notfound h1 {
   margin: 0.5rem 0 0;
-  font-size: clamp(2rem, 6vw, 3rem);
-  font-weight: 800;
-  letter-spacing: -0.02em;
+  font-family: var(--font-display);
+  font-size: clamp(2.2rem, 6.2vw, 3.2rem);
+  font-weight: 700;
+  letter-spacing: -0.015em;
 }
 
 .notfound-actions {
@@ -975,12 +986,15 @@ body::after {
 
 .masthead h1 {
   margin: 0;
+  font-family: var(--font-display);
   /* capped lower than a one-line headline would allow: with eight boards, some
      questions are long, and the dial has to stay near the fold */
-  font-size: clamp(1.6rem, 4.6vw, 2.6rem);
-  line-height: 1.05;
-  letter-spacing: -0.02em;
-  font-weight: 800;
+  font-size: clamp(1.75rem, 4.9vw, 2.9rem);
+  line-height: 1.08;
+  letter-spacing: -0.015em;
+  /* Fraunces has real weight up top; 700 reads bolder and more editorial than a
+     sans 800 without turning to slab. */
+  font-weight: 700;
 }
 
 .lede {
@@ -1224,22 +1238,24 @@ body::after {
   transition: transform 1100ms var(--ease-out), opacity 500ms ease 300ms;
 }
 
-.slider {
-  transition: opacity 700ms ease;
+/* the visual-analogue scale: a bare spectrum line and the dot you place on it */
+.vas-line {
+  stroke: rgba(10, 18, 56, 0.35);
+  stroke-width: 5;
+  stroke-dasharray: 2 12;
 }
 
-.slider.muted {
-  opacity: 0.32;
+.vas-dot {
+  transform-box: view-box;
+  transform-origin: 500px 500px;
+  /* eases to the tapped spot, so a drag reads as continuous rather than jumping */
+  transition: transform 180ms var(--ease-out);
 }
 
-.rod,
-.handle {
-  transition: none;
-}
-
-.is-result .rod,
-.is-result .handle {
-  transition: all 700ms var(--ease-out);
+.vas-dot circle {
+  fill: var(--teal-deep);
+  stroke: var(--cream);
+  stroke-width: 5;
 }
 
 .margin,
@@ -1286,8 +1302,9 @@ body::after {
 
 .consensus {
   margin: 0;
+  font-family: var(--font-display);
   font-size: clamp(1.5rem, 4.5vw, 2.4rem);
-  font-weight: 700;
+  font-weight: 600;
 }
 
 .consensus strong {

@@ -494,6 +494,7 @@ export default function VibeCheck({
           activeBand={activeBand}
           onBandFocus={setActiveBand}
           showOwn={!revealed}
+          placed={touched}
         />
       </div>
 
@@ -768,8 +769,8 @@ export default function VibeCheck({
           </button>
           <p className="hint">
             {touched
-              ? "You can keep adjusting until you lock it in."
-              : "Drag the dial to place your answer."}{" "}
+              ? "Tap again to move it; you can keep adjusting until you lock it in."
+              : "Tap the spectrum to place your answer."}{" "}
             Keyboard: arrow keys to aim, Enter to submit.
           </p>
 

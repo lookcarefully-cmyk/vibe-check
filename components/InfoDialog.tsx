@@ -71,8 +71,12 @@ export default function InfoDialog() {
           <section>
             <h3>How to play</h3>
             <ol>
-              <li>Slide the teal handle along the track — or use the arrow keys.</li>
-              <li>Click anywhere on the dial to lock your answer in.</li>
+              <li>
+                Tap the spectrum where you land — a dot marks your spot. Nothing
+                sits on the dial until you place it, so you start from a blank
+                slate, not a default. (Arrow keys work too.)
+              </li>
+              <li>Adjust if you like, then lock your answer in.</li>
               <li>
                 The dial opens up: the red needle swings to the average, and coloured rays
                 show how everyone&rsquo;s answers are spread out.
@@ -143,7 +147,7 @@ export default function InfoDialog() {
             <h3>What&rsquo;s collected</h3>
             <ul>
               <li>
-                <strong>Where you put the handle</strong>, as a number between 0 and 100,
+                <strong>Where you placed your mark</strong>, as a number between 0 and 100,
                 and <strong>when</strong> you answered.
               </li>
               <li>No account, no email, no name, no cookies, no tracking scripts.</li>

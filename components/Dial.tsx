@@ -33,7 +33,6 @@ import {
 
 const BASE = 122; // how far the dial body extends below the hub line
 const SCALLOPS = 24;
-const TRACK_Y = CY + 74; // below the hub, so the handle is never occluded by it
 const HALF_RAY = (1 / (RAY_COUNT - 1)) * 0.36; // angular half-width, in value units
 
 export type Phase = "choose" | "result";
@@ -60,6 +59,16 @@ interface DialProps {
    * omitted rather than pointed at the meaningless default of 0.5.
    */
   showOwn?: boolean;
+  /**
+   * Whether the viewer has actually placed a mark yet.
+   *
+   * The dial is a visual-analogue scale, not a slider: nothing sits on the
+   * spectrum until you put it there. A pre-positioned handle at 50% anchors
+   * everyone to the midpoint and invites a lazy flick to the nearest end — the
+   * exact failure mode the survey-methods literature pins on slider widgets. So
+   * before the first tap there is no dot, no handle, no fill; `placed` gates it.
+   */
+  placed?: boolean;
 }
 
 /** Stars are baked once from a fixed seed so SSR and hydration agree. */
@@ -116,6 +125,7 @@ export default function Dial({
   activeBand = null,
   onBandFocus,
   showOwn = true,
+  placed = true,
 }: DialProps) {
   const svgRef = useRef<SVGSVGElement>(null);
   const compact = useCompact();
@@ -282,7 +292,7 @@ export default function Dial({
       role={interactive ? "slider" : "img"}
       aria-label={
         interactive
-          ? `${topic.question} Drag along the spectrum to place your answer, then confirm it with the button below. 0 percent is ${topic.leftLabel.toLowerCase()} and 100 percent is ${topic.rightLabel.toLowerCase()}.`
+          ? `${topic.question} Tap along the spectrum to place your answer, then confirm it with the button below. 0 percent is ${topic.leftLabel.toLowerCase()} and 100 percent is ${topic.rightLabel.toLowerCase()}.`
           : `Average answer: ${Math.round(agg.mean * 100)} percent toward ${topic.rightLabel.toLowerCase()}, from ${agg.count} responses.`
       }
       aria-valuemin={interactive ? 0 : undefined}
@@ -402,8 +412,10 @@ export default function Dial({
             ))}
         </g>
 
-        {/* the viewer's own answer, kept visible next to the crowd's */}
-        {showOwn && (
+        {/* The viewer's own answer beside the crowd's, in the reveal only. In
+            the choosing phase there is no radial aim line — the answer is a dot
+            on the spectrum line below, placed only where the viewer taps. */}
+        {showOwn && isResult && (
           <line
             className="aim"
             x1={CX}
@@ -411,9 +423,9 @@ export default function Dial({
             x2={aimX}
             y2={aimY}
             stroke="#5FD3D4"
-            strokeWidth={isResult ? 6 : 9}
+            strokeWidth={6}
             strokeLinecap="round"
-            opacity={isResult ? 0.5 : 0.95}
+            opacity={0.5}
           />
         )}
       </g>
@@ -597,49 +609,49 @@ export default function Dial({
         {topic.rightLabel}
       </text>
 
-      {/* ------------------------------------------------ track + handle */}
-      {/* Omitted entirely when there's no answer of your own — a handle sitting
-          at the default 0.5 reads as a vote you didn't cast. */}
-      {showOwn && (
-      <g className={`slider ${isResult ? "muted" : ""}`}>
-        <line
-          x1={CX - R_FACE}
-          y1={TRACK_Y}
-          x2={CX + R_FACE}
-          y2={TRACK_Y}
-          stroke="#5FD3D4"
-          strokeWidth="6"
-          strokeLinecap="round"
-          opacity="0.45"
-        />
-        {/* rod: a horizontal arm anchored under the hub, sliding to the handle */}
-        <line
-          className="rod"
-          x1={CX}
-          y1={TRACK_Y}
-          x2={handleX}
-          y2={TRACK_Y}
-          stroke="#5FD3D4"
-          strokeWidth="20"
-          strokeLinecap="round"
-        />
-        {/* stem tying the rod back to the hub */}
-        <line x1={CX} y1={CY} x2={CX} y2={TRACK_Y} stroke="#5FD3D4" strokeWidth="14" strokeLinecap="round" />
-        <circle className="handle" cx={handleX} cy={TRACK_Y} r="24" fill="#7FE3E4" stroke="#0A1238" strokeWidth="5" />
-      </g>
+      {/* --------------------------------------- the VAS: a line and a dot */}
+      {/*
+        A visual-analogue scale, not a slider. In the choosing phase the spectrum
+        is a bare line between the two poles with NOTHING on it until the viewer
+        taps — no handle waiting at 50%, no fill. The mark they place is a single
+        dot at the tapped position, on the same horizontal axis the pointer maps
+        to (see valueFromEvent), so it sits under their finger.
+      */}
+      {showOwn && !isResult && (
+        <g className="vas">
+          <line
+            className="vas-line"
+            x1={CX - R_FACE}
+            y1={CY}
+            x2={CX + R_FACE}
+            y2={CY}
+            strokeLinecap="round"
+          />
+          {placed && (
+            <g className="vas-dot" style={{ transform: `translateX(${handleX - CX}px)` }}>
+              <circle cx={CX} cy={CY} r="20" />
+            </g>
+          )}
+        </g>
       )}
 
       {/* ---------------------------------------------- needle + red hub */}
-      <g
-        className="needle"
-        style={{ transform: `rotate(${rotationOf(needleValue)}deg)` }}
-        opacity={isResult ? 1 : 0}
-      >
-        {/* Stops just inside the band ring, so the ring reads as its own track. */}
-        <line x1={CX} y1={CY} x2={CX} y2={CY - (bandIn - 10)} stroke="#E51D35" strokeWidth="11" strokeLinecap="round" />
-      </g>
-      <circle cx={CX} cy={CY} r={R_HUB} fill="#E51D35" />
-      <circle cx={CX} cy={CY} r={R_HUB - 12} fill="none" stroke="#C4142A" strokeWidth="3" opacity="0.85" />
+      {/* Result phase only: the needle points at the crowd mean, and the hub is
+          its pivot. In the choosing phase there is no needle and no hub — the
+          only thing on the dial is the viewer's own dot. */}
+      {isResult && (
+        <>
+          <g
+            className="needle"
+            style={{ transform: `rotate(${rotationOf(needleValue)}deg)` }}
+          >
+            {/* Stops just inside the band ring, so the ring reads as its own track. */}
+            <line x1={CX} y1={CY} x2={CX} y2={CY - (bandIn - 10)} stroke="#E51D35" strokeWidth="11" strokeLinecap="round" />
+          </g>
+          <circle cx={CX} cy={CY} r={R_HUB} fill="#E51D35" />
+          <circle cx={CX} cy={CY} r={R_HUB - 12} fill="none" stroke="#C4142A" strokeWidth="3" opacity="0.85" />
+        </>
+      )}
     </svg>
   );
 }

@@ -7,8 +7,8 @@
  */
 export default function HowToPlay() {
   const steps = [
-    "Slide the handle along the dial to where you land.",
-    "Click to lock your answer in.",
+    "Tap the dial where you land on the question.",
+    "Lock your answer in.",
     "The dial opens up and shows where everyone else landed.",
   ];
 

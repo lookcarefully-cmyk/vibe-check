@@ -1,5 +1,34 @@
 import type { Metadata, Viewport } from "next";
+import { Fraunces, Space_Grotesk } from "next/font/google";
 import "./globals.css";
+
+/*
+ * Typography carries most of the "this was designed" feeling, so it's a
+ * deliberate pairing rather than the system default:
+ *
+ *   Fraunces      — a warm, slightly wonky editorial serif for the questions and
+ *                   result numbers. Gives the opinion instrument a considered,
+ *                   magazine-ish voice instead of a generic app one.
+ *   Space Grotesk — a geometric sans with a bit of quirk for UI and body, which
+ *                   reads as intentional where Inter/system-sans reads as default.
+ *
+ * next/font self-hosts both at build time: no runtime request to Google, no CSP
+ * exception, no layout shift (font-display: swap with a matched fallback).
+ */
+const display = Fraunces({
+  subsets: ["latin"],
+  weight: ["400", "600", "700", "900"],
+  style: ["normal", "italic"],
+  variable: "--font-display",
+  display: "swap",
+});
+
+const text = Space_Grotesk({
+  subsets: ["latin"],
+  weight: ["400", "500", "700"],
+  variable: "--font-text",
+  display: "swap",
+});
 
 /**
  * Where the OG/Twitter image URLs resolve against. Without it, Next warns and
@@ -67,7 +96,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="en" className={`${display.variable} ${text.variable}`}>
       <body>{children}</body>
     </html>
   );

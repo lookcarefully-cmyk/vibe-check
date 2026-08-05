@@ -34,6 +34,9 @@ import {
 const BASE = 122; // how far the dial body extends below the hub line
 const SCALLOPS = 24;
 const HALF_RAY = (1 / (RAY_COUNT - 1)) * 0.36; // angular half-width, in value units
+// An invisible landing zone around neutral. This makes an intentional midpoint
+// tap reliable on a phone without drawing a centre mark that would anchor people.
+const CENTER_DETENT = 0.04;
 
 export type Phase = "choose" | "result";
 
@@ -225,8 +228,9 @@ export default function Dial({
     const clamped = Math.min(1, Math.max(0, value));
     // A detent at dead centre. Without it, landing on exactly neutral by hand is
     // nearly impossible — you get 49% or 51% — yet "the crowd is split" is a real
-    // answer people want to give. Snap anything within ~2% to true 0.5.
-    return Math.abs(clamped - 0.5) < 0.02 ? 0.5 : clamped;
+    // answer people want to give. The ±4-point zone is wide enough for a thumb
+    // tap, but stays invisible so it does not advertise neutral as the default.
+    return Math.abs(clamped - 0.5) <= CENTER_DETENT ? 0.5 : clamped;
   }
 
   const handleX = CX - R_FACE + safePick * 2 * R_FACE;

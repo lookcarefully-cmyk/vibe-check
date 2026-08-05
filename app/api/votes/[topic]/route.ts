@@ -37,6 +37,21 @@ function noStore(body: unknown, status = 200) {
   });
 }
 
+/*
+ * A board's aggregate is identical for every viewer, so under a spike there's no
+ * reason to recompute it from Redis on every request. This lets Vercel's edge
+ * serve one cached copy for a few seconds — turning a thousand concurrent
+ * viewers into one origin read — while stale-while-revalidate keeps it feeling
+ * live. The browser itself still gets fresh data (`no-cache` on the client),
+ * and a fresh vote returns its result directly from the POST, so the voter never
+ * waits on this window. Private, per-person data is never in this response.
+ */
+function edgeCached(body: unknown) {
+  return NextResponse.json(body, {
+    headers: { "Cache-Control": "public, s-maxage=10, stale-while-revalidate=30" },
+  });
+}
+
 export async function GET(_req: Request, { params }: Params) {
   const topic = await resolveBoard((await params).topic);
   if (!topic) return noStore({ error: "Unknown topic." }, 404);
@@ -52,7 +67,7 @@ export async function GET(_req: Request, { params }: Params) {
      *
      * Session ids and timestamps still never leave; the series is aggregate-only.
      */
-    return noStore({
+    return edgeCached({
       ...aggregateWindow(records, now),
       series: weeklySeries(records, now),
       cadence: cadenceOf(topic),

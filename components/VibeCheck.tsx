@@ -119,7 +119,11 @@ export default function VibeCheck({
 
   const load = useCallback(async () => {
     try {
-      const res = await fetch(endpoint, { cache: "no-store" });
+      // Not `no-store`: a no-store request bypasses Vercel's edge cache, and
+      // the GET is edge-cached for ~10s so a traffic spike collapses into one
+      // origin read. 10s of staleness on a live-ish results view is fine, and a
+      // fresh vote updates from the POST response directly.
+      const res = await fetch(endpoint);
       if (!res.ok) throw new Error(String(res.status));
       const data: BoardResult = await res.json();
       setLoaded(true);

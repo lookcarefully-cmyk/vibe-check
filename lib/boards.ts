@@ -25,7 +25,21 @@ const KEY = {
   board: (slug: string) => `vibecheck:v5:cboard:${slug}`,
   all: "vibecheck:v5:cboards",
   listed: "vibecheck:v5:cboards:listed",
+  // Admin-approved for the front page. A separate, higher bar than `listed`:
+  // publishing (creator's choice) puts a board in the /b library; approval
+  // (yours) is what lets it onto the home page, where the stakes are higher.
+  featured: "vibecheck:v5:cboards:featured",
 };
+
+/**
+ * Reports that auto-unlist a board pending review.
+ *
+ * A safety valve, not a verdict: enough reports hides a board from the public
+ * library and the front page (it stays reachable by its link and is never
+ * deleted) so a human can look. Set low enough to catch real problems fast,
+ * high enough that one or two people can't brigade a board they merely dislike.
+ */
+export const REPORTS_TO_UNLIST = 4;
 
 /** How a community board is stored. A superset of what Topic needs. */
 export interface CommunityBoard {
@@ -46,6 +60,16 @@ export interface CommunityBoard {
    * on its author without also putting it in front of strangers.
    */
   reviewOnly: boolean;
+  /**
+   * Approved by an admin for the front page. Distinct from `listed`: a creator
+   * can publish to the library themselves, but only a human decision puts a
+   * board where every first-time visitor sees it.
+   */
+  approved?: boolean;
+  /** How many people have reported this board. At REPORTS_TO_UNLIST it auto-hides. */
+  reports?: number;
+  /** Set once a report has hidden it, so a human knows to look. */
+  underReview?: boolean;
   /** sha256 of the creator's token. The raw token never touches the server's storage. */
   creatorHash: string;
 }
@@ -102,14 +126,41 @@ export async function getCommunityBoard(slug: string): Promise<CommunityBoard | 
 export async function saveCommunityBoard(board: CommunityBoard): Promise<void> {
   await store.kvSet(KEY.board(board.slug), JSON.stringify(board));
   await store.setAdd(KEY.all, board.slug);
-  if (board.listed) await store.setAdd(KEY.listed, board.slug);
+  // A board is in the public library only if it's listed AND not hidden for
+  // review; on the front page only if it's also admin-approved. Kept in index
+  // sets so the common reads (library, home page) don't have to load every board.
+  const publiclyListed = board.listed && !board.underReview;
+  if (publiclyListed) await store.setAdd(KEY.listed, board.slug);
   else await store.setRemove(KEY.listed, board.slug);
+  if (publiclyListed && board.approved) await store.setAdd(KEY.featured, board.slug);
+  else await store.setRemove(KEY.featured, board.slug);
+}
+
+/** Boards approved for the front page. A subset of the library. */
+export async function featuredBoards(): Promise<CommunityBoard[]> {
+  return loadMany(await store.setMembers(KEY.featured));
+}
+
+/**
+ * Record a report against a board. When reports reach the threshold the board is
+ * auto-hidden from the library and front page pending review — never deleted,
+ * and still reachable by its link. Returns whether it was hidden.
+ */
+export async function reportBoard(slug: string): Promise<{ hidden: boolean } | null> {
+  const board = await getCommunityBoard(slug);
+  if (!board) return null;
+  board.reports = (board.reports ?? 0) + 1;
+  const hidden = board.reports >= REPORTS_TO_UNLIST;
+  if (hidden) board.underReview = true;
+  await saveCommunityBoard(board);
+  return { hidden };
 }
 
 export async function deleteCommunityBoard(slug: string): Promise<void> {
   await store.kvDel(KEY.board(slug));
   await store.setRemove(KEY.all, slug);
   await store.setRemove(KEY.listed, slug);
+  await store.setRemove(KEY.featured, slug);
 }
 
 async function loadMany(slugs: string[]): Promise<CommunityBoard[]> {

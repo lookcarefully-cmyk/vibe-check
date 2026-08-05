@@ -2,11 +2,14 @@ import { NextResponse } from "next/server";
 import {
   allCommunityBoards,
   describeHigh,
+  deleteCommunityBoard,
+  featuredBoards,
   getCommunityBoard,
   guessScale,
   hashToken,
   listedBoards,
   newCreatorToken,
+  reportBoard,
   saveCommunityBoard,
   slugify,
   type CommunityBoard,
@@ -45,10 +48,14 @@ function noStore(body: unknown, status = 200) {
  * was posted first.
  */
 export async function GET(req: Request) {
-  const sort = new URL(req.url).searchParams.get("sort") ?? "trending";
+  const params = new URL(req.url).searchParams;
+  const sort = params.get("sort") ?? "trending";
+  // `featured=1` returns only admin-approved boards — this is what the home page
+  // asks for, so an unvetted board can never reach the front door.
+  const onlyFeatured = params.get("featured") === "1";
 
   try {
-    const boards = await listedBoards();
+    const boards = onlyFeatured ? await featuredBoards() : await listedBoards();
     const now = Date.now();
 
     const withStats = await Promise.all(
@@ -176,6 +183,20 @@ export async function PATCH(req: Request) {
   const board = await getCommunityBoard(slug);
   if (!board) return noStore({ error: "No such board." }, 404);
 
+  // Reporting needs no ownership — anyone can flag a board — but is rate limited
+  // per connection so a single person can't drive one to the auto-hide threshold
+  // alone. Reported boards are hidden pending review, never deleted.
+  if (action === "report") {
+    const caller = callerToken(req);
+    const limit = await store.hit(`${caller}:report:${slug}`, 1, 24 * 60 * 60);
+    if (!limit.allowed) {
+      return noStore({ ok: true, alreadyReported: true });
+    }
+    await reportBoard(slug);
+    return noStore({ ok: true });
+  }
+
+  // Everything else is the creator acting on their own board.
   // Constant-ish comparison on the hash, never on the raw token.
   if (!token || hashToken(token) !== board.creatorHash) {
     return noStore({ error: "That isn't your board." }, 403);

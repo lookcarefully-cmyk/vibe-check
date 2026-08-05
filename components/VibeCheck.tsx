@@ -824,13 +824,74 @@ export default function VibeCheck({
         </section>
       )}
 
+      {/* Reporting, community boards only. Made by a visitor, not by us. */}
+      {community && <ReportBoard slug={topic.id} />}
+
       {/* Standing disclosure, so it's readable without opening the dialog. */}
       <footer className="disclosure">
-        Anonymous: your answer, the time, and a random ID that groups your answers together.
-        No name, email, account or IP. Results are public, so anyone can see how the crowd answered. <span className="disclosure-cue">Full details under the ? above.</span>
+        {community ? (
+          <>
+            This board was made by a visitor, not by us. It&rsquo;s screened for the
+            obvious, but a published board is somebody&rsquo;s question, not a claim
+            we&rsquo;re making.{" "}
+          </>
+        ) : (
+          <>
+            Anonymous: your answer, the time, and a random ID that groups your answers
+            together. No name, email, account or IP. Results are public, so anyone can see
+            how the crowd answered.{" "}
+          </>
+        )}
+        <span className="disclosure-cue">Full details under the ? above.</span>
       </footer>
 
       <Colophon />
     </main>
+  );
+}
+
+/**
+ * A quiet "report" control for community boards. Two-step so a stray tap doesn't
+ * fire it, and it never claims a board was removed — a report queues a board for
+ * review, it isn't a verdict.
+ */
+function ReportBoard({ slug }: { slug: string }) {
+  const [state, setState] = useState<"idle" | "confirm" | "done">("idle");
+
+  async function report() {
+    setState("done");
+    try {
+      await fetch("/api/boards", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ slug, action: "report" }),
+      });
+    } catch {
+      /* the thank-you still shows; a failed report isn't worth alarming over */
+    }
+  }
+
+  if (state === "done") {
+    return <p className="report-done">Thanks — this board has been flagged for review.</p>;
+  }
+
+  return (
+    <p className="report-line">
+      {state === "confirm" ? (
+        <>
+          Report this board as inappropriate?{" "}
+          <button type="button" className="report-go" onClick={() => void report()}>
+            Yes, report it
+          </button>{" "}
+          <button type="button" className="report-cancel" onClick={() => setState("idle")}>
+            Cancel
+          </button>
+        </>
+      ) : (
+        <button type="button" className="report-link" onClick={() => setState("confirm")}>
+          Report this board
+        </button>
+      )}
+    </p>
   );
 }

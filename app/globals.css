@@ -834,6 +834,94 @@ body::after {
   color: rgba(242, 235, 218, 0.45);
 }
 
+/* ---------------------------------------------- report a community board */
+
+.report-line,
+.report-done {
+  margin: 1.5rem 0 0;
+  font-size: 0.78rem;
+  color: rgba(242, 235, 218, 0.4);
+}
+
+.report-link,
+.report-cancel {
+  background: none;
+  border: 0;
+  padding: 0;
+  font: inherit;
+  font-size: 0.78rem;
+  color: rgba(242, 235, 218, 0.4);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+}
+
+.report-link:hover {
+  color: var(--pink);
+}
+
+.report-go {
+  background: none;
+  border: 0;
+  padding: 0;
+  font: inherit;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--pink);
+  cursor: pointer;
+}
+
+/* ------------------------------------------------ admin moderation panel */
+
+.admin-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.75rem;
+  padding: 0.7rem 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  text-align: left;
+  font-size: 0.85rem;
+}
+
+.admin-q {
+  flex: 1 1 16rem;
+}
+
+.admin-q a {
+  color: var(--cream);
+}
+
+.admin-flags {
+  font-size: 0.72rem;
+  color: rgba(242, 235, 218, 0.5);
+}
+
+.admin-flags .flag-review {
+  color: var(--pink);
+  font-weight: 700;
+}
+
+.admin-flags .flag-live {
+  color: var(--mint);
+}
+
+.admin-row button {
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--cream);
+  border-radius: 999px;
+  padding: 0.3rem 0.7rem;
+  font: inherit;
+  font-size: 0.75rem;
+  cursor: pointer;
+}
+
+.admin-row button.danger {
+  border-color: rgba(229, 29, 53, 0.5);
+  color: #ffb3bd;
+}
+
 /* ------------------------------------------------------------ colophon */
 
 .colophon {

@@ -1322,6 +1322,103 @@ body::after {
   color: var(--mustard);
 }
 
+.benchmark-result {
+  margin: 1.4rem auto 0;
+  padding: 1rem;
+  border: 1px solid rgba(95, 211, 212, 0.34);
+  border-radius: 16px;
+  background: linear-gradient(135deg, rgba(95, 211, 212, 0.1), rgba(255, 255, 255, 0.035));
+  text-align: left;
+}
+
+.benchmark-heading {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.benchmark-kicker,
+.benchmark-heading h3,
+.benchmark-source,
+.benchmark-note,
+.benchmark-score {
+  margin: 0;
+}
+
+.benchmark-kicker {
+  color: var(--teal);
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.17em;
+  text-transform: uppercase;
+}
+
+.benchmark-heading h3 {
+  font-family: var(--font-display);
+  font-size: clamp(1.05rem, 3vw, 1.35rem);
+}
+
+.benchmark-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.65rem;
+  margin: 0.85rem 0 0;
+}
+
+.benchmark-grid > div {
+  padding: 0.7rem;
+  border-radius: 11px;
+  background: rgba(0, 0, 0, 0.16);
+}
+
+.benchmark-grid .is-benchmark {
+  background: rgba(242, 178, 56, 0.12);
+  border: 1px solid rgba(242, 178, 56, 0.28);
+}
+
+.benchmark-grid dt {
+  color: rgba(242, 235, 218, 0.55);
+  font-size: 0.58rem;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+}
+
+.benchmark-grid dd {
+  margin: 0.28rem 0 0;
+  font-size: clamp(1rem, 3vw, 1.35rem);
+  font-weight: 800;
+}
+
+.benchmark-score {
+  padding: 0.8rem 0 0;
+  color: var(--mustard);
+  font-weight: 700;
+}
+
+.benchmark-source {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 0.7rem;
+  padding-top: 0.8rem;
+  font-size: 0.72rem;
+}
+
+.benchmark-source a {
+  color: var(--teal);
+}
+
+.benchmark-source span,
+.benchmark-note {
+  color: rgba(242, 235, 218, 0.5);
+}
+
+.benchmark-note {
+  padding-top: 0.35rem;
+  font-size: 0.72rem;
+  line-height: 1.45;
+}
+
 .stats {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -1690,6 +1787,15 @@ body::after {
 /* ----------------------------------------------------------- responsive */
 
 @media (max-width: 640px) {
+  .benchmark-heading {
+    display: block;
+  }
+  .benchmark-heading h3 {
+    margin-top: 0.2rem;
+  }
+  .benchmark-grid {
+    grid-template-columns: 1fr;
+  }
   .stats {
     grid-template-columns: repeat(2, 1fr);
   }

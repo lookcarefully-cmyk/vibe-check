@@ -26,6 +26,7 @@ export function guessScale(left: string, right: string): ScaleFamily {
   if (/\bnever\b/.test(l) && /\balways\b/.test(r)) return "permission";
   if (/\bfaster\b|\bslower\b/.test(pair)) return "pace";
   if (/we'?re there|not even close|already here|nowhere near/.test(pair)) return "proximity";
+  if (/\bchance\b|\bcertain\b|\blikely\b|\bunlikely\b/.test(pair)) return "probability";
   if (/\bnone\b/.test(l) && /\ball\b|\bfull\b|\beverything\b/.test(r)) return "amount";
   if (/\baddictive\b/.test(pair)) return "addictive";
   return "bipolar";

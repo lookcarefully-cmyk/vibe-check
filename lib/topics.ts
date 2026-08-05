@@ -18,6 +18,20 @@
 import type { ScaleFamily } from "./likert";
 import type { Cadence } from "./epoch";
 
+export interface TopicBenchmark {
+  /** Published comparison value on the board's same 0..1 geometry. */
+  value: number;
+  /** Exact display string, preserving meaningful precision and units. */
+  display: string;
+  /** Percent is a share of people; score100 is a mean on a 0..100 scale. */
+  unit: "percent" | "score100";
+  sourceName: string;
+  sourceUrl: string;
+  fielded: string;
+  /** Plain-language caveat shown with the result. */
+  note: string;
+}
+
 export interface Topic {
   /** URL slug and storage key. Never change one after votes exist. */
   id: string;
@@ -49,9 +63,10 @@ export interface Topic {
   /**
    * Which wording family translates this board's percentage into words.
    *
-   *   addictive — one property varying in degree ("moderately addictive")
-   *   bipolar   — which of two named poles it sits near ("mostly coffee")
-   *   amount    — how much of something there should be ("a good deal")
+   *   addictive  — one property varying in degree ("moderately addictive")
+   *   bipolar    — which of two named poles it sits near ("mostly coffee")
+   *   amount     — how much of something there should be ("a good deal")
+   *   probability — a subjective chance ("very likely")
    *
    * See lib/likert.ts. All three share the same band boundaries, so a
    * percentage means the same distance from neutral on every board.
@@ -92,6 +107,12 @@ export interface Topic {
    * says today. Typo fixes don't need a bump; meaning changes do.
    */
   version?: number;
+  /**
+   * A representative external estimate shown only AFTER this visitor answers
+   * (or permanently forfeits their vote). Used on perception-gap boards where
+   * the guess can be compared with a defensible published figure.
+   */
+  benchmark?: TopicBenchmark;
 }
 
 /** How often this board may be re-answered. See the `cadence` field above. */
@@ -103,6 +124,8 @@ export function cadenceOf(topic: Topic): Cadence {
 export function versionOf(topic: Topic): number {
   return topic.version ?? 1;
 }
+
+const CORE_PROMPT = "Tap where you land, then lock it in below.";
 
 export const TOPICS: Topic[] = [
   /* ------------------------------------------------ the experiment's items */
@@ -176,6 +199,510 @@ export const TOPICS: Topic[] = [
     category: "Other",
     calibration: true,
     hiddenFromLibrary: true,
+  },
+
+  /* ------------------------------------------------ research-led core set */
+  /*
+   * These six sections broaden the front door beyond AI and internet-culture
+   * boards. They are declared before the older browsable collection so the
+   * library leads with questions that expose perception gaps, hidden middles,
+   * and lived experience. Existing boards remain below, unchanged, because
+   * rewriting or deleting them would break the meaning of votes already cast.
+   */
+  {
+    id: "perceived-extremism",
+    subject: "Political opponents",
+    axis: "How many seem extreme?",
+    question:
+      "Out of 100 people who vote the opposite way from you, how many hold views you'd honestly call extreme?",
+    prompt: CORE_PROMPT,
+    leftLabel: "NONE OF THEM",
+    rightLabel: "ALL 100",
+    highMeans: "a larger perceived share of political opponents hold extreme views",
+    scale: "amount",
+    category: "Perception gaps",
+    benchmark: {
+      value: 0.3,
+      display: "about 30%",
+      unit: "percent",
+      sourceName: "More in Common / YouGov, The Perception Gap",
+      sourceUrl:
+        "https://perceptiongap.us/media/anvpqwr2/perception-gap-report-1-0-3.pdf",
+      fielded: "2019 · representative sample of 2,100 Americans",
+      note:
+        "Across the policy views tested, opponents were estimated to be extreme about 55% of the time; their measured views were extreme about 30% of the time.",
+    },
+  },
+  {
+    id: "climate-support-perception",
+    subject: "Climate action",
+    axis: "How many want more?",
+    question:
+      "Out of 100 people in your country, how many want the government doing more about climate change?",
+    prompt: CORE_PROMPT,
+    leftLabel: "ALMOST NONE",
+    rightLabel: "ALMOST ALL",
+    highMeans: "a larger perceived share wants more government climate action",
+    scale: "amount",
+    category: "Perception gaps",
+    cadence: "month",
+    hiddenFromLibrary: true,
+  },
+  {
+    id: "climate-worry-perception",
+    subject: "Climate worry",
+    axis: "How many are worried?",
+    question:
+      "Out of 100 U.S. adults, how many are at least somewhat worried about global warming?",
+    prompt: CORE_PROMPT,
+    leftLabel: "ALMOST NONE",
+    rightLabel: "ALMOST ALL",
+    highMeans: "a larger perceived share is at least somewhat worried about global warming",
+    scale: "amount",
+    category: "Perception gaps",
+    cadence: "month",
+    benchmark: {
+      value: 0.64,
+      display: "64%",
+      unit: "percent",
+      sourceName: "Yale Program on Climate Change Communication",
+      sourceUrl:
+        "https://climatecommunication.yale.edu/publications/climate-change-in-the-american-mind-beliefs-attitudes-fall-2025/toc/5/",
+      fielded: "November 6–14, 2025 · nationally representative sample of 1,146 U.S. adults",
+      note:
+        "Yale asked the same threshold: very or somewhat worried about global warming.",
+    },
+  },
+  {
+    id: "violence-support-perception",
+    subject: "Political violence",
+    axis: "How many endorse it?",
+    question:
+      "Out of 100 people on the political side you like least, how many would endorse violence to get their way?",
+    prompt: CORE_PROMPT,
+    leftLabel: "NONE OF THEM",
+    rightLabel: "ALL 100",
+    highMeans: "a larger perceived share endorses political violence",
+    scale: "amount",
+    category: "Perception gaps",
+    hiddenFromLibrary: true,
+  },
+  {
+    id: "violence-support-score-perception",
+    subject: "Political violence",
+    axis: "How much support?",
+    question:
+      "On a 0–100 scale, how much do people on the political side you like least support using violence to advance political goals?",
+    prompt: CORE_PROMPT,
+    leftLabel: "NO SUPPORT",
+    rightLabel: "FULL SUPPORT",
+    highMeans: "greater perceived average support for partisan violence",
+    scale: "amount",
+    category: "Perception gaps",
+    benchmark: {
+      value: 0.098,
+      display: "about 9.8 / 100",
+      unit: "score100",
+      sourceName: "Mernyk et al., Proceedings of the National Academy of Sciences",
+      sourceUrl: "https://doi.org/10.1073/pnas.2116851119",
+      fielded: "October 2020 · nationally representative survey of U.S. Democrats and Republicans",
+      note:
+        "The study found mean support scores of 9.3 among Democrats and 10.3 among Republicans. This is an average support score, not the percentage of people who endorse violence.",
+    },
+  },
+  {
+    id: "disagreement-sources",
+    subject: "People you disagree with",
+    axis: "Met or read about?",
+    question:
+      "What you believe about people who disagree with you: how much comes from meeting them, and how much from reading about them?",
+    prompt: CORE_PROMPT,
+    leftLabel: "MEETING THEM",
+    rightLabel: "READING ABOUT THEM",
+    highMeans: "more of the belief comes from reading about people rather than meeting them",
+    scale: "bipolar",
+    category: "Perception gaps",
+    cadence: "month",
+  },
+  {
+    id: "immigration-status",
+    subject: "People without legal status",
+    axis: "Deport or legalize?",
+    question:
+      "People living in the country without legal status: deport them, or give them legal status?",
+    prompt: CORE_PROMPT,
+    leftLabel: "DEPORT",
+    rightLabel: "LEGAL STATUS",
+    leftProse: "deportation",
+    rightProse: "legal status",
+    highMeans: "more support for providing legal status",
+    scale: "bipolar",
+    category: "Public life",
+  },
+  {
+    id: "local-police",
+    subject: "Police where you live",
+    axis: "Threat or protection?",
+    question: "The police where you live are, on balance...",
+    prompt: CORE_PROMPT,
+    leftLabel: "A THREAT TO ME",
+    rightLabel: "A PROTECTION FOR ME",
+    leftProse: "a threat",
+    rightProse: "a protection",
+    highMeans: "the police feel more protective",
+    scale: "bipolar",
+    category: "Public life",
+    cadence: "month",
+  },
+  {
+    id: "gun-laws",
+    subject: "Gun laws where you live",
+    axis: "Looser or stricter?",
+    question: "Gun laws where you live should be...",
+    prompt: CORE_PROMPT,
+    leftLabel: "MUCH LOOSER",
+    rightLabel: "MUCH STRICTER",
+    leftProse: "looser",
+    rightProse: "stricter",
+    highMeans: "more support for stricter gun laws",
+    scale: "bipolar",
+    category: "Public life",
+    cadence: "month",
+  },
+  {
+    id: "history-classes",
+    subject: "School history classes",
+    axis: "Ashamed or proud?",
+    question: "School history classes should leave kids feeling...",
+    prompt: CORE_PROMPT,
+    leftLabel: "ASHAMED",
+    rightLabel: "PROUD",
+    highMeans: "more emphasis on pride in country",
+    scale: "bipolar",
+    category: "Public life",
+    cadence: "month",
+  },
+  {
+    id: "climate-income",
+    subject: "Paying for climate action",
+    axis: "How much would you give?",
+    question:
+      "How much of your own income would you give every year to fight climate change?",
+    prompt: CORE_PROMPT,
+    leftLabel: "NOT A CENT",
+    rightLabel: "A TENTH OF IT",
+    highMeans: "willing to give a larger share of income toward climate action",
+    scale: "amount",
+    category: "Public life",
+    cadence: "month",
+  },
+  {
+    id: "household-basics",
+    subject: "Covering the basics",
+    axis: "Easier or harder?",
+    question:
+      "Compared with a year ago, is it getting easier or harder for your household to cover the basics?",
+    prompt: CORE_PROMPT,
+    leftLabel: "MUCH EASIER",
+    rightLabel: "MUCH HARDER",
+    highMeans: "covering basics has become harder",
+    scale: "bipolar",
+    category: "Money & work",
+  },
+  {
+    id: "luck-or-effort",
+    subject: "Where you ended up",
+    axis: "Luck or effort?",
+    question: "Where you've ended up in life so far is mostly...",
+    prompt: CORE_PROMPT,
+    leftLabel: "LUCK",
+    rightLabel: "EFFORT",
+    highMeans: "more attributed to personal effort",
+    scale: "bipolar",
+    category: "Money & work",
+    cadence: "month",
+  },
+  {
+    id: "home-worth",
+    subject: "Buying a home",
+    axis: "Still worth it?",
+    question: "Is buying a home still worth what it costs?",
+    prompt: CORE_PROMPT,
+    leftLabel: "STILL WORTH IT",
+    rightLabel: "NOT WORTH IT",
+    highMeans: "home ownership feels less worth its cost",
+    scale: "bipolar",
+    category: "Money & work",
+  },
+  {
+    id: "job-identity",
+    subject: "Your job",
+    axis: "Paycheck or identity?",
+    question: "Your job: is it just a paycheck, or part of who you are?",
+    prompt: CORE_PROMPT,
+    leftLabel: "JUST A PAYCHECK",
+    rightLabel: "PART OF WHO I AM",
+    leftProse: "paycheck only",
+    rightProse: "part of my identity",
+    highMeans: "work is more central to personal identity",
+    scale: "bipolar",
+    category: "Money & work",
+    cadence: "month",
+  },
+  {
+    id: "generational-finances",
+    subject: "Your generation's finances",
+    axis: "Worse or better off?",
+    question: "Compared with your parents at your age, how well off are you?",
+    prompt: CORE_PROMPT,
+    leftLabel: "FAR WORSE OFF",
+    rightLabel: "FAR BETTER OFF",
+    highMeans: "better off than their parents were at the same age",
+    scale: "bipolar",
+    category: "Money & work",
+    cadence: "month",
+  },
+  {
+    id: "burnout",
+    subject: "Work or school",
+    axis: "How close to burnout?",
+    question: "Right now, how close are you to burning out at work or school?",
+    prompt: CORE_PROMPT,
+    leftLabel: "FULLY RESTED",
+    rightLabel: "COMPLETELY BURNT OUT",
+    leftProse: "rested",
+    rightProse: "burnt out",
+    highMeans: "closer to complete burnout",
+    scale: "bipolar",
+    category: "Money & work",
+  },
+  {
+    id: "known-by-others",
+    subject: "Being known",
+    axis: "How well known?",
+    question: "How well do the people in your life actually know you?",
+    prompt: CORE_PROMPT,
+    leftLabel: "NOBODY REALLY KNOWS ME",
+    rightLabel: "I'M FULLY KNOWN",
+    leftProse: "unknown",
+    rightProse: "known",
+    highMeans: "feels more fully known by people in their life",
+    scale: "bipolar",
+    category: "Health & connection",
+  },
+  {
+    id: "social-life-comparison",
+    subject: "Your social life",
+    axis: "Emptier or fuller?",
+    question: "Compared with other people your age, your social life is...",
+    prompt: CORE_PROMPT,
+    leftLabel: "EMPTIER THAN THEIRS",
+    rightLabel: "FULLER THAN THEIRS",
+    leftProse: "emptier",
+    rightProse: "fuller",
+    highMeans: "a fuller social life than perceived peers",
+    scale: "bipolar",
+    category: "Health & connection",
+    cadence: "month",
+  },
+  {
+    id: "medical-bill",
+    subject: "An unexpected medical bill",
+    axis: "How disruptive?",
+    question: "If an unexpected $500 medical bill landed tomorrow, how much would it wreck you?",
+    prompt: CORE_PROMPT,
+    leftLabel: "NOT AT ALL",
+    rightLabel: "COMPLETELY",
+    highMeans: "more financially disrupted by an unexpected medical bill",
+    scale: "amount",
+    category: "Health & connection",
+    cadence: "month",
+  },
+  {
+    id: "health-control",
+    subject: "Your health",
+    axis: "How much control?",
+    question: "How much control do you feel you have over your own health?",
+    prompt: CORE_PROMPT,
+    leftLabel: "NONE AT ALL",
+    rightLabel: "TOTAL CONTROL",
+    highMeans: "more perceived control over personal health",
+    scale: "amount",
+    category: "Health & connection",
+    cadence: "month",
+  },
+  {
+    id: "wallet-return",
+    subject: "Trusting strangers",
+    axis: "Would they return it?",
+    question:
+      "If you dropped your wallet with cash in it near your home, how likely is a stranger to return it?",
+    prompt: CORE_PROMPT,
+    leftLabel: "NO CHANCE",
+    rightLabel: "CERTAIN",
+    highMeans: "a higher perceived chance that a stranger would return the wallet",
+    scale: "probability",
+    category: "Trust, meaning & place",
+    cadence: "month",
+  },
+  {
+    id: "beyond-physical",
+    subject: "Beyond the physical world",
+    axis: "How likely?",
+    question: "How likely is it that something exists beyond the physical world?",
+    prompt: CORE_PROMPT,
+    leftLabel: "CERTAINLY NOT",
+    rightLabel: "CERTAINLY YES",
+    highMeans: "a higher perceived chance that something exists beyond the physical world",
+    scale: "probability",
+    category: "Trust, meaning & place",
+    cadence: "month",
+  },
+  {
+    id: "reasons-for-fewer-kids",
+    subject: "Having children",
+    axis: "Cost or preference?",
+    question:
+      "If you're not having more children: is it that you can't afford it, or that you don't want to?",
+    prompt: CORE_PROMPT,
+    leftLabel: "CAN'T AFFORD IT",
+    rightLabel: "DON'T WANT TO",
+    leftProse: "cost",
+    rightProse: "preference",
+    highMeans: "personal preference matters more than affordability",
+    scale: "bipolar",
+    category: "Trust, meaning & place",
+    cadence: "month",
+  },
+  {
+    id: "care-for-parents",
+    subject: "Aging parents",
+    axis: "Adult children's duty?",
+    question:
+      "How much should adult children be expected to care for their aging parents themselves?",
+    prompt: CORE_PROMPT,
+    leftLabel: "NOT THEIR JOB",
+    rightLabel: "ENTIRELY THEIR JOB",
+    highMeans: "greater expected responsibility for adult children",
+    scale: "amount",
+    category: "Trust, meaning & place",
+    cadence: "month",
+  },
+  {
+    id: "rootedness",
+    subject: "Where you live",
+    axis: "How rooted?",
+    question: "How rooted do you feel in the place you live?",
+    prompt: CORE_PROMPT,
+    leftLabel: "A STRANGER HERE",
+    rightLabel: "DEEPLY ROOTED",
+    leftProse: "unrooted",
+    rightProse: "rooted",
+    highMeans: "more deeply rooted in the place they live",
+    scale: "bipolar",
+    category: "Trust, meaning & place",
+    cadence: "month",
+  },
+  {
+    /*
+     * Deliberately coarse context, not geographic location. It gives later
+     * analysis an urbanicity dimension without collecting a town, ZIP code,
+     * coordinates, or anything that materially narrows who the person is.
+     */
+    id: "rural-urban",
+    subject: "Where you live",
+    axis: "Rural or urban?",
+    question: "How rural or urban is the place where you live?",
+    prompt: CORE_PROMPT,
+    leftLabel: "VERY RURAL",
+    rightLabel: "DENSE URBAN CORE",
+    leftProse: "rural",
+    rightProse: "densely urban",
+    highMeans: "lives in a more densely urban setting",
+    scale: "bipolar",
+    category: "Trust, meaning & place",
+    cadence: "month",
+  },
+  {
+    id: "online-self-censorship",
+    subject: "Speaking online",
+    axis: "How much do you say?",
+    question: "How much of what you actually think do you say out loud online?",
+    prompt: CORE_PROMPT,
+    leftLabel: "ALMOST NONE",
+    rightLabel: "ALL OF IT",
+    highMeans: "a larger share of their real views is expressed online",
+    scale: "amount",
+    category: "Media & technology",
+  },
+  {
+    id: "division-source",
+    subject: "The country's divisions",
+    axis: "Real or manufactured?",
+    question:
+      "Is the split you feel in your country mostly a real disagreement, or mostly what you see online?",
+    prompt: CORE_PROMPT,
+    leftLabel: "REAL DISAGREEMENT",
+    rightLabel: "MANUFACTURED ONLINE",
+    highMeans: "the perceived division feels more manufactured online",
+    scale: "bipolar",
+    category: "Media & technology",
+  },
+  {
+    id: "life-without-short-video",
+    subject: "Life without short-video apps",
+    axis: "Worse or better?",
+    question:
+      "Assuming nobody else had them either, your life without short-video apps would be...",
+    prompt: CORE_PROMPT,
+    leftLabel: "MUCH WORSE",
+    rightLabel: "MUCH BETTER",
+    highMeans: "life would be better without short-video apps",
+    scale: "bipolar",
+    category: "Media & technology",
+    cadence: "month",
+  },
+  {
+    id: "official-numbers-trust",
+    subject: "Official statistics",
+    axis: "Trust or doubt?",
+    question:
+      "When official numbers come out - jobs, inflation, crime - do you take them at face value or assume they're cooked?",
+    prompt: CORE_PROMPT,
+    leftLabel: "TAKE THEM AT FACE VALUE",
+    rightLabel: "ASSUME THEY'RE COOKED",
+    leftProse: "trusting",
+    rightProse: "sceptical",
+    highMeans: "more sceptical of official statistics",
+    scale: "bipolar",
+    category: "Media & technology",
+  },
+  {
+    id: "person-or-chatbot",
+    subject: "When something weighs on you",
+    axis: "Person or chatbot?",
+    question:
+      "When something is really weighing on you, are you more likely to talk to a person or to a chatbot?",
+    prompt: CORE_PROMPT,
+    leftLabel: "A PERSON",
+    rightLabel: "A CHATBOT",
+    highMeans: "more likely to talk to a chatbot",
+    scale: "bipolar",
+    category: "Media & technology",
+  },
+  {
+    id: "ai-lift-or-leave-behind",
+    subject: "AI in your life",
+    axis: "Lift you up or leave you behind?",
+    question: "Will AI leave you behind, or lift you up?",
+    prompt: CORE_PROMPT,
+    leftLabel: "LEAVE ME BEHIND",
+    rightLabel: "LIFT ME UP",
+    leftProse: "left behind",
+    rightProse: "lifted up",
+    highMeans: "AI is more likely to lift them up",
+    scale: "bipolar",
+    category: "Media & technology",
   },
 
   /* ------------------------------------------ everything else, browsable */
@@ -742,12 +1269,12 @@ export function getTopic(id: string | undefined): Topic | undefined {
  * door" is an editorial call that doesn't map onto any single `category`.
  */
 export const FEATURED_TOPIC_IDS = [
-  "kids-social",
-  "ai-optimist",
-  "ai-tempo",
-  "opensource-gap",
-  "college-recommend-2026",
-  "social-neuro",
+  "perceived-extremism",
+  "household-basics",
+  "known-by-others",
+  "rural-urban",
+  "division-source",
+  "ai-lift-or-leave-behind",
 ];
 
 export const FEATURED_TOPICS: Topic[] = FEATURED_TOPIC_IDS.map((id) =>

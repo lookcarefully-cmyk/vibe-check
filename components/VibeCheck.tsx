@@ -388,6 +388,11 @@ export default function VibeCheck({
     return r.toward ? `${r.pct}% ${r.toward}` : `${r.pct}%`;
   };
 
+  const benchmarkValue = (v: number) =>
+    topic.benchmark?.unit === "score100"
+      ? `${Math.round(v * 100)} / 100`
+      : `${Math.round(v * 100)}%`;
+
   return (
     <main className="shell">
       {/*
@@ -531,6 +536,60 @@ export default function VibeCheck({
             });
             return band ? <p className="consensus-band">— {band}</p> : null;
           })()}
+
+          {topic.benchmark && (
+            <section className="benchmark-result" aria-labelledby="benchmark-title">
+              <div className="benchmark-heading">
+                <p className="benchmark-kicker">Perception check</p>
+                <h3 id="benchmark-title">How close was the guess?</h3>
+              </div>
+
+              <dl className="benchmark-grid">
+                {!revealed && (
+                  <div>
+                    <dt>Your guess</dt>
+                    <dd>{benchmarkValue(pick)}</dd>
+                  </div>
+                )}
+                <div>
+                  <dt>Vibe Check average</dt>
+                  <dd>
+                    {agg.count > 0
+                      ? benchmarkValue(agg.mean)
+                      : loaded
+                        ? "No crowd yet"
+                        : "Fetching…"}
+                  </dd>
+                </div>
+                <div className="is-benchmark">
+                  <dt>Published estimate</dt>
+                  <dd>{topic.benchmark.display}</dd>
+                </div>
+              </dl>
+
+              {!revealed && (
+                <p className="benchmark-score">
+                  {(() => {
+                    const diff = Math.round((pick - topic.benchmark!.value) * 100);
+                    if (diff === 0) return "Your guess lands on the published estimate.";
+                    const amount = Math.abs(diff);
+                    return `Your guess was ${amount} ${amount === 1 ? "point" : "points"} ${
+                      diff > 0 ? "higher" : "lower"
+                    } than the published estimate.`;
+                  })()}
+                </p>
+              )}
+
+              <p className="benchmark-source">
+                <a href={topic.benchmark.sourceUrl} target="_blank" rel="noopener noreferrer">
+                  {topic.benchmark.sourceName}
+                </a>
+                <span>{topic.benchmark.fielded}</span>
+              </p>
+              <p className="benchmark-note">{topic.benchmark.note}</p>
+            </section>
+          )}
+
           {agg.count === 0 ? (
             // Your answer is saved locally, so this board still shows as answered
             // even when the crowd figures can't be fetched. Better to say so than

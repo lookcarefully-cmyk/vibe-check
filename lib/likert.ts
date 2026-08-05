@@ -22,7 +22,8 @@ export type ScaleFamily =
   | "amount"
   | "proximity"
   | "pace"
-  | "permission";
+  | "permission"
+  | "probability";
 
 export interface Band {
   /** Lower bound as a percentage, inclusive. */
@@ -163,6 +164,24 @@ const PERMISSION_LABELS = [
   "always, without restriction",
 ];
 
+/**
+ * A subjective chance from impossible to certain. Kept unidirectional so the
+ * displayed number remains the probability the respondent gave, rather than a
+ * distance from the midpoint as on a two-pole opinion board.
+ */
+const PROBABILITY_LABELS = [
+  "virtually no chance",
+  "very unlikely",
+  "unlikely",
+  "somewhat unlikely",
+  "roughly even, leaning unlikely",
+  "roughly even, leaning likely",
+  "somewhat likely",
+  "likely",
+  "very likely",
+  "virtually certain",
+];
+
 /** How many bands every family shares. */
 export const BAND_COUNT = BOUNDS.length;
 
@@ -220,6 +239,7 @@ export function bandFor(
   if (scale === "proximity") return PROXIMITY_LABELS[i];
   if (scale === "pace") return PACE_LABELS[i];
   if (scale === "permission") return PERMISSION_LABELS[i];
+  if (scale === "probability") return PROBABILITY_LABELS[i];
 
   if (!poles) return null;
   return BIPOLAR_TEMPLATES[i]
@@ -289,6 +309,7 @@ export function labelsFor(
     if (scale === "proximity") return PROXIMITY_LABELS[i];
     if (scale === "pace") return PACE_LABELS[i];
     if (scale === "permission") return PERMISSION_LABELS[i];
+    if (scale === "probability") return PROBABILITY_LABELS[i];
     return BIPOLAR_TEMPLATES[i]
       .replace("{left}", forProse(poles?.left ?? "the first", poles?.leftProse))
       .replace("{right}", forProse(poles?.right ?? "the second", poles?.rightProse));

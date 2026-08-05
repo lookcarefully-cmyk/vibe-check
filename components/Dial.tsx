@@ -296,7 +296,7 @@ export default function Dial({
       role={interactive ? "slider" : "img"}
       aria-label={
         interactive
-          ? `${topic.question} Tap along the spectrum to place your answer, then confirm it with the button below. 0 percent is ${topic.leftLabel.toLowerCase()} and 100 percent is ${topic.rightLabel.toLowerCase()}.`
+          ? `${topic.question} Tap or click the spectrum to place your answer. Drag to fine-tune, then confirm it with the button below. 0 percent is ${topic.leftLabel.toLowerCase()} and 100 percent is ${topic.rightLabel.toLowerCase()}.`
           : agg.count > 0
             ? `Average answer: ${Math.round(agg.mean * 100)} percent toward ${topic.rightLabel.toLowerCase()}, from ${agg.count} responses.`
             : `No crowd answers yet. The scale runs from ${topic.leftLabel.toLowerCase()} to ${topic.rightLabel.toLowerCase()}.`

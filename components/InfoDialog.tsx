@@ -72,11 +72,11 @@ export default function InfoDialog() {
             <h3>How to play</h3>
             <ol>
               <li>
-                Tap the spectrum where you land — a dot marks your spot. Nothing
+                Tap or click the spectrum where you land — a dot marks your spot. Nothing
                 sits on the dial until you place it, so you start from a blank
                 slate, not a default. (Arrow keys work too.)
               </li>
-              <li>Adjust if you like, then lock your answer in.</li>
+              <li>Tap again or drag to fine-tune, then lock your answer in.</li>
               <li>
                 The dial opens up: the red needle swings to the average, and coloured rays
                 show how everyone&rsquo;s answers are spread out.

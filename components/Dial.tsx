@@ -303,12 +303,14 @@ export default function Dial({
       }
       aria-valuemin={interactive ? 0 : undefined}
       aria-valuemax={interactive ? 100 : undefined}
-      aria-valuenow={interactive ? Math.round(pick * 100) : undefined}
+      aria-valuenow={interactive && placed ? Math.round(pick * 100) : undefined}
       aria-valuetext={
         // Screen-reader users get a number for their own handle position —
         // there is no other way to convey it. It is their own pick, never the
-        // crowd's average, so it carries no anchor.
-        interactive
+        // crowd's average, so it carries no anchor. Before they interact there
+        // is no value: exposing the internal 0.5 placeholder would silently
+        // anchor screen-reader users even though the visible dial is blank.
+        interactive && placed
           ? `${Math.round(pick * 100)} percent toward ${topic.rightLabel.toLowerCase()}`
           : undefined
       }

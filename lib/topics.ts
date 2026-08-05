@@ -32,6 +32,8 @@ export interface TopicBenchmark {
   note: string;
 }
 
+export type RevealType = "real-figure" | "other-side" | "crowd";
+
 export interface Topic {
   /** URL slug and storage key. Never change one after votes exist. */
   id: string;
@@ -85,6 +87,11 @@ export interface Topic {
    */
   hiddenFromLibrary?: boolean;
   /**
+   * Fully unavailable on the public site, while remaining in the registry so
+   * historical votes retain their question and poles in research exports.
+   */
+  retiredFromSite?: boolean;
+  /**
    * True for items with a defensible correct answer, used to check the
    * respondent is using the continuum rather than treating it as a switch.
    * Never an opinion measure — exclude from every substantive result.
@@ -123,6 +130,52 @@ export function cadenceOf(topic: Topic): Cadence {
 /** This board's current wording version, stamped onto each vote. */
 export function versionOf(topic: Topic): number {
   return topic.version ?? 1;
+}
+
+/*
+ * The research slate uses three different prediction/reveal instruments.
+ * Published-benchmark boards are Type 1. The remaining assignments follow the
+ * numbered slate in the August 2026 review; keeping them here makes it hard to
+ * accidentally turn every board into the weaker "guess our crowd" mechanic.
+ */
+const OTHER_SIDE_REVEALS = new Set([
+  "immigration-status",
+  "local-police",
+  "gun-laws",
+  "history-classes",
+  "climate-income",
+  "luck-or-effort",
+  "beyond-physical",
+  "reasons-for-fewer-kids",
+  "care-for-parents",
+  "division-source",
+  "official-numbers-trust",
+  "ai-lift-or-leave-behind",
+]);
+
+const CROWD_REVEALS = new Set([
+  "disagreement-sources",
+  "household-basics",
+  "home-worth",
+  "job-identity",
+  "generational-finances",
+  "burnout",
+  "known-by-others",
+  "social-life-comparison",
+  "medical-bill",
+  "health-control",
+  "wallet-return",
+  "rootedness",
+  "online-self-censorship",
+  "life-without-short-video",
+  "person-or-chatbot",
+]);
+
+export function revealTypeOf(topic: Topic): RevealType | null {
+  if (topic.benchmark) return "real-figure";
+  if (OTHER_SIDE_REVEALS.has(topic.id)) return "other-side";
+  if (CROWD_REVEALS.has(topic.id)) return "crowd";
+  return null;
 }
 
 const CORE_PROMPT = "Tap or click to place your answer. Drag to fine-tune, then lock it in.";
@@ -1184,6 +1237,8 @@ export const TOPICS: Topic[] = [
     highMeans: "more chad",
     scale: "bipolar",
     category: "Chud or Chad?",
+    hiddenFromLibrary: true,
+    retiredFromSite: true,
   },
   {
     id: "fable-chad",
@@ -1196,6 +1251,8 @@ export const TOPICS: Topic[] = [
     highMeans: "more chad",
     scale: "bipolar",
     category: "Chud or Chad?",
+    hiddenFromLibrary: true,
+    retiredFromSite: true,
   },
   {
     id: "chatgpt-chad",
@@ -1208,6 +1265,8 @@ export const TOPICS: Topic[] = [
     highMeans: "more chad",
     scale: "bipolar",
     category: "Chud or Chad?",
+    hiddenFromLibrary: true,
+    retiredFromSite: true,
   },
   {
     id: "gemini-chad",
@@ -1220,6 +1279,8 @@ export const TOPICS: Topic[] = [
     highMeans: "more chad",
     scale: "bipolar",
     category: "Chud or Chad?",
+    hiddenFromLibrary: true,
+    retiredFromSite: true,
   },
   {
     id: "grok-chad",
@@ -1232,6 +1293,8 @@ export const TOPICS: Topic[] = [
     highMeans: "more chad",
     scale: "bipolar",
     category: "Chud or Chad?",
+    hiddenFromLibrary: true,
+    retiredFromSite: true,
   },
   {
     id: "labubu",
@@ -1260,7 +1323,7 @@ export const TOPICS: Topic[] = [
 ];
 
 export function getTopic(id: string | undefined): Topic | undefined {
-  return TOPICS.find((t) => t.id === id);
+  return TOPICS.find((t) => t.id === id && !t.retiredFromSite);
 }
 
 /**

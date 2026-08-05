@@ -32,9 +32,11 @@ The previous collection is not bad; it is lopsided.
 - The AI prognosis boards (`agi-here`, `singularity-here`, `opensource-gap`)
   are legitimate continuous estimates, but require insider knowledge and make
   the library look narrower than the intended public instrument.
-- The lab, SF/NYC, chud/chad, and Labubu boards work as texture and social
+- The lab, SF/NYC, and Labubu boards work as texture and social
   entry points. They do not support the larger claim about hidden middles or
   public misperception, so they should not define the front door.
+- The five chud/chad boards have now been retired from the public site. Their
+  definitions and vote records remain archived rather than being deleted.
 - The pornography and short-video boards are relevant but cluster several
   near-duplicate framings around the same subjects. They remain intact because
   the experimental items and their historical votes are load-bearing.
@@ -84,21 +86,22 @@ published estimate and links the source. The political-violence board is worded
 as a 0–100 support score because that is what the study measured; it does not
 misstate the score as a percentage of people.
 
-## What is not built yet
+## Three reveal instruments
 
-The benchmark boards above make the guess itself the primary answer. The
-review's broader product proposal - answer your own position, then make a
-separate prediction, then reveal both - is not built. It is not a small add-on.
-It needs:
+The research slate now implements all three reveal types:
 
-- a clear definition of what is being predicted on each board (a verified
-  external benchmark, the opposite side, or this site's crowd);
-- source verification and citation for every external benchmark;
-- a record shape for predictions that cannot be confused with votes;
-- minimum cell sizes before showing opposite-side or segmented results; and
-- careful handling of people who choose to reveal without voting.
+- **Real figure:** the guess is the board itself and is scored against a cited
+  representative estimate.
+- **Other side:** after answering, the visitor places a separate prediction of
+  where respondents on the opposite half of that dial landed.
+- **Whole crowd:** personal and experiential boards ask for a prediction of the
+  full Vibe Check average.
 
-That should be the next local phase, tested separately before deployment.
+Predictions are written to a separate storage namespace and exported to a
+separate private file, so they cannot be confused with opinion votes. An
+opposite-side average stays suppressed until that half contains at least ten
+people. Someone who answers at exactly 50% has no opposite half, so that case
+falls back to predicting the whole crowd and says so explicitly.
 
 One proposed board also exposes a product gap: "If you're not having more
 children..." is not applicable to everyone. Until the site records a genuine

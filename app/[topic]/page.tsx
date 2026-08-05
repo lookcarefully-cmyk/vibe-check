@@ -10,7 +10,7 @@ import { TOPICS, getTopic } from "@/lib/topics";
 type Params = { params: Promise<{ topic: string }> };
 
 export function generateStaticParams() {
-  return TOPICS.map((t) => ({ topic: t.id }));
+  return TOPICS.filter((t) => !t.retiredFromSite).map((t) => ({ topic: t.id }));
 }
 
 export async function generateMetadata({ params }: Params): Promise<Metadata> {

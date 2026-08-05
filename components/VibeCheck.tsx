@@ -24,9 +24,20 @@ import {
   isExperimentTopic,
   positionInArm,
 } from "@/lib/experiment";
-import { cadenceOf, revealStorageKey, voteStorageKey, type Topic } from "@/lib/topics";
+import {
+  cadenceOf,
+  revealStorageKey,
+  revealTypeOf,
+  voteStorageKey,
+  type Topic,
+} from "@/lib/topics";
 import { humanAgo, humanUntil } from "@/lib/epoch";
 import { clearHistory, myStanding, recordAnswer, type MyStanding } from "@/lib/mine";
+import {
+  clearPrediction,
+  readPrediction,
+  recordPrediction,
+} from "@/lib/prediction";
 
 /*
  * Every poll is a read of the whole vote list, which costs a database command.
@@ -39,6 +50,23 @@ const POLL_MS = 20_000;
 /** What /api/votes/[topic] returns: the windowed aggregate plus its trend. */
 interface BoardResult extends WindowedAggregate {
   series: SeriesPoint[];
+}
+
+interface PredictionComparison {
+  kind: "other-side" | "crowd";
+  side: "left" | "right" | "crowd";
+  count: number;
+  mean: number | null;
+  windowLabel: string;
+  minimum: number;
+  suppressed: boolean;
+  middleFallback?: boolean;
+}
+
+interface PredictionResult {
+  prediction: number;
+  own: number;
+  comparison: PredictionComparison;
 }
 
 const EMPTY: BoardResult = {
@@ -110,12 +138,20 @@ export default function VibeCheck({
    * being measured. Drift has to be their own.
    */
   const [asking, setAsking] = useState(false);
+  // Type 2/3 boards collect a second, separately stored marker before any
+  // results appear. It is a prediction, never another vote.
+  const [predicting, setPredicting] = useState(false);
+  const [predictionPick, setPredictionPick] = useState(0.5);
+  const [predictionTouched, setPredictionTouched] = useState(false);
+  const [predictionResult, setPredictionResult] = useState<PredictionResult | null>(null);
 
   const router = useRouter();
   const lastCount = useRef(0);
   const storageKey = voteStorageKey(topic.id);
   const revealKey = revealStorageKey(topic.id);
   const endpoint = `/api/votes/${topic.id}`;
+  const predictionEndpoint = `/api/predictions/${topic.id}`;
+  const revealType = revealTypeOf(topic);
 
   const load = useCallback(async () => {
     try {
@@ -140,6 +176,20 @@ export default function VibeCheck({
     }
   }, [endpoint]);
 
+  const fetchPredictionResult = useCallback(
+    async (value: number): Promise<PredictionResult> => {
+      const res = await fetch(predictionEndpoint, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ value, session: getSessionId() }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data?.error ?? "Could not record your prediction.");
+      return data as PredictionResult;
+    },
+    [predictionEndpoint],
+  );
+
   // Switching boards resets everything, then restores that board's own vote.
   useEffect(() => {
     setAgg(EMPTY);
@@ -148,6 +198,10 @@ export default function VibeCheck({
     setActiveBand(null);
     setConfirmingReveal(false);
     setTouched(false);
+    setPredicting(false);
+    setPredictionPick(0.5);
+    setPredictionTouched(false);
+    setPredictionResult(null);
     lastCount.current = 0;
 
     const state = readRunState();
@@ -193,7 +247,28 @@ export default function VibeCheck({
       setPick(mine.last!.v);
       setRevealed(false);
       setAsking(false);
-      setPhase("result");
+      const savedPrediction = readPrediction(topic.id);
+      const needsPrediction = revealType === "other-side" || revealType === "crowd";
+      const belongsToLatest =
+        savedPrediction && mine.last && savedPrediction.vt === mine.last.t;
+      if (needsPrediction && !belongsToLatest) {
+        setPredicting(true);
+        setPredictionPick(0.5);
+        setPredictionTouched(false);
+        setPhase("choose");
+      } else {
+        setPhase("result");
+        if (savedPrediction && belongsToLatest) {
+          setPredictionPick(savedPrediction.v);
+          void fetchPredictionResult(savedPrediction.v)
+            .then(setPredictionResult)
+            .catch(() => {
+              setError(
+                "Your prediction is saved, but its comparison couldn't be loaded just now.",
+              );
+            });
+        }
+      }
     } else if (!midRun && wasRevealed) {
       // Results forfeited-for. No own answer, and no way back to the dial.
       setPick(0.5);
@@ -207,7 +282,7 @@ export default function VibeCheck({
       setPhase("choose");
     }
     void load();
-  }, [storageKey, revealKey, load, topic, router]);
+  }, [storageKey, revealKey, load, fetchPredictionResult, revealType, topic, router]);
 
   useEffect(() => {
     let id = 0;
@@ -264,14 +339,27 @@ export default function VibeCheck({
            * show the results and stop offering the dial.
            */
           setAsking(false);
-          setPhase("result");
+          if (typeof data.own === "number" && Number.isFinite(data.own)) {
+            setPick(data.own);
+            recordAnswer(topic.id, data.own, Number(data.recordedAt) || Date.now());
+            setStanding(myStanding(topic, Date.now()));
+          }
+          if (revealType === "other-side" || revealType === "crowd") {
+            setPredicting(true);
+            setPredictionPick(0.5);
+            setPredictionTouched(false);
+            setPhase("choose");
+          } else {
+            setPhase("result");
+          }
           setError(data?.error ?? "You've already answered this recently.");
-          void load();
+          if (revealType !== "other-side" && revealType !== "crowd") void load();
           return;
         }
         if (!res.ok) throw new Error(data?.error ?? "Something went wrong.");
 
-        recordAnswer(topic.id, value, Date.now());
+        const recordedAt = Number(data.recordedAt) || Date.now();
+        recordAnswer(topic.id, value, recordedAt);
         setStanding(myStanding(topic, Date.now()));
 
         // Re-read after writing: this answer may have completed the run.
@@ -285,7 +373,17 @@ export default function VibeCheck({
         lastCount.current = data.count;
         setAgg(data);
         setAsking(false);
-        setPhase("result");
+        if (revealType === "other-side" || revealType === "crowd") {
+          // The vote is safely banked before prediction begins. Keep the crowd
+          // hidden until the second, separately stored marker is committed.
+          setPredicting(true);
+          setPredictionPick(0.5);
+          setPredictionTouched(false);
+          setPredictionResult(null);
+          setPhase("choose");
+        } else {
+          setPhase("result");
+        }
         setNavKey((k) => k + 1);
       } catch (err) {
         setError(err instanceof Error ? err.message : "Could not record your vote.");
@@ -293,7 +391,31 @@ export default function VibeCheck({
         setPending(false);
       }
     },
-    [pending, phase, endpoint, topic, router, load],
+    [pending, phase, endpoint, topic, router, load, revealType],
+  );
+
+  const commitPrediction = useCallback(
+    async (value: number) => {
+      if (pending || !predicting) return;
+      setPending(true);
+      setError(null);
+      setPredictionPick(value);
+      try {
+        const data = await fetchPredictionResult(value);
+        const latest = myStanding(topic, Date.now()).last;
+        recordPrediction(topic.id, data.prediction, latest?.t ?? Date.now());
+        setPredictionPick(data.prediction);
+        setPredictionResult(data);
+        setPredicting(false);
+        setPhase("result");
+        void load();
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Could not record your prediction.");
+      } finally {
+        setPending(false);
+      }
+    },
+    [pending, predicting, fetchPredictionResult, topic, load],
   );
 
   /*
@@ -329,6 +451,7 @@ export default function VibeCheck({
   const canReanswer = process.env.NODE_ENV === "development";
   const reset = () => {
     clearHistory(topic.id);
+    clearPrediction(topic.id);
     window.localStorage.removeItem(revealKey);
     setRevealed(false);
     setAsking(false);
@@ -336,6 +459,10 @@ export default function VibeCheck({
     setPhase("choose");
     setPick(0.5);
     setTouched(false);
+    setPredicting(false);
+    setPredictionPick(0.5);
+    setPredictionTouched(false);
+    setPredictionResult(null);
   };
 
   /**
@@ -393,6 +520,14 @@ export default function VibeCheck({
       ? `${Math.round(v * 100)} / 100`
       : `${Math.round(v * 100)}%`;
 
+  const predictionQuestion = (() => {
+    if (revealType === "crowd" || pick === 0.5) {
+      return "Where do you think everyone on Vibe Check landed?";
+    }
+    const opposite = pick < 0.5 ? topic.rightLabel : topic.leftLabel;
+    return `Where do you think people on the ${opposite} half of this dial landed?`;
+  })();
+
   return (
     <main className="shell">
       {/*
@@ -414,9 +549,13 @@ export default function VibeCheck({
           </span>
           <InfoDialog />
         </div>
-        <h1>{topic.question}</h1>
+        <h1>{predicting ? predictionQuestion : topic.question}</h1>
         <p className="lede">
-          {asking
+          {predicting
+            ? pick === 0.5 && revealType === "other-side"
+              ? "Your answer is saved. Because you landed exactly in the middle, predict the whole crowd instead."
+              : "Your answer is saved. Place a second marker as your prediction — then both answers are revealed."
+            : asking
             ? "You've answered this before. Vibes move — has yours?"
             : !isResult
               ? topic.prompt
@@ -482,24 +621,29 @@ export default function VibeCheck({
       )}
 
       <div
-        className={`stage ${pending ? "is-pending" : ""} ${flash ? "is-flash" : ""}`}
+        className={`stage ${pending ? "is-pending" : ""} ${flash ? "is-flash" : ""} ${predicting ? "is-predicting" : ""}`}
         hidden={asking}
       >
         <Dial
           phase={phase}
-          pick={pick}
+          pick={predicting ? predictionPick : pick}
           agg={agg}
           topic={topic}
           onPick={(v) => {
-            setPick(v);
-            setTouched(true);
+            if (predicting) {
+              setPredictionPick(v);
+              setPredictionTouched(true);
+            } else {
+              setPick(v);
+              setTouched(true);
+            }
           }}
-          onCommit={commit}
+          onCommit={predicting ? commitPrediction : commit}
           interactive={!isResult && !pending}
           activeBand={activeBand}
           onBandFocus={setActiveBand}
-          showOwn={!revealed}
-          placed={touched}
+          showOwn={!revealed && !predicting}
+          placed={predicting ? predictionTouched : touched}
         />
       </div>
 
@@ -591,6 +735,86 @@ export default function VibeCheck({
                 <span>{topic.benchmark.fielded}</span>
               </p>
               <p className="benchmark-note">{topic.benchmark.note}</p>
+            </section>
+          )}
+
+          {!revealed && (revealType === "other-side" || revealType === "crowd") && (
+            <section className="benchmark-result prediction-result" aria-labelledby="prediction-title">
+              <div className="benchmark-heading">
+                <p className="benchmark-kicker">
+                  {revealType === "other-side" ? "The other side" : "The whole crowd"}
+                </p>
+                <h3 id="prediction-title">How close was your prediction?</h3>
+              </div>
+
+              <dl className="benchmark-grid prediction-grid">
+                <div>
+                  <dt>Your answer</dt>
+                  <dd>{say(pick)}</dd>
+                </div>
+                <div>
+                  <dt>Your prediction</dt>
+                  <dd>{say(predictionPick)}</dd>
+                </div>
+                <div className="is-benchmark">
+                  <dt>
+                    {predictionResult?.comparison.side === "left"
+                      ? `${topic.leftLabel} half`
+                      : predictionResult?.comparison.side === "right"
+                        ? `${topic.rightLabel} half`
+                        : "Vibe Check crowd"}
+                  </dt>
+                  <dd>
+                    {predictionResult
+                      ? predictionResult.comparison.mean === null
+                        ? "Waiting for enough answers"
+                        : say(predictionResult.comparison.mean)
+                      : "Fetching…"}
+                  </dd>
+                </div>
+              </dl>
+
+              {predictionResult?.comparison.mean !== null && predictionResult && (
+                <p className="benchmark-score">
+                  {(() => {
+                    const diff = Math.round(
+                      (predictionPick - predictionResult.comparison.mean!) * 100,
+                    );
+                    if (diff === 0) return "Your prediction lands on their average.";
+                    const amount = Math.abs(diff);
+                    return `Your prediction was ${amount} ${amount === 1 ? "point" : "points"} ${
+                      diff > 0 ? "higher" : "lower"
+                    } than their average.`;
+                  })()}
+                </p>
+              )}
+
+              {predictionResult?.comparison.suppressed && (
+                <p className="benchmark-note">
+                  The comparison unlocks when at least {predictionResult.comparison.minimum} people
+                  have answered on that half. There {predictionResult.comparison.count === 1 ? "is" : "are"}{" "}
+                  {predictionResult.comparison.count} so far. This protects small groups from being
+                  identifiable and keeps a tiny cluster from masquerading as a finding.
+                </p>
+              )}
+              {predictionResult?.comparison.middleFallback && (
+                <p className="benchmark-note">
+                  An exact midpoint has no opposite half, so this compares your prediction with the
+                  whole Vibe Check crowd instead.
+                </p>
+              )}
+              {predictionResult && !predictionResult.comparison.suppressed && (
+                <p className="benchmark-source">
+                  <span>
+                    {predictionResult.comparison.count}{" "}
+                    {predictionResult.comparison.count === 1 ? "person" : "people"} ·{" "}
+                    {predictionResult.comparison.windowLabel}
+                    {predictionResult.comparison.kind === "other-side"
+                      ? " · opposite half of this dial"
+                      : " · self-selected Vibe Check respondents"}
+                  </span>
+                </p>
+              )}
             </section>
           )}
 
@@ -825,15 +1049,25 @@ export default function VibeCheck({
           <button
             type="button"
             className="lock-in"
-            onClick={() => commit(pick)}
-            disabled={!touched || pending}
+            onClick={() =>
+              predicting ? commitPrediction(predictionPick) : commit(pick)
+            }
+            disabled={predicting ? !predictionTouched || pending : !touched || pending}
           >
-            {pending ? "Locking it in…" : "Lock in my answer"}
+            {pending
+              ? "Locking it in…"
+              : predicting
+                ? "Lock in my prediction"
+                : "Lock in my answer"}
           </button>
           <p className="hint">
-            {touched
-              ? "Tap again or drag to fine-tune, then lock it in."
-              : "Tap or click the spectrum to place your answer. Dragging is optional."}{" "}
+            {predicting
+              ? predictionTouched
+                ? "Tap again or drag to fine-tune your prediction, then lock it in."
+                : "Tap or click where you think they landed. Dragging is optional."
+              : touched
+                ? "Tap again or drag to fine-tune, then lock it in."
+                : "Tap or click the spectrum to place your answer. Dragging is optional."}{" "}
             Keyboard: arrow keys to aim, Enter to submit.
           </p>
 
@@ -842,7 +1076,7 @@ export default function VibeCheck({
             interesting path, and it can't be undone, so it shouldn't be one
             stray tap away from destroying someone's chance to answer.
           */}
-          <div className="reveal-out">
+          {!predicting && <div className="reveal-out">
             {confirmingReveal ? (
               <div className="reveal-confirm" role="group" aria-label="Confirm viewing results">
                 <p>
@@ -871,7 +1105,7 @@ export default function VibeCheck({
                 View results without voting
               </button>
             )}
-          </div>
+          </div>}
         </>
       )}
 
@@ -905,9 +1139,9 @@ export default function VibeCheck({
           </>
         ) : (
           <>
-            Anonymous: your answer, the time, and a random ID that groups your answers
-            together. No name, email, account or IP. Results are public, so anyone can see
-            how the crowd answered.{" "}
+            Anonymous: your answer, any prediction, the time, and a random ID that groups
+            your marks together. No name, email, account or IP. Results are public, so
+            anyone can see how the crowd answered.{" "}
           </>
         )}
         <span className="disclosure-cue">Full details under the ? above.</span>

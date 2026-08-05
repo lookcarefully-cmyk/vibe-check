@@ -23,10 +23,17 @@ The order experiment is **PARKED** — `EXPERIMENT_ENABLED = false` in
 `lib/experiment.ts`. Will is reworking the shortform-social-media questionnaire.
 Nothing was deleted; flipping the flag brings the whole run back.
 
-Right now the site is a browsable set of hot-topic dials, and the work is
-breadth: more questions, in more categories, easy to move around. Long term he
-wants visitors to be able to add their own boards — not built, don't build it
-speculatively.
+Right now the site is a browsable set of research-led dials. Visitors can also
+make community boards; those are unlisted by default, moderated through
+`/admin`, auto-hidden at four reports, and only reach the home page after owner
+approval. Do not bypass those reach gates.
+
+The 30-board research slate now has three reveal instruments. Type 1 boards are
+standalone guesses scored against published benchmarks. Type 2/3 boards bank the
+visitor's own opinion, then collect a separate prediction of the opposite half
+or whole Vibe Check crowd before revealing any result. `revealTypeOf` in
+`lib/topics.ts` is the assignment source of truth. Predictions are separate
+records under a separate storage namespace; never mix them into vote rows.
 
 Adding a board is one object in `lib/topics.ts`. It needs `category` (free text,
 creates a new browse section if unused) and `scale` (which wording family
@@ -74,6 +81,12 @@ Each of these was arrived at by making the opposite mistake first.
    The flag is written *before* anything is revealed, so a reload mid-reveal
    can't leave the board open to a now-anchored vote. Never add a path that
    shows results and leaves voting available.
+
+   On Type 2/3 boards, answering is not yet the reveal: the visitor must place
+   the second prediction marker first. Do not expose the aggregate between the
+   opinion POST and prediction POST. Opposite-side comparisons stay suppressed
+   below 10 people; an exact-midpoint opinion has no opposite half and falls
+   back, explicitly, to a whole-crowd prediction.
 
 2. **Everything drawn on the dial is a position on the spectrum, never a
    percentage of people.** An early version put "80%" (share of respondents)
@@ -188,6 +201,7 @@ Each of these was arrived at by making the opposite mistake first.
 | `components/VibeCheck.tsx` | one board: state, submission, polling |
 | `components/RunResults.tsx` | the end-of-run reveal |
 | `app/api/votes/[topic]/route.ts` | `GET` aggregate, `POST` a vote |
+| `app/api/predictions/[topic]/route.ts` | stores a distinct prediction and returns its comparison |
 
 ## Data
 
@@ -205,6 +219,11 @@ them and is never returned by a public endpoint. `g` and `p` are written at vote
 time rather than reconstructed later, because reconstruction needs both answers
 present and would discard everyone who answered only the first item — and the
 first item is the uncontaminated measure.
+
+Predictions are not answers. They use `PredictionRecord` in `lib/store.ts` and a
+`predictions:v1` namespace, keyed back to the corresponding vote timestamp.
+They are exported only to `export/private/predictions-YYYY-MM.csv`; the random
+session id in that file is private for the same reason it is private in votes.
 
 **Storage backends.** Local JSON files under `.data/` by default. Set
 `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN` and it switches to Redis
@@ -235,7 +254,9 @@ against real responses.** `npm run seed -- 0` wipes.
 
 ## State
 
-Built and working locally. **Not deployed.** Zero real responses collected.
+Built and deployed on Vercel. A small pre-launch set of real responses exists;
+the site has not yet been pushed to a broad audience. Preserve those records and
+use a launch-date analysis window rather than deleting them.
 
 Open items are in `DEPLOY-CHECKLIST.md` — briefly: Upstash + Vercel setup (needs
 Will's accounts), a social link-preview image, a styled 404, a raw-data export,

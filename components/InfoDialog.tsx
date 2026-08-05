@@ -147,8 +147,9 @@ export default function InfoDialog() {
             <h3>What&rsquo;s collected</h3>
             <ul>
               <li>
-                <strong>Where you placed your mark</strong>, as a number between 0 and 100,
-                and <strong>when</strong> you answered.
+                <strong>Where you placed each mark</strong>, as a number between 0 and 100,
+                and <strong>when</strong>. On predict-then-reveal boards, your opinion and
+                your prediction are stored as two separate kinds of record.
               </li>
               <li>No account, no email, no name, no cookies, no tracking scripts.</li>
               <li>
@@ -160,9 +161,9 @@ export default function InfoDialog() {
                 unlinked answers. Clearing your browser data destroys it.
               </li>
               <li>
-                Your own answers are kept in your browser&rsquo;s local storage so the page
-                can show you what you picked. That never leaves your device — clearing your
-                browser data erases it.
+                Receipts for your own answers and predictions are kept in your browser&rsquo;s
+                local storage so the page can show you what you picked. Clearing browser
+                data erases those local receipts; the anonymous research records remain.
               </li>
               <li>
                 To stop one person stuffing a board, your IP address is scrambled into a

@@ -92,14 +92,21 @@ const EMPTY_WINDOW_EXTRAS = {
  * window that clears MIN_WINDOW_RESPONSES, with the preceding window measured
  * the same way so movement can be quoted.
  */
-export function aggregateWindow(votes: TimedVote[], now: number): WindowedAggregate {
+export function aggregateWindow<T extends TimedVote>(
+  votes: T[],
+  now: number,
+  includePerson: (vote: T) => boolean = () => true,
+): WindowedAggregate {
   for (let i = 0; i < WINDOW_LADDER.length; i += 1) {
     const { days, label } = WINDOW_LADDER[i];
     const isLast = i === WINDOW_LADDER.length - 1;
     const from = days === Infinity ? -Infinity : now - days * DAY_MS;
 
     const inWindow = votes.filter((x) => x.t >= from);
-    const people = dedupeLatestPerPerson(inWindow);
+    // Partition AFTER deduping. If someone moved across the midpoint, filtering
+    // raw rows first could resurrect their older stance and count them on both
+    // sides of a Type-2 reveal.
+    const people = dedupeLatestPerPerson(inWindow).filter(includePerson);
 
     if (people.length < MIN_WINDOW_RESPONSES && !isLast) continue;
 
@@ -112,7 +119,7 @@ export function aggregateWindow(votes: TimedVote[], now: number): WindowedAggreg
       const prevFrom = from - days * DAY_MS;
       const prevPeople = dedupeLatestPerPerson(
         votes.filter((x) => x.t >= prevFrom && x.t < from),
-      );
+      ).filter(includePerson);
       if (prevPeople.length >= MIN_WINDOW_RESPONSES) {
         previousMean = aggregate(prevPeople.map((x) => x.v)).mean;
       }

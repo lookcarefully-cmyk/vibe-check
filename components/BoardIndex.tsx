@@ -110,8 +110,8 @@ export default function BoardIndex() {
       )}
 
       <footer className="disclosure">
-        Anonymous: your answer, the time, and a random ID that groups your answers
-        together. No name, email, account or IP. Results are public, so anyone can see how the crowd answered.{" "}
+        Anonymous: your answer, any prediction, the time, and a random ID that groups your
+        marks together. No name, email, account or IP. Results are public, so anyone can see how the crowd answered.{" "}
         <span className="disclosure-cue">Full details under the ? above.</span>
       </footer>
 

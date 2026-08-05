@@ -26,8 +26,11 @@ import path from "node:path";
 export const STORE_VERSION = "v5";
 
 const NS = "vibecheck";
+export const PREDICTION_VERSION = "v1";
 
 const votesKey = (topic: string) => `${NS}:${STORE_VERSION}:votes:${topic}`;
+const predictionsKey = (topic: string) =>
+  `${NS}:predictions:${PREDICTION_VERSION}:${topic}`;
 const rateKey = (bucket: string) => `${NS}:${STORE_VERSION}:rl:${bucket}`;
 
 /** One recorded answer. */
@@ -80,6 +83,24 @@ export interface VoteRecord {
   bv?: number;
 }
 
+/** A prediction is a separate instrument, never a vote with an optional field. */
+export interface PredictionRecord {
+  /** Predicted position of the comparison group, 0..1. */
+  v: number;
+  /** The respondent's own answer when this prediction was requested. */
+  o: number;
+  /** Unix milliseconds when the prediction was recorded. */
+  t: number;
+  /** Timestamp of the vote this prediction belongs to. */
+  vt: number;
+  /** Random browser id. Private, like the vote's session id. */
+  s: string;
+  /** Which comparison was predicted. */
+  k: "other-side" | "crowd";
+  /** Board wording version. */
+  bv: number;
+}
+
 export interface RateResult {
   allowed: boolean;
   /** Hits used in the current window, including this one. */
@@ -89,6 +110,8 @@ export interface RateResult {
 export interface VoteStore {
   push(topic: string, record: VoteRecord): Promise<number>;
   all(topic: string): Promise<VoteRecord[]>;
+  pushPrediction(topic: string, record: PredictionRecord): Promise<number>;
+  allPredictions(topic: string): Promise<PredictionRecord[]>;
   /**
    * Generic key/value, used for community-made boards. Curated boards live in
    * lib/topics.ts because they're part of the source; boards anyone can create
@@ -136,6 +159,36 @@ function parseRecords(raw: unknown[]): VoteRecord[] {
   return out;
 }
 
+function parsePredictions(raw: unknown[]): PredictionRecord[] {
+  const out: PredictionRecord[] = [];
+  for (const item of raw) {
+    try {
+      const r = typeof item === "string" ? JSON.parse(item) : item;
+      if (
+        r &&
+        Number.isFinite(r.v) && r.v >= 0 && r.v <= 1 &&
+        Number.isFinite(r.o) && r.o >= 0 && r.o <= 1 &&
+        Number.isFinite(r.t) && Number.isFinite(r.vt) &&
+        typeof r.s === "string" &&
+        (r.k === "other-side" || r.k === "crowd")
+      ) {
+        out.push({
+          v: Number(r.v),
+          o: Number(r.o),
+          t: Number(r.t),
+          vt: Number(r.vt),
+          s: r.s,
+          k: r.k,
+          bv: Number.isFinite(r.bv) ? Number(r.bv) : 1,
+        });
+      }
+    } catch {
+      /* skip malformed prediction rows without losing the rest */
+    }
+  }
+  return out;
+}
+
 /* ------------------------------------------------------------------ upstash */
 
 // Accept either naming. Upstash's own console gives UPSTASH_REDIS_REST_*, but
@@ -172,6 +225,22 @@ const upstashStore: VoteStore = {
     const raw = (await upstash(["LRANGE", votesKey(topic), 0, -1])) as string[] | null;
     return parseRecords(raw ?? []);
   },
+  async pushPrediction(topic, record) {
+    return (await upstash([
+      "RPUSH",
+      predictionsKey(topic),
+      JSON.stringify(record),
+    ])) as number;
+  },
+  async allPredictions(topic) {
+    const raw = (await upstash([
+      "LRANGE",
+      predictionsKey(topic),
+      0,
+      -1,
+    ])) as string[] | null;
+    return parsePredictions(raw ?? []);
+  },
   async hit(bucket, limit, windowSeconds) {
     const k = rateKey(bucket);
     const count = (await upstash(["INCR", k])) as number;
@@ -203,6 +272,8 @@ const upstashStore: VoteStore = {
 
 const fileFor = (topic: string) =>
   path.join(process.cwd(), ".data", `votes-${STORE_VERSION}-${topic}.json`);
+const predictionsFileFor = (topic: string) =>
+  path.join(process.cwd(), ".data", `predictions-${PREDICTION_VERSION}-${topic}.json`);
 
 // One write chain per topic, so concurrent votes can't lose a read-modify-write
 // race against each other.
@@ -212,6 +283,15 @@ async function readVotes(topic: string): Promise<VoteRecord[]> {
   try {
     const parsed = JSON.parse(await fs.readFile(fileFor(topic), "utf8"));
     return Array.isArray(parsed) ? parseRecords(parsed) : [];
+  } catch {
+    return [];
+  }
+}
+
+async function readPredictions(topic: string): Promise<PredictionRecord[]> {
+  try {
+    const parsed = JSON.parse(await fs.readFile(predictionsFileFor(topic), "utf8"));
+    return Array.isArray(parsed) ? parsePredictions(parsed) : [];
   } catch {
     return [];
   }
@@ -293,7 +373,8 @@ const fileStore: VoteStore = {
     return Array.isArray(value) ? value : [];
   },
   push(topic, record) {
-    const prior = chains.get(topic) ?? Promise.resolve();
+    const chainKey = `votes:${topic}`;
+    const prior = chains.get(chainKey) ?? Promise.resolve();
     const next = prior.then(async () => {
       const votes = await readVotes(topic);
       votes.push(record);
@@ -303,12 +384,30 @@ const fileStore: VoteStore = {
       return votes.length;
     });
     chains.set(
-      topic,
+      chainKey,
       next.catch(() => {}),
     );
     return next;
   },
   all: readVotes,
+  pushPrediction(topic, record) {
+    const chainKey = `predictions:${topic}`;
+    const prior = chains.get(chainKey) ?? Promise.resolve();
+    const next = prior.then(async () => {
+      const predictions = await readPredictions(topic);
+      predictions.push(record);
+      const file = predictionsFileFor(topic);
+      await fs.mkdir(path.dirname(file), { recursive: true });
+      await fs.writeFile(file, JSON.stringify(predictions));
+      return predictions.length;
+    });
+    chains.set(
+      chainKey,
+      next.catch(() => {}),
+    );
+    return next;
+  },
+  allPredictions: readPredictions,
   async hit(bucket, limit, windowSeconds) {
     /*
      * In-memory, so this only limits one process. That is fine for local dev and

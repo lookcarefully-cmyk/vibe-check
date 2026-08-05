@@ -141,7 +141,10 @@ export async function POST(req: Request, { params }: Params) {
     const cadence = cadenceOf(topic);
     const existing = await store.all(topic.id);
     const mine = existing.filter((r) => r.s === session);
-    const lastMine = mine.length ? Math.max(...mine.map((r) => r.t)) : null;
+    const latestMine = mine.length
+      ? mine.reduce((latest, record) => (record.t >= latest.t ? record : latest))
+      : null;
+    const lastMine = latestMine?.t ?? null;
     const eligibility = checkEligibility(lastMine, cadence, now);
 
     if (!eligibility.allowed) {
@@ -153,6 +156,11 @@ export async function POST(req: Request, { params }: Params) {
               : "You've already answered this recently. You can answer again when it reopens.",
           reason: eligibility.reason,
           nextAllowedAt: eligibility.nextAllowedAt,
+          // This belongs to the authenticated-by-possession random session id,
+          // and lets a cleared browser restore its own answer without exposing
+          // the crowd before a required prediction step.
+          own: latestMine?.v,
+          recordedAt: latestMine?.t,
         },
         409,
       );
@@ -179,6 +187,7 @@ export async function POST(req: Request, { params }: Params) {
       ...aggregateWindow(records, now),
       series: weeklySeries(records, now),
       cadence,
+      recordedAt: now,
     });
   } catch (err) {
     console.error("[votes] POST failed", err);

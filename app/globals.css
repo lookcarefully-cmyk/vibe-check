@@ -642,7 +642,7 @@ body::after {
 /* ------------------------------------------------ randomized board stream */
 
 /*
- * One persistent decision after a board: continue, or open the full library.
+ * One persistent decision after a board: continue, or exit to Explore.
  * It stays intentionally number-free so it cannot preview another board's
  * result before the visitor has answered it.
  */

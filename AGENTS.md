@@ -36,9 +36,9 @@ or whose results it forfeited its vote to see, are skipped. Each available board
 appears once; the stream ends instead of wrapping. The floating navigator is the
 one clear continuation:
 tap/click Next, swipe left on the non-interactive page background, or swipe
-up/left on the control itself on a phone. “Explore” is always beside it. Do
-not bring back the four-tile “More questions” shelf; it recreated the choice
-overload this stream exists to remove.
+up/left on the control itself on a phone. An explicit “Exit” beside it returns
+to Explore. Do not bring back the four-tile “More questions” shelf; it recreated
+the choice overload this stream exists to remove.
 
 The front door has three choices: start the randomized Main Set, open `/explore`,
 or make a board. `/explore` is the junction between the research-led Main Set

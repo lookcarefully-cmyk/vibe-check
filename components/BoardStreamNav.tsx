@@ -225,8 +225,12 @@ export default function BoardStreamNav({
       className={`board-stream${answered ? " is-answered" : ""}${step.complete ? " is-complete" : ""}`}
       aria-label="Question navigation"
     >
-      <Link href="/explore" className="board-stream-all">
-        Explore
+      <Link
+        href="/explore"
+        className="board-stream-all"
+        aria-label="Exit the question stream and open Explore"
+      >
+        Exit
       </Link>
       {step.complete ? (
         <div className="board-stream-finished" role="status">

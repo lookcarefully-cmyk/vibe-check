@@ -10,6 +10,7 @@ import {
 } from "react";
 import { EXTRA_TOPICS } from "@/lib/experiment";
 import { boardStreamStep, type BoardStreamStep } from "@/lib/board-stream";
+import { canAnswerNow } from "@/lib/mine";
 import type { Topic } from "@/lib/topics";
 
 interface BoardStreamNavProps {
@@ -71,7 +72,15 @@ export default function BoardStreamNav({
         ? "community"
         : "main";
       const continueStream = streamParam.endsWith("continue");
-      let topics = EXTRA_TOPICS;
+      const now = Date.now();
+      // Keep the page we're standing on so the navigator can locate its place,
+      // but only offer boards that this browser can actually answer now.
+      let topics = [
+        topic,
+        ...EXTRA_TOPICS.filter(
+          (candidate) => candidate.id !== topic.id && canAnswerNow(candidate, now),
+        ),
+      ];
 
       if (kind === "community") {
         try {
@@ -81,7 +90,15 @@ export default function BoardStreamNav({
             ? (data.boards as CommunityStreamBoard[]).map(topicForCommunity)
             : [];
           const demographic = EXTRA_TOPICS.find((candidate) => candidate.id === "rural-urban");
-          topics = [topic, ...(demographic ? [demographic] : []), ...listed];
+          topics = [
+            topic,
+            ...(demographic && demographic.id !== topic.id && canAnswerNow(demographic, now)
+              ? [demographic]
+              : []),
+            ...listed.filter(
+              (candidate) => candidate.id !== topic.id && canAnswerNow(candidate, now),
+            ),
+          ];
         } catch {
           topics = [topic];
         }

@@ -29,9 +29,12 @@ make community boards; those are unlisted by default, moderated through
 approval. Do not bypass those reach gates.
 
 Opening any board starts a session-scoped randomized board stream. The chosen
-board stays first, `rural-urban` is next (unless it was the chosen board), and
-the remaining research boards are shuffled. Each board appears once; the stream
-ends instead of wrapping. The floating navigator is the one clear continuation:
+board stays first, `rural-urban` is next when it is still answerable (unless it
+was the chosen board), and the remaining currently-answerable research boards
+are shuffled. Boards this browser already answered and cannot answer again yet,
+or whose results it forfeited its vote to see, are skipped. Each available board
+appears once; the stream ends instead of wrapping. The floating navigator is the
+one clear continuation:
 tap/click Next, swipe left on the non-interactive page background, or swipe
 up/left on the control itself on a phone. “Explore” is always beside it. Do
 not bring back the four-tile “More questions” shelf; it recreated the choice

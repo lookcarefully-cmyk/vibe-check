@@ -13,7 +13,7 @@
  * never what is allowed.
  */
 
-import { voteStorageKey, type Topic } from "./topics";
+import { revealStorageKey, voteStorageKey, type Topic } from "./topics";
 import { cadenceOf } from "./topics";
 import { checkEligibility, type Eligibility } from "./epoch";
 
@@ -103,4 +103,25 @@ export function myStanding(topic: Topic, now: number): MyStanding {
     hasAnswered: history.length > 0,
     eligibility: checkEligibility(last ? last.t : null, cadenceOf(topic), now),
   };
+}
+
+/**
+ * Whether this browser can still give an unanchored answer to this board now.
+ *
+ * This is only a navigation convenience: the server remains authoritative
+ * about cadence. A board is omitted from the stream when this browser either
+ * traded its vote for the results, or answered and is not yet due again.
+ */
+export function canAnswerNow(topic: Topic, now: number): boolean {
+  try {
+    if (window.localStorage.getItem(revealStorageKey(topic.id)) !== null) {
+      return false;
+    }
+  } catch {
+    // If local storage is unavailable, keep the board reachable and let the
+    // board page/server resolve its actual state.
+  }
+
+  const standing = myStanding(topic, now);
+  return !standing.hasAnswered || standing.eligibility.allowed;
 }

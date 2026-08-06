@@ -120,6 +120,15 @@ export interface Topic {
    * the guess can be compared with a defensible published figure.
    */
   benchmark?: TopicBenchmark;
+  /**
+   * A board-specific prediction step. Curated assignments are mostly kept in
+   * the sets below; runtime community boards carry the choice on the Topic
+   * itself because their ids do not exist at build time.
+   *
+   * Community boards may use `other-side` or `crowd`, never `real-figure`:
+   * published benchmarks require source review by the owner.
+   */
+  revealType?: RevealType;
 }
 
 /** How often this board may be re-answered. See the `cadence` field above. */
@@ -173,6 +182,7 @@ const CROWD_REVEALS = new Set([
 
 export function revealTypeOf(topic: Topic): RevealType | null {
   if (topic.benchmark) return "real-figure";
+  if (topic.revealType) return topic.revealType;
   if (OTHER_SIDE_REVEALS.has(topic.id)) return "other-side";
   if (CROWD_REVEALS.has(topic.id)) return "crowd";
   return null;

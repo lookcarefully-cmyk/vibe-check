@@ -71,6 +71,7 @@ export async function POST(req: Request) {
           leftLabel: b.leftLabel,
           rightLabel: b.rightLabel,
           category: b.category,
+          revealType: b.revealType ?? null,
           createdAt: b.createdAt,
           listed: b.listed,
           approved: b.approved === true,

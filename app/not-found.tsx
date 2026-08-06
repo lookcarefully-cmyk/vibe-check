@@ -24,8 +24,8 @@ export default function NotFound() {
         <Link href="/" className="reset">
           Featured questions
         </Link>
-        <Link href="/boards" className="reset">
-          Browse all boards
+        <Link href="/explore" className="reset">
+          Explore boards
         </Link>
       </div>
     </main>

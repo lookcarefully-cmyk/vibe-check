@@ -9,6 +9,8 @@ import { bandFor } from "@/lib/likert";
 import { guessScale } from "@/lib/board-shape";
 import { leadingQuestionHint } from "@/lib/moderation";
 
+type CreatorReveal = "standard" | "crowd" | "other-side";
+
 /**
  * The board maker.
  *
@@ -47,6 +49,7 @@ export default function BoardMaker() {
   const [left, setLeft] = useState("");
   const [right, setRight] = useState("");
   const [category, setCategory] = useState("");
+  const [revealType, setRevealType] = useState<CreatorReveal>("standard");
   const [pick, setPick] = useState(0.5);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -88,6 +91,7 @@ export default function BoardMaker() {
           leftLabel: left.trim(),
           rightLabel: right.trim(),
           category: category.trim(),
+          revealType: revealType === "standard" ? null : revealType,
         }),
       });
       const data = await res.json();
@@ -181,6 +185,56 @@ export default function BoardMaker() {
           />
           <small>{140 - question.length} left</small>
         </label>
+
+        <fieldset className="maker-reveals">
+          <legend>What happens after someone answers?</legend>
+          <label className={revealType === "standard" ? "is-selected" : ""}>
+            <input
+              type="radio"
+              name="revealType"
+              value="standard"
+              checked={revealType === "standard"}
+              onChange={() => setRevealType("standard")}
+            />
+            <span>
+              <strong>Show the crowd</strong>
+              <small>They answer, then immediately see where everyone landed.</small>
+            </span>
+          </label>
+          <label className={revealType === "crowd" ? "is-selected" : ""}>
+            <input
+              type="radio"
+              name="revealType"
+              value="crowd"
+              checked={revealType === "crowd"}
+              onChange={() => setRevealType("crowd")}
+            />
+            <span>
+              <strong>Guess the whole crowd</strong>
+              <small>They answer, predict the crowd&rsquo;s average, then see both.</small>
+            </span>
+          </label>
+          <label className={revealType === "other-side" ? "is-selected" : ""}>
+            <input
+              type="radio"
+              name="revealType"
+              value="other-side"
+              checked={revealType === "other-side"}
+              onChange={() => setRevealType("other-side")}
+            />
+            <span>
+              <strong>Guess the other side</strong>
+              <small>
+                They predict the opposite half. That comparison waits for at least
+                10 people on that side.
+              </small>
+            </span>
+          </label>
+          <p>
+            Published &ldquo;real figure&rdquo; comparisons are reserved for the main set,
+            where sources are checked before the board goes live.
+          </p>
+        </fieldset>
 
         <div className="maker-poles">
           <label className="maker-field">

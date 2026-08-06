@@ -3,13 +3,12 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import TopicNav from "./TopicNav";
 import InfoDialog from "./InfoDialog";
 import HowToPlay from "./HowToPlay";
 import Colophon from "./Colophon";
-import { EXPERIMENT_ENABLED, EXTRA_TOPICS } from "@/lib/experiment";
+import StartMainSet from "./StartMainSet";
+import { EXPERIMENT_ENABLED } from "@/lib/experiment";
 import { readRunState, nextHref } from "@/lib/run";
-import { FEATURED_TOPICS } from "@/lib/topics";
 
 /** A trending community board, as returned by /api/boards. */
 interface TrendingBoard {
@@ -22,8 +21,8 @@ interface TrendingBoard {
 }
 
 /**
- * The front door: a short, hand-picked shelf of boards (see FEATURED_TOPICS in
- * lib/topics.ts) with a way through to the full library at /boards.
+ * The front door offers one low-choice way into the randomized main set, plus
+ * Explore and Make. The large libraries live beyond those explicit choices.
  *
  * When the order experiment is live (EXPERIMENT_ENABLED), the front door is the
  * guided run instead, so this bounces to it — the same behaviour the old Start
@@ -76,21 +75,18 @@ export default function Featured() {
         </div>
         <h1>Where do you land?</h1>
         <p className="lede">
-          Place your answer on the dial, then see how everyone else answered. A
-          board stays blank until you&rsquo;ve had your say.
+          Place your answer, see how everyone else landed, then keep going or stop
+          whenever you like.
         </p>
       </header>
 
       <HowToPlay />
 
-      <section className="board-group">
-        <h2>Featured questions</h2>
-        {/*
-          The tiles keep their subject: on the front page there's no category
-          heading naming it, and "OPTIMIST OR DOOMER?" over a faceless dial
-          doesn't tell you it's about AI.
-        */}
-        <TopicNav activeId="" refreshKey={0} topics={FEATURED_TOPICS} />
+      <section className="front-door-actions" aria-label="Start or explore">
+        <StartMainSet />
+        <Link href="/explore" className="reset">Explore boards</Link>
+        <Link href="/b/new" className="reset">Make a board</Link>
+        <p>The order is shuffled. Swipe or click through as many as you want.</p>
       </section>
 
       {trending.length > 0 && (
@@ -99,7 +95,7 @@ export default function Featured() {
           <ul className="clist">
             {trending.map((b) => (
               <li key={b.slug}>
-                <Link href={`/b/${b.slug}`}>{b.question}</Link>
+                <Link href={`/b/${b.slug}?stream=community-start`}>{b.question}</Link>
                 <span className="clist-meta">
                   {b.leftLabel} → {b.rightLabel}
                   {b.recentAnswers > 0 && ` · ${b.recentAnswers} this week`}
@@ -108,22 +104,12 @@ export default function Featured() {
             ))}
           </ul>
           <p className="board-index-run">
-            <Link href="/b">More boards people made &rarr;</Link>
+            <Link href="/b">Explore community &rarr;</Link>
             {" · "}
             <Link href="/b/new">Make your own</Link>
           </p>
         </section>
       )}
-
-      <p className="board-index-run">
-        <Link href="/boards">Browse all {EXTRA_TOPICS.length} questions &rarr;</Link>
-        {trending.length === 0 && (
-          <>
-            {" · "}
-            <Link href="/b">Boards people made &rarr;</Link>
-          </>
-        )}
-      </p>
 
       <footer className="disclosure">
         Anonymous: your answer, any prediction, the time, and a random ID that groups your

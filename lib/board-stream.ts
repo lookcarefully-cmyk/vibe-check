@@ -1,6 +1,6 @@
 import type { Topic } from "./topics";
 
-const STREAM_KEY = "vibecheck:board-stream:v1";
+const STREAM_KEY = (streamId: string) => `vibecheck:board-stream:v2:${streamId}`;
 const STREAM_VERSION = 1;
 
 /**
@@ -48,9 +48,9 @@ function makeOrder(currentId: string, topics: Topic[]): string[] {
   return [currentId, ...demographic, ...shuffle(rest)];
 }
 
-function readStored(): StoredBoardStream | null {
+function readStored(streamId: string): StoredBoardStream | null {
   try {
-    const raw = window.sessionStorage.getItem(STREAM_KEY);
+    const raw = window.sessionStorage.getItem(STREAM_KEY(streamId));
     if (!raw) return null;
     const parsed = JSON.parse(raw) as Partial<StoredBoardStream>;
     if (
@@ -66,10 +66,10 @@ function readStored(): StoredBoardStream | null {
   }
 }
 
-function writeStored(order: string[]): void {
+function writeStored(streamId: string, order: string[]): void {
   try {
     window.sessionStorage.setItem(
-      STREAM_KEY,
+      STREAM_KEY(streamId),
       JSON.stringify({ version: STREAM_VERSION, order }),
     );
   } catch {
@@ -90,22 +90,30 @@ export function boardStreamStep(
   currentId: string,
   topics: Topic[],
   continueStream: boolean,
+  streamId = "main",
 ): BoardStreamStep | null {
   if (topics.length === 0) return null;
 
   const topicById = new Map(topics.map((topic) => [topic.id, topic]));
-  let order = continueStream ? readStored()?.order ?? [] : [];
+  let order = continueStream ? readStored(streamId)?.order ?? [] : [];
   const hasCurrent = order.includes(currentId);
   const hasEveryTopic = topics.every((topic) => order.includes(topic.id));
 
-  if (!hasCurrent || !hasEveryTopic) {
+  // The Main Set is source-defined, so a changed list invalidates an old
+  // session order. Community is live: freeze the list for this pass so a board
+  // published mid-scroll cannot rebuild the order and repeat things already
+  // seen. Boards hidden during the pass are simply skipped below.
+  if (!hasCurrent || (streamId === "main" && !hasEveryTopic)) {
     order = makeOrder(currentId, topics);
-    writeStored(order);
+    writeStored(streamId, order);
   }
 
   const index = order.indexOf(currentId);
-  const nextId = order[index + 1];
-  const next = nextId ? topicById.get(nextId) ?? null : null;
+  let next: Topic | null = null;
+  for (let nextIndex = index + 1; nextIndex < order.length; nextIndex += 1) {
+    next = topicById.get(order[nextIndex]) ?? null;
+    if (next) break;
+  }
 
   // Do not wrap. A shuffled visit is one pass through the collection, not an
   // infinite carousel that quietly starts repeating questions.

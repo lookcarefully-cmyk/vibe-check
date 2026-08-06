@@ -15,7 +15,7 @@
 
 import { createHash, randomBytes } from "node:crypto";
 import { store } from "./store";
-import { getTopic, type Topic } from "./topics";
+import { getTopic, type RevealType, type Topic } from "./topics";
 import type { ScaleFamily } from "./likert";
 import type { Cadence } from "./epoch";
 // Re-exported so server code has one place to import a board's shape from.
@@ -51,6 +51,12 @@ export interface CommunityBoard {
   scale: ScaleFamily;
   cadence: Cadence;
   highMeans: string;
+  /**
+   * Optional second-marker instrument. Missing is the original, simple reveal
+   * and keeps every board created before this field was added unchanged.
+   * A community creator cannot claim a published real-figure benchmark.
+   */
+  revealType?: Exclude<RevealType, "real-figure">;
   createdAt: number;
   /** In the public library. False means share-link only. */
   listed: boolean;
@@ -97,6 +103,10 @@ export function slugify(question: string): string {
 
 /** Community boards are presented to the rest of the app as ordinary Topics. */
 export function toTopic(board: CommunityBoard): Topic {
+  const revealType =
+    board.revealType === "crowd" || board.revealType === "other-side"
+      ? board.revealType
+      : undefined;
   return {
     id: board.slug,
     subject: board.category || "Community",
@@ -110,6 +120,7 @@ export function toTopic(board: CommunityBoard): Topic {
     category: board.category || "Community",
     cadence: board.cadence,
     version: 1,
+    revealType,
   };
 }
 
@@ -194,4 +205,3 @@ export async function isCommunityBoard(id: string): Promise<boolean> {
   if (getTopic(id)) return false;
   return (await getCommunityBoard(id)) !== null;
 }
-

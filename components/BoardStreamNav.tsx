@@ -10,19 +10,47 @@ import {
 } from "react";
 import { EXTRA_TOPICS } from "@/lib/experiment";
 import { boardStreamStep, type BoardStreamStep } from "@/lib/board-stream";
+import type { Topic } from "@/lib/topics";
 
 interface BoardStreamNavProps {
-  currentId: string;
+  topic: Topic;
   answered: boolean;
+  community: boolean;
+}
+
+type StreamKind = "main" | "community";
+
+interface CommunityStreamBoard {
+  slug: string;
+  question: string;
+  leftLabel: string;
+  rightLabel: string;
+  category: string;
+}
+
+function topicForCommunity(board: CommunityStreamBoard): Topic {
+  return {
+    id: board.slug,
+    subject: board.category || "Community",
+    axis: board.question,
+    question: board.question,
+    prompt: "",
+    leftLabel: board.leftLabel,
+    rightLabel: board.rightLabel,
+    highMeans: board.rightLabel.toLowerCase(),
+    category: board.category || "Community",
+  };
 }
 
 export default function BoardStreamNav({
-  currentId,
+  topic,
   answered,
+  community,
 }: BoardStreamNavProps) {
   const router = useRouter();
   const [step, setStep] = useState<BoardStreamStep | null>(null);
   const [moving, setMoving] = useState(false);
+  const [streamKind, setStreamKind] = useState<StreamKind>("main");
   const movingRef = useRef(false);
   const buttonSwipeStart = useRef<{
     x: number;
@@ -36,21 +64,55 @@ export default function BoardStreamNav({
   } | null>(null);
 
   useEffect(() => {
-    const continueStream = new URLSearchParams(window.location.search).get("stream")
-      === "continue";
-    const nextStep = boardStreamStep(currentId, EXTRA_TOPICS, continueStream);
-    setStep(nextStep);
-    movingRef.current = false;
-    setMoving(false);
-    if (nextStep?.next) router.prefetch(`/${nextStep.next.id}?stream=continue`);
-  }, [currentId, router]);
+    let cancelled = false;
+    const loadStream = async () => {
+      const streamParam = new URLSearchParams(window.location.search).get("stream") ?? "";
+      const kind: StreamKind = streamParam.startsWith("community") || community
+        ? "community"
+        : "main";
+      const continueStream = streamParam.endsWith("continue");
+      let topics = EXTRA_TOPICS;
+
+      if (kind === "community") {
+        try {
+          const response = await fetch("/api/boards?sort=new", { cache: "no-store" });
+          const data = response.ok ? await response.json() : { boards: [] };
+          const listed = Array.isArray(data.boards)
+            ? (data.boards as CommunityStreamBoard[]).map(topicForCommunity)
+            : [];
+          const demographic = EXTRA_TOPICS.find((candidate) => candidate.id === "rural-urban");
+          topics = [topic, ...(demographic ? [demographic] : []), ...listed];
+        } catch {
+          topics = [topic];
+        }
+      }
+
+      const nextStep = boardStreamStep(topic.id, topics, continueStream, kind);
+      if (cancelled) return;
+      setStreamKind(kind);
+      setStep(nextStep);
+      movingRef.current = false;
+      setMoving(false);
+      if (nextStep?.next) {
+        const curated = EXTRA_TOPICS.some((candidate) => candidate.id === nextStep.next!.id);
+        const base = curated ? `/${nextStep.next.id}` : `/b/${nextStep.next.id}`;
+        router.prefetch(`${base}?stream=${kind}-continue`);
+      }
+    };
+    void loadStream();
+    return () => {
+      cancelled = true;
+    };
+  }, [community, router, topic]);
 
   const goNext = useCallback(() => {
     if (!step?.next || movingRef.current) return;
     movingRef.current = true;
     setMoving(true);
-    router.push(`/${step.next.id}?stream=continue`);
-  }, [router, step]);
+    const curated = EXTRA_TOPICS.some((candidate) => candidate.id === step.next!.id);
+    const base = curated ? `/${step.next.id}` : `/b/${step.next.id}`;
+    router.push(`${base}?stream=${streamKind}-continue`);
+  }, [router, step, streamKind]);
 
   /*
    * On a phone, a left swipe on the non-interactive page background advances
@@ -146,8 +208,8 @@ export default function BoardStreamNav({
       className={`board-stream${answered ? " is-answered" : ""}${step.complete ? " is-complete" : ""}`}
       aria-label="Question navigation"
     >
-      <Link href="/boards" className="board-stream-all">
-        All boards
+      <Link href="/explore" className="board-stream-all">
+        Explore
       </Link>
       {step.complete ? (
         <div className="board-stream-finished" role="status">

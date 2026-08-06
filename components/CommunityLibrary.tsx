@@ -21,6 +21,7 @@ interface Listed {
   category: string;
   people: number;
   recentAnswers: number;
+  revealType: "other-side" | "crowd" | null;
 }
 
 interface Mine {
@@ -70,7 +71,7 @@ export default function CommunityLibrary() {
         </div>
         <h1>Boards people made</h1>
         <p className="lede">
-          Anyone can make one. These are the ones their makers chose to publish.
+          Anyone can make one. Pick any board to start a shuffled community stream.
         </p>
       </header>
 
@@ -84,7 +85,7 @@ export default function CommunityLibrary() {
           <ul className="clist">
             {mine.map((m) => (
               <li key={m.slug}>
-                <Link href={`/b/${m.slug}`}>{m.question}</Link>
+                <Link href={`/b/${m.slug}?stream=community-start`}>{m.question}</Link>
                 <span className="clist-meta">yours · saved in this browser</span>
               </li>
             ))}
@@ -118,9 +119,11 @@ export default function CommunityLibrary() {
           <ul className="clist">
             {boards.map((b) => (
               <li key={b.slug}>
-                <Link href={`/b/${b.slug}`}>{b.question}</Link>
+                <Link href={`/b/${b.slug}?stream=community-start`}>{b.question}</Link>
                 <span className="clist-meta">
                   {b.leftLabel} → {b.rightLabel}
+                  {b.revealType === "other-side" && " · guess the other side"}
+                  {b.revealType === "crowd" && " · guess the crowd"}
                   {b.people > 0 && ` · ${b.people} ${b.people === 1 ? "person" : "people"}`}
                   {sort === "trending" && b.recentAnswers > 0 && ` · ${b.recentAnswers} this week`}
                 </span>
@@ -131,7 +134,7 @@ export default function CommunityLibrary() {
       )}
 
       <p className="board-index-run">
-        <Link href="/boards">Browse the main collection &rarr;</Link>
+        <Link href="/explore">Explore every collection &rarr;</Link>
       </p>
 
       <footer className="disclosure">

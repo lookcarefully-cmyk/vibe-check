@@ -72,6 +72,7 @@ export async function GET(req: Request) {
           createdAt: board.createdAt,
           people: agg.count,
           recentAnswers: recent,
+          revealType: board.revealType ?? null,
         };
       }),
     );
@@ -111,6 +112,14 @@ export async function POST(req: Request) {
     category: str(body.category) || "Community",
   };
 
+  const revealType =
+    body.revealType === "crowd" || body.revealType === "other-side"
+      ? body.revealType
+      : null;
+  if (body.revealType != null && revealType === null) {
+    return noStore({ error: "Unknown reveal type." }, 400);
+  }
+
   const verdict = await moderateBoard(draft);
   if (!verdict.ok) return noStore({ error: verdict.message ?? "That board can't be created." }, 422);
 
@@ -146,6 +155,7 @@ export async function POST(req: Request) {
       scale: guessScale(draft.leftLabel, draft.rightLabel),
       cadence: "week",
       highMeans: describeHigh(draft.rightLabel),
+      ...(revealType ? { revealType } : {}),
       createdAt: Date.now(),
       // Unlisted until the creator publishes it. See lib/boards.ts.
       listed: false,

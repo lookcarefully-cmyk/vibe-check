@@ -5,6 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 import TopicNav from "./TopicNav";
 import InfoDialog from "./InfoDialog";
 import Colophon from "./Colophon";
+import StartMainSet from "./StartMainSet";
 import { EXPERIMENT_ENABLED, EXTRA_TOPICS, groupTopics } from "@/lib/experiment";
 import { readRunState } from "@/lib/run";
 import { voteStorageKey } from "@/lib/topics";
@@ -50,12 +51,17 @@ export default function BoardIndex() {
           <span className="kicker-text">Vibe Check · public data collection</span>
           <InfoDialog />
         </div>
-        <h1>Where do you land?</h1>
+        <h1>Main set</h1>
         <p className="lede">
-          Pick a question and place your answer on the dial. A board stays blank
-          until you&rsquo;ve answered it.
+          Browse for one question, or start a shuffled stream and answer as many
+          as you want.
         </p>
       </header>
+
+      <div className="front-door-actions">
+        <StartMainSet label="Start scrolling" />
+        <Link href="/explore" className="reset">Back to Explore</Link>
+      </div>
 
       <input
         type="search"

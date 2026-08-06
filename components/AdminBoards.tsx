@@ -18,6 +18,7 @@ interface Row {
   leftLabel: string;
   rightLabel: string;
   category: string;
+  revealType: "other-side" | "crowd" | null;
   listed: boolean;
   approved: boolean;
   reviewOnly: boolean;
@@ -115,6 +116,8 @@ export default function AdminBoards() {
                 {b.listed && !b.approved && " · in library"}
                 {!b.listed && !b.underReview && " · unlisted"}
                 {b.reviewOnly && " · flagged at creation"}
+                {b.revealType === "other-side" && " · guesses the other side"}
+                {b.revealType === "crowd" && " · guesses the crowd"}
               </span>
             </span>
             {b.approved ? (

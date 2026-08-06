@@ -134,8 +134,8 @@ export default function RunResults() {
         <p>
           These aren&rsquo;t part of the set above — answer any of them, in any order.
         </p>
-        <Link href="/boards" className="reset">
-          Browse all boards
+        <Link href="/explore" className="reset">
+          Explore boards
         </Link>
       </section>
 

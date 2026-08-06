@@ -33,9 +33,14 @@ board stays first, `rural-urban` is next (unless it was the chosen board), and
 the remaining research boards are shuffled. Each board appears once; the stream
 ends instead of wrapping. The floating navigator is the one clear continuation:
 tap/click Next, swipe left on the non-interactive page background, or swipe
-up/left on the control itself on a phone. “All boards” is always beside it. Do
+up/left on the control itself on a phone. “Explore” is always beside it. Do
 not bring back the four-tile “More questions” shelf; it recreated the choice
 overload this stream exists to remove.
+
+The front door has three choices: start the randomized Main Set, open `/explore`,
+or make a board. `/explore` is the junction between the research-led Main Set
+and the separately labelled Community collection. Community boards have their
+own finite shuffled stream; do not silently mix them into the Main Set.
 
 The 30-board research slate now has three reveal instruments. Type 1 boards are
 standalone guesses scored against published benchmarks. Type 2/3 boards bank the
@@ -43,6 +48,12 @@ visitor's own opinion, then collect a separate prediction of the opposite half
 or whole Vibe Check crowd before revealing any result. `revealTypeOf` in
 `lib/topics.ts` is the assignment source of truth. Predictions are separate
 records under a separate storage namespace; never mix them into vote rows.
+
+Community creators may choose the original immediate crowd reveal, a whole-crowd
+prediction, or an opposite-side prediction. The choice is stored as optional
+`CommunityBoard.revealType`; absence means the original reveal, preserving old
+boards. Community boards can never declare a `real-figure` benchmark—the owner
+must verify every external source used by that instrument.
 
 Adding a board is one object in `lib/topics.ts`. It needs `category` (free text,
 creates a new browse section if unused) and `scale` (which wording family

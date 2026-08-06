@@ -1086,7 +1086,9 @@ export default function VibeCheck({
 
       {/* One clear continuation replaces the old four-choice shelf. The order
           lives in sessionStorage and no next-board result is previewed here. */}
-      {!midRun && <BoardStreamNav currentId={topic.id} answered={isResult} />}
+      {!midRun && (
+        <BoardStreamNav topic={topic} answered={isResult} community={community} />
+      )}
 
       {community && (
         <p className="board-index-run">

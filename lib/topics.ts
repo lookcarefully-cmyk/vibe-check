@@ -988,6 +988,7 @@ export const TOPICS: Topic[] = [
   },
   {
     id: "fable-coded",
+    retiredFromSite: true,
     subject: "Fable",
     axis: "SF or NYC?",
     question: "Is Fable SF-coded or NYC-coded?",
@@ -1003,6 +1004,7 @@ export const TOPICS: Topic[] = [
   },
   {
     id: "opus-coded",
+    retiredFromSite: true,
     subject: "Opus",
     axis: "SF or NYC?",
     question: "Is Opus SF-coded or NYC-coded?",
@@ -1018,6 +1020,7 @@ export const TOPICS: Topic[] = [
   },
   {
     id: "cursor-coded",
+    retiredFromSite: true,
     subject: "Cursor",
     axis: "SF or NYC?",
     question: "Is Cursor SF-coded or NYC-coded?",
@@ -1033,6 +1036,7 @@ export const TOPICS: Topic[] = [
   },
   {
     id: "chatgpt-coded",
+    retiredFromSite: true,
     subject: "ChatGPT",
     axis: "SF or NYC?",
     question: "Is ChatGPT SF-coded or NYC-coded?",
@@ -1048,6 +1052,7 @@ export const TOPICS: Topic[] = [
   },
   {
     id: "grok-coded",
+    retiredFromSite: true,
     subject: "Grok",
     axis: "SF or NYC?",
     question: "Is Grok SF-coded or NYC-coded?",

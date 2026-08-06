@@ -233,6 +233,9 @@ export default function Dial({
     return Math.abs(clamped - 0.5) <= CENTER_DETENT ? 0.5 : clamped;
   }
 
+  // Horizontal position of the placed dot: linear in value, matching where the
+  // pointer maps (see valueFromEvent), so the dot sits under the finger.
+  const handleX = CX - R_FACE + safePick * 2 * R_FACE;
   const [aimX, aimY] = polar(safePick, R_FACE - 10);
 
   /*
@@ -623,22 +626,25 @@ export default function Dial({
         makes this behave like the dial it looks like. It remains adjustable;
         the separate button is still the only thing that commits the answer.
       */}
-      {showOwn && !isResult && placed && (
-        <g className="choice-indicator">
-          <g
-            className="choice-needle"
-            style={{ transform: `rotate(${rotationOf(safePick)}deg)` }}
-          >
-            <line
-              x1={CX}
-              y1={CY}
-              x2={CX}
-              y2={CY - (bandIn - 10)}
-              strokeLinecap="round"
-            />
-          </g>
-          <circle className="choice-hub" cx={CX} cy={CY} r={R_HUB} />
-          <circle className="choice-hub-ring" cx={CX} cy={CY} r={R_HUB - 12} />
+      {/* Gated on the choosing phase, NOT showOwn: every choose phase — placing
+          your own answer OR predicting the crowd (Codex's predict round passes
+          showOwn=false) — needs a line to tap and a dot to see. `showOwn` only
+          governs the own-answer marker in the RESULT view. */}
+      {!isResult && (
+        <g className="vas">
+          <line
+            className="vas-line"
+            x1={CX - R_FACE}
+            y1={CY}
+            x2={CX + R_FACE}
+            y2={CY}
+            strokeLinecap="round"
+          />
+          {placed && (
+            <g className="vas-dot" style={{ transform: `translateX(${handleX - CX}px)` }}>
+              <circle cx={CX} cy={CY} r="20" />
+            </g>
+          )}
         </g>
       )}
 

@@ -1238,43 +1238,24 @@ body::after {
   transition: transform 1100ms var(--ease-out), opacity 500ms ease 300ms;
 }
 
-/* The viewer's needle appears only after their first tap. It moves quickly
-   enough to follow a drag, unlike the slower theatrical crowd-result needle. */
-.choice-needle {
+/* the visual-analogue scale: a bare spectrum line and the dot you place on it */
+.vas-line {
+  stroke: rgba(10, 18, 56, 0.35);
+  stroke-width: 5;
+  stroke-dasharray: 2 12;
+}
+
+.vas-dot {
   transform-box: view-box;
   transform-origin: 500px 500px;
+  /* eases to the tapped spot, so a drag reads as continuous rather than jumping */
   transition: transform 180ms var(--ease-out);
 }
 
-.choice-needle line {
-  stroke: var(--navy-mid);
-  stroke-width: 11;
-}
-
-.choice-hub {
+.vas-dot circle {
   fill: var(--teal-deep);
   stroke: var(--cream);
-  stroke-width: 7;
-}
-
-.choice-hub-ring {
-  fill: none;
-  stroke: var(--navy-mid);
-  stroke-width: 3;
-  opacity: 0.72;
-}
-
-.choice-indicator {
-  animation: choice-in 220ms var(--ease-out) both;
-}
-
-@keyframes choice-in {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
+  stroke-width: 5;
 }
 
 .margin,
@@ -1868,11 +1849,8 @@ body::after {
     animation-delay: 0ms;
   }
   .needle,
-  .choice-needle,
+  .vas-dot,
   .face {
     transition-duration: 1ms;
-  }
-  .choice-indicator {
-    animation-duration: 1ms;
   }
 }

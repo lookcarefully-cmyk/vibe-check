@@ -653,7 +653,14 @@ body::after {
 .board-stream {
   position: fixed;
   z-index: 30;
-  right: max(1rem, env(safe-area-inset-right));
+  /* Keep the control beside the centered 70rem board column instead of at the
+     far edge of a wide desktop monitor. This also keeps it findable when the
+     browser is zoomed in and the dial fills most of the visible page. */
+  right: max(
+    1rem,
+    env(safe-area-inset-right),
+    calc((100vw - 70rem) / 2 + 1rem)
+  );
   bottom: max(1rem, env(safe-area-inset-bottom));
   display: flex;
   align-items: stretch;

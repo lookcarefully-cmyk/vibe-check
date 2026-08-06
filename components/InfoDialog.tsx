@@ -62,41 +62,66 @@ export default function InfoDialog() {
         */}
         <div className="info-panel" tabIndex={-1}>
           <div className="info-head">
-            <h2 id="info-title">About this project</h2>
+            <h2 id="info-title">How Vibe Check works</h2>
             <button type="button" className="info-close" onClick={hide} aria-label="Close">
               ×
             </button>
           </div>
 
           <section>
-            <h3>How to play</h3>
+            <h3>The short version</h3>
+            <p>
+              Vibe Check is a public-opinion instrument dressed as a game. Place where
+              you land on a spectrum, lock it in, then see how the crowd answered and
+              keep moving through a shuffled set of questions.
+            </p>
             <ol>
               <li>
-                Tap or click the spectrum where you land — a dot marks your spot. Nothing
-                sits on the dial until you place it, so you start from a blank
-                slate, not a default. (Arrow keys work too.)
+                Tap or click the blank dial to place your needle. Tap again or drag to
+                fine-tune it; arrow keys work too.
               </li>
-              <li>Tap again or drag to fine-tune, then lock your answer in.</li>
+              <li>Use the separate button to lock in your answer.</li>
               <li>
-                The dial opens up: the red needle swings to the average, and coloured rays
-                show how everyone&rsquo;s answers are spread out.
+                Read the reveal, then choose <strong>Next question</strong>, swipe left
+                on a phone, or exit to Explore. You can also skip an unanswered board.
               </li>
             </ol>
             <p>
-              Each board is its own question with its own separate results. Answering one
-              doesn&rsquo;t affect any of the others.
-            </p>
-            <p>
-              <strong>One answer per board.</strong> Once you&rsquo;ve answered, that
-              board shows you its results whenever you come back — but it won&rsquo;t
-              take a second answer from you.
+              A shuffled stream is optional and finite: it does not loop back through
+              boards you already completed. Explore lets you browse the focused Main Set,
+              a wider shelf from Vibe Check, and boards made by visitors.
             </p>
           </section>
 
           <section>
-            <h3>Why you can&rsquo;t see the results first</h3>
+            <h3>Three kinds of reveal</h3>
+            <ul>
+              <li>
+                <strong>The real figure:</strong> you guess a national statistic, then
+                see your answer beside a published representative survey and the Vibe
+                Check crowd.
+              </li>
+              <li>
+                <strong>The other side:</strong> after giving your own view, you can guess
+                where respondents on the opposite half of that same dial landed.
+              </li>
+              <li>
+                <strong>The whole crowd:</strong> after giving your own view, you can guess
+                where other people on this Vibe Check board landed.
+              </li>
+            </ul>
             <p>
-              You cannot view the board before voting to reduce{" "}
+              The second guess is optional. Skipping it reveals the results without
+              inventing a prediction; your original opinion is already safely recorded.
+              Opposite-side comparisons stay hidden until at least ten people are available
+              for that comparison.
+            </p>
+          </section>
+
+          <section>
+            <h3>Why results come second</h3>
+            <p>
+              Seeing a crowd number first can pull a later answer toward it—an effect called{" "}
               <a
                 href="https://thedecisionlab.com/biases/anchoring-bias"
                 target="_blank"
@@ -104,9 +129,20 @@ export default function InfoDialog() {
               >
                 anchoring bias
               </a>
-              . If you do not want to vote and want to see the results, click the
-              &ldquo;view results without voting&rdquo; tab. NOTE, you will not be able
-              to vote again after clicking this.
+              . That is why unanswered boards never preview the average.
+            </p>
+            <p>
+              You may choose <strong>View results without voting</strong>, but it is a
+              trade: the board is permanently closed to voting in that browser before any
+              result appears. This keeps a revealed number from becoming an anchored vote.
+            </p>
+            <p>
+              Each board accepts one answer from you during its current period. Some are
+              one-time questions; others reopen on the cadence printed with their results.
+            </p>
+            <p>
+              Shared board cards are deliberately result-free too, so a friend can arrive
+              without seeing the answer they are about to judge.
             </p>
           </section>
 
@@ -114,7 +150,10 @@ export default function InfoDialog() {
             <h3>How to read the results</h3>
             <dl className="info-key">
               <dt>AVERAGE 35%</dt>
-              <dd>The mean of every answer so far. The red needle points at it.</dd>
+              <dd>
+                The mean position for the window printed beside the result, with repeat
+                answers reduced to each person&rsquo;s latest one. The red needle points at it.
+              </dd>
 
               <dt>The coloured rays</dt>
               <dd>
@@ -144,6 +183,28 @@ export default function InfoDialog() {
           </section>
 
           <section>
+            <h3>Main, More and community boards</h3>
+            <p>
+              The <strong>Main Set</strong> is the smaller research-led collection where
+              responses are deliberately concentrated. <strong>More from Vibe Check</strong>
+              holds good questions outside that focused slate. Both are written by this
+              project and are clearly separated from visitor-made boards.
+            </p>
+            <p>
+              Anyone can make a standard board, an &ldquo;other side&rdquo; board, or a
+              &ldquo;whole crowd&rdquo; board. Visitor-made boards cannot claim a real-world
+              benchmark without editorial source review. They begin unlisted, can be
+              reported, and only receive prominent placement after moderation.
+            </p>
+            <p>
+              After voting on a visitor-made board, you may privately mark it useful or
+              not for you. That signal is not a public score and is not part of the research
+              data. It only nudges discovery; a negative mark also removes that board from
+              your future community stream.
+            </p>
+          </section>
+
+          <section>
             <h3>What&rsquo;s collected</h3>
             <ul>
               <li>
@@ -152,6 +213,11 @@ export default function InfoDialog() {
                 your prediction are stored as two separate kinds of record.
               </li>
               <li>No account, no email, no name, no cookies, no tracking scripts.</li>
+              <li>
+                The optional place question records only where you place yourself between
+                rural and densely urban. <strong>No address, GPS location, city or ZIP code
+                is requested.</strong>
+              </li>
               <li>
                 <strong>A random ID links your answers to each other.</strong> It&rsquo;s 16
                 random bytes generated in your browser — nothing about you feeds into it, and
@@ -181,6 +247,23 @@ export default function InfoDialog() {
           </section>
 
           <section>
+            <h3>What these results can mean</h3>
+            <p>
+              Vibe Check visitors are self-selected, not a representative sample of the
+              country. Crowd averages describe the people who answered this board; they
+              should not be relabeled as &ldquo;what Americans believe.&rdquo; Published
+              benchmark boards show their outside source, field date and sample note so
+              the two kinds of number stay distinct.
+            </p>
+            <p>
+              The project is strongest at showing distributions, perception gaps, changes
+              over time, and relationships among answers from the same anonymous browser.
+              Those patterns can be interesting without pretending the sample represents
+              everyone.
+            </p>
+          </section>
+
+          <section>
             <h3>What this is for</h3>
             <p>
               This is a public snapshot of where people actually land on questions that
@@ -191,8 +274,9 @@ export default function InfoDialog() {
             <p>
               Aggregate results — averages, spreads, response counts and how answers
               relate to each other — may also be written about publicly. Individual
-              answers say nothing on their own. Nothing is sold or handed to third
-              parties.
+              answers and predictions are kept out of the public export and are not sold.
+              The site&rsquo;s hosting and storage services process requests and records to
+              operate the project, but there is no advertiser or data-broker feed.
             </p>
             <p className="info-note">
               Some of these questions are personal. Your answers are grouped together by a

@@ -17,9 +17,10 @@ interface StoredBoardStream {
 }
 
 export interface BoardStreamStep {
-  next: Topic;
+  next: Topic | null;
   position: number;
   total: number;
+  complete: boolean;
 }
 
 function shuffle<T>(items: T[]): T[] {
@@ -103,13 +104,15 @@ export function boardStreamStep(
   }
 
   const index = order.indexOf(currentId);
-  for (let offset = 1; offset <= order.length; offset += 1) {
-    const nextId = order[(index + offset) % order.length];
-    const next = topicById.get(nextId);
-    if (next && next.id !== currentId) {
-      return { next, position: index + 1, total: order.length };
-    }
-  }
+  const nextId = order[index + 1];
+  const next = nextId ? topicById.get(nextId) ?? null : null;
 
-  return null;
+  // Do not wrap. A shuffled visit is one pass through the collection, not an
+  // infinite carousel that quietly starts repeating questions.
+  return {
+    next,
+    position: index + 1,
+    total: order.length,
+    complete: next === null,
+  };
 }

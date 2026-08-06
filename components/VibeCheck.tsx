@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import Dial, { type Phase } from "./Dial";
 import InfoDialog from "./InfoDialog";
 import BoardStreamNav from "./BoardStreamNav";
+import BoardReaction from "./BoardReaction";
 import Colophon from "./Colophon";
 import Sparkline from "./Sparkline";
 import { eventsFor } from "@/lib/events";
@@ -35,7 +36,9 @@ import { clearHistory, myStanding, recordAnswer, type MyStanding } from "@/lib/m
 import {
   clearPrediction,
   readPrediction,
+  readPredictionSkip,
   recordPrediction,
+  recordPredictionSkip,
 } from "@/lib/prediction";
 
 /*
@@ -86,6 +89,12 @@ const EMPTY: BoardResult = {
 };
 
 const pct = (v: number) => `${Math.round(v * 100)}%`;
+
+const showStageFromTop = () => {
+  window.requestAnimationFrame(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  });
+};
 
 export default function VibeCheck({
   topic,
@@ -142,6 +151,7 @@ export default function VibeCheck({
   const [predictionPick, setPredictionPick] = useState(0.5);
   const [predictionTouched, setPredictionTouched] = useState(false);
   const [predictionResult, setPredictionResult] = useState<PredictionResult | null>(null);
+  const [predictionSkipped, setPredictionSkipped] = useState(false);
 
   const router = useRouter();
   const lastCount = useRef(0);
@@ -200,6 +210,7 @@ export default function VibeCheck({
     setPredictionPick(0.5);
     setPredictionTouched(false);
     setPredictionResult(null);
+    setPredictionSkipped(false);
     lastCount.current = 0;
 
     const state = readRunState();
@@ -246,15 +257,20 @@ export default function VibeCheck({
       setRevealed(false);
       setAsking(false);
       const savedPrediction = readPrediction(topic.id);
+      const skippedPredictionAt = readPredictionSkip(topic.id);
       const needsPrediction = revealType === "other-side" || revealType === "crowd";
       const belongsToLatest =
         savedPrediction && mine.last && savedPrediction.vt === mine.last.t;
-      if (needsPrediction && !belongsToLatest) {
+      const skippedLatest =
+        skippedPredictionAt !== null && mine.last && skippedPredictionAt === mine.last.t;
+      if (needsPrediction && !belongsToLatest && !skippedLatest) {
         setPredicting(true);
         setPredictionPick(0.5);
         setPredictionTouched(false);
         setPhase("choose");
+        showStageFromTop();
       } else {
+        setPredictionSkipped(Boolean(skippedLatest));
         setPhase("result");
         if (savedPrediction && belongsToLatest) {
           setPredictionPick(savedPrediction.v);
@@ -346,7 +362,9 @@ export default function VibeCheck({
             setPredicting(true);
             setPredictionPick(0.5);
             setPredictionTouched(false);
+            setPredictionSkipped(false);
             setPhase("choose");
+            showStageFromTop();
           } else {
             setPhase("result");
           }
@@ -378,7 +396,9 @@ export default function VibeCheck({
           setPredictionPick(0.5);
           setPredictionTouched(false);
           setPredictionResult(null);
+          setPredictionSkipped(false);
           setPhase("choose");
+          showStageFromTop();
         } else {
           setPhase("result");
         }
@@ -403,8 +423,10 @@ export default function VibeCheck({
         recordPrediction(topic.id, data.prediction, latest?.t ?? Date.now());
         setPredictionPick(data.prediction);
         setPredictionResult(data);
+        setPredictionSkipped(false);
         setPredicting(false);
         setPhase("result");
+        showStageFromTop();
         void load();
       } catch (err) {
         setError(err instanceof Error ? err.message : "Could not record your prediction.");
@@ -414,6 +436,19 @@ export default function VibeCheck({
     },
     [pending, predicting, fetchPredictionResult, topic, load],
   );
+
+  /** Reveal after the opinion vote without inventing a prediction row. */
+  const skipPrediction = useCallback(() => {
+    if (pending || !predicting) return;
+    const latest = myStanding(topic, Date.now()).last;
+    if (!latest) return;
+    recordPredictionSkip(topic.id, latest.t);
+    setPredictionSkipped(true);
+    setPredicting(false);
+    setPhase("result");
+    showStageFromTop();
+    void load();
+  }, [pending, predicting, topic, load]);
 
   /*
    * Re-answering is a development affordance only.
@@ -460,6 +495,7 @@ export default function VibeCheck({
     setPredictionPick(0.5);
     setPredictionTouched(false);
     setPredictionResult(null);
+    setPredictionSkipped(false);
   };
 
   const isResult = phase === "result";
@@ -495,13 +531,7 @@ export default function VibeCheck({
       ? `${Math.round(v * 100)} / 100`
       : `${Math.round(v * 100)}%`;
 
-  const predictionQuestion = (() => {
-    if (revealType === "crowd" || pick === 0.5) {
-      return "Where do you think everyone on Vibe Check landed?";
-    }
-    const opposite = pick < 0.5 ? topic.rightLabel : topic.leftLabel;
-    return `Where do you think people on the ${opposite} half of this dial landed?`;
-  })();
+  const predictionQuestion = "Where do you think others landed?";
 
   return (
     <main className="shell">
@@ -538,6 +568,13 @@ export default function VibeCheck({
                 ? "Here's how everyone answered. You're not on this board."
                 : "You're on the board. Here's where everyone else landed."}
         </p>
+        {predicting && (
+          <p className="prediction-scope">
+            {revealType === "other-side" && pick !== 0.5
+              ? "We’ll compare your guess with Vibe Check responses from the opposite half of this dial."
+              : "We’ll compare your guess with responses collected on this Vibe Check board."}
+          </p>
+        )}
       </header>
 
       {/*
@@ -713,7 +750,7 @@ export default function VibeCheck({
             </section>
           )}
 
-          {!revealed && (revealType === "other-side" || revealType === "crowd") && (
+          {!revealed && !predictionSkipped && (revealType === "other-side" || revealType === "crowd") && (
             <section className="benchmark-result prediction-result" aria-labelledby="prediction-title">
               <div className="benchmark-heading">
                 <p className="benchmark-kicker">
@@ -986,6 +1023,10 @@ export default function VibeCheck({
             </p>
           )}
 
+          {community && !revealed && standing?.hasAnswered && (
+            <BoardReaction slug={topic.id} />
+          )}
+
           {revealed && (
             <p className="reveal-note">
               You chose to see this board without answering, so it&rsquo;s closed to
@@ -1001,7 +1042,9 @@ export default function VibeCheck({
           {!revealed && standing?.hasAnswered && !standing.eligibility.allowed && (
             <p className="reopens">
               {standing.eligibility.reason === "once-only"
-                ? "This one is asked once — it's a warm-up, not an opinion."
+                ? topic.calibration
+                  ? "This one is asked once — it's a warm-up, not an opinion."
+                  : "This one is asked once."
                 : standing.eligibility.nextAllowedAt
                   ? `Vibes move. You can answer this again ${humanUntil(standing.eligibility.nextAllowedAt, Date.now())}.`
                   : "You can answer this again once it reopens."}
@@ -1045,6 +1088,12 @@ export default function VibeCheck({
                 : "Tap or click the spectrum to place your answer. Dragging is optional."}{" "}
             Keyboard: arrow keys to aim, Enter to submit.
           </p>
+
+          {predicting && (
+            <button type="button" className="reveal-link prediction-skip" onClick={skipPrediction}>
+              Skip this guess &mdash; show me the results
+            </button>
+          )}
 
           {/*
             The opt-out. Deliberately quiet and two-step: it's the less

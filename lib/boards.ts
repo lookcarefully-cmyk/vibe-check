@@ -29,7 +29,11 @@ const KEY = {
   // publishing (creator's choice) puts a board in the /b library; approval
   // (yours) is what lets it onto the home page, where the stakes are higher.
   featured: "vibecheck:v5:cboards:featured",
+  reactions: (slug: string, choice: BoardReaction) =>
+    `vibecheck:v5:cboard-reactions:${slug}:${choice}`,
 };
+
+export type BoardReaction = "like" | "dislike";
 
 /**
  * Reports that auto-unlist a board pending review.
@@ -167,11 +171,42 @@ export async function reportBoard(slug: string): Promise<{ hidden: boolean } | n
   return { hidden };
 }
 
+/**
+ * Private recommendation feedback, deliberately separate from reports and
+ * research answers. One anonymous browser can hold one current choice.
+ */
+export async function reactToBoard(
+  slug: string,
+  session: string,
+  choice: BoardReaction,
+): Promise<void> {
+  const member = createHash("sha256").update(session).digest("hex");
+  const other: BoardReaction = choice === "like" ? "dislike" : "like";
+  await store.setRemove(KEY.reactions(slug, other), member);
+  await store.setAdd(KEY.reactions(slug, choice), member);
+}
+
+/** Counts are used for ordering but are not exposed as public popularity totals. */
+export async function boardReactionCounts(
+  slug: string,
+): Promise<{ likes: number; dislikes: number }> {
+  const [likes, dislikes] = await Promise.all([
+    store.setMembers(KEY.reactions(slug, "like")),
+    store.setMembers(KEY.reactions(slug, "dislike")),
+  ]);
+  return { likes: likes.length, dislikes: dislikes.length };
+}
+
 export async function deleteCommunityBoard(slug: string): Promise<void> {
   await store.kvDel(KEY.board(slug));
   await store.setRemove(KEY.all, slug);
   await store.setRemove(KEY.listed, slug);
   await store.setRemove(KEY.featured, slug);
+  for (const choice of ["like", "dislike"] as const) {
+    for (const member of await store.setMembers(KEY.reactions(slug, choice))) {
+      await store.setRemove(KEY.reactions(slug, choice), member);
+    }
+  }
 }
 
 async function loadMany(slugs: string[]): Promise<CommunityBoard[]> {

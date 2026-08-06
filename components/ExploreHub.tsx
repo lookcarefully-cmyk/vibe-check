@@ -2,7 +2,8 @@ import Link from "next/link";
 import InfoDialog from "./InfoDialog";
 import StartMainSet from "./StartMainSet";
 import Colophon from "./Colophon";
-import { EXTRA_TOPICS } from "@/lib/experiment";
+import ExploreMoreShuffle from "./ExploreMoreShuffle";
+import { EXTRA_TOPICS, MORE_TOPICS } from "@/lib/experiment";
 
 export default function ExploreHub() {
   return (
@@ -33,14 +34,14 @@ export default function ExploreHub() {
         </article>
 
         <article>
-          <p className="explore-kicker">Made by visitors</p>
-          <h2>Community</h2>
+          <p className="explore-kicker">Keep exploring or create</p>
+          <h2>More + community</h2>
           <p>
-            Public boards people chose to share. They are screened and clearly
-            separated from the research set.
+            {MORE_TOPICS.length} more questions from us, followed by public boards
+            people chose to share. The two are clearly labeled.
           </p>
           <div className="explore-actions">
-            <Link href="/b" className="lock-in">Explore community</Link>
+            <Link href="/b" className="lock-in">Explore more boards</Link>
             <Link href="/b/new" className="reset">Make a board</Link>
           </div>
         </article>
@@ -50,6 +51,8 @@ export default function ExploreHub() {
         Every stream is optional and finite. Skip freely, stop whenever you like, or
         return here to switch collections.
       </p>
+
+      <ExploreMoreShuffle />
 
       <Colophon />
     </main>

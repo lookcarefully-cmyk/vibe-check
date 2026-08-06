@@ -14,7 +14,7 @@ export default function StartMainSet({ label = "Start the main set" }: { label?:
       return;
     }
     const topic = available[Math.floor(Math.random() * available.length)];
-    router.push(`/${topic.id}?stream=start`);
+    router.push(`/${topic.id}?stream=main-start`);
   };
 
   return (

@@ -62,13 +62,26 @@ export const isExperimentTopic = (topicId: string): boolean =>
  * can't be taken out of order or previewed.
  *
  * Boards flagged `hiddenFromLibrary` or `retiredFromSite` are excluded either
- * way: they stay in TOPICS (and keep their votes) but don't appear in the
- * browsable set or randomized stream. See lib/topics.ts.
+ * way. Among the remaining curated boards, `collection` separates the tightly
+ * edited launch slate from the looser shelf on the More/Community page.
  */
-export const EXTRA_TOPICS: Topic[] = (EXPERIMENT_ENABLED
+const ACTIVE_LIBRARY_TOPICS: Topic[] = (EXPERIMENT_ENABLED
   ? TOPICS.filter((t) => !isExperimentTopic(t.id))
   : TOPICS
 ).filter((t) => !t.hiddenFromLibrary && !t.retiredFromSite);
+
+/** The launch slate used by Start, /boards, and the randomized Main Set. */
+export const MAIN_TOPICS: Topic[] = ACTIVE_LIBRARY_TOPICS.filter(
+  (topic) => topic.collection === "main",
+);
+
+/** Curated extras kept available beside community-made boards. */
+export const MORE_TOPICS: Topic[] = ACTIVE_LIBRARY_TOPICS.filter(
+  (topic) => topic.collection !== "main",
+);
+
+/** Compatibility name used by the existing Main Set UI. */
+export const EXTRA_TOPICS = MAIN_TOPICS;
 
 /**
  * The browse page grouped by what each board is about.

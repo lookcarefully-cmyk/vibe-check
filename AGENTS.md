@@ -42,15 +42,19 @@ the choice overload this stream exists to remove.
 
 The front door has three choices: start the randomized Main Set, open `/explore`,
 or make a board. `/explore` is the junction between the research-led Main Set
-and the separately labelled Community collection. Community boards have their
-own finite shuffled stream; do not silently mix them into the Main Set.
+and the More + Community page. That page labels curated extras as “More from
+Vibe Check” and visitor-made questions as “Made by visitors”; do not imply that
+our demoted boards were visitor submissions. Its finite shuffled stream may mix
+those two secondary shelves, but neither may silently enter the Main Set.
 
-The 30-board research slate now has three reveal instruments. Type 1 boards are
+The 32-board Main Set now has three reveal instruments. Type 1 boards are
 standalone guesses scored against published benchmarks. Type 2/3 boards bank the
 visitor's own opinion, then collect a separate prediction of the opposite half
 or whole Vibe Check crowd before revealing any result. `revealTypeOf` in
 `lib/topics.ts` is the assignment source of truth. Predictions are separate
 records under a separate storage namespace; never mix them into vote rows.
+Real-figure boards use `cadence: "once"`: after the reveal, a later answer would
+measure memory for the published number rather than the original perception gap.
 
 Community creators may choose the original immediate crowd reveal, a whole-crowd
 prediction, or an opposite-side prediction. The choice is stored as optional
@@ -58,14 +62,24 @@ prediction, or an opposite-side prediction. The choice is stored as optional
 boards. Community boards can never declare a `real-figure` benchmark—the owner
 must verify every external source used by that instrument.
 
+After answering a visitor-made board, someone may privately choose “More like
+this” or “Not for me.” Reactions are recommendation signals, not research rows,
+public popularity totals, reports, or automatic moderation. The server accepts
+one current choice only from a session that actually voted; dislikes modestly
+lower global discovery rank and remove that board from that browser's later
+community stream. Reports remain the safety mechanism.
+
 Adding a board is one object in `lib/topics.ts`. It needs `category` (free text,
 creates a new browse section if unused) and `scale` (which wording family
-translates its percentage into words).
+translates its percentage into words). It enters the secondary shelf by default;
+only `collection: "main"` places it in the focused Main Set. This is deliberate:
+a new idea must not silently dilute the launch data collection.
 
 Removing a board from the public site means setting `retiredFromSite: true`,
-never deleting its object. `EXTRA_TOPICS` filters retired boards out of both the
-Main Set library and randomized streams, while the registry keeps their wording
-and poles attached to historical votes and research exports.
+never deleting its object. Active boards are split into `MAIN_TOPICS` and
+`MORE_TOPICS` in `lib/experiment.ts`; `EXTRA_TOPICS` remains the compatibility
+name for Main Set consumers. The registry keeps retired and demoted boards'
+wording and poles attached to historical votes and research exports.
 
 ## The experiment, while parked
 
@@ -110,11 +124,14 @@ Each of these was arrived at by making the opposite mistake first.
    can't leave the board open to a now-anchored vote. Never add a path that
    shows results and leaves voting available.
 
-   On Type 2/3 boards, answering is not yet the reveal: the visitor must place
-   the second prediction marker first. Do not expose the aggregate between the
-   opinion POST and prediction POST. Opposite-side comparisons stay suppressed
-   below 10 people; an exact-midpoint opinion has no opposite half and falls
-   back, explicitly, to a whole-crowd prediction.
+   On Type 2/3 boards, the opinion is banked before the optional second-marker
+   prediction. Results may appear only after the prediction POST succeeds or
+   the visitor explicitly chooses “Skip this guess — show me the results.” A
+   skip writes only a browser receipt tied to that vote timestamp; it must never
+   manufacture a prediction row. This is anchoring-safe because the opinion is
+   already committed and cannot be changed. Opposite-side comparisons stay
+   suppressed below 10 people; an exact-midpoint opinion has no opposite half
+   and falls back, explicitly, to a whole-crowd prediction.
 
    The choosing dial starts with **no needle, no hub, no dot anywhere**. The
    first click or tap places the classic **red** needle (and its hub) at that

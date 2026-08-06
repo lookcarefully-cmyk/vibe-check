@@ -82,6 +82,7 @@ interface Row {
   high_means: string;
   scale_family: string;
   category: string;
+  collection: string;
   cadence: string;
   is_calibration: number;
   value: number;
@@ -168,6 +169,7 @@ function buildRows(topic: Topic, records: VoteRecord[], origin: string): Row[] {
       high_means: topic.highMeans,
       scale_family: topic.scale ?? "",
       category: topic.category,
+      collection: origin === "community" ? "community" : (topic.collection ?? "more"),
       cadence: cadenceOf(topic),
       is_calibration: topic.calibration ? 1 : 0,
       value: round(r.v),
@@ -256,6 +258,8 @@ function codebook(rowColumns: string[], totals: { boards: number; answers: numbe
       "PLAIN ENGLISH MEANING OF A HIGH SCORE. Read this before interpreting any board — direction is not uniform across boards.",
     scale_family: "Which wording family turns the number into words. See the band tables below.",
     category: "Browse section on the site.",
+    collection:
+      "Editorial shelf: `main` for the focused launch slate, `more` for other curated boards, or `community` for visitor-made boards.",
     cadence: "How often a person may answer this board again: week, month, or once.",
     is_calibration:
       "1 for comprehension checks with a defensible right answer (currently `slime`). NEVER an opinion measure — exclude from substantive results.",
@@ -415,6 +419,7 @@ async function main() {
       ({
         vote_id: "", board_id: "", board_version: 0, origin: "", board_question: "",
         left_label: "", right_label: "", high_means: "", scale_family: "", category: "",
+        collection: "",
         cadence: "", is_calibration: 0, value: 0, value_pct: 0, band_index: 0,
         band_label: "", ts_utc: "", date_utc: "", epoch_week: "", epoch_month: "",
         session_id: "", vote_seq: 0, is_first_vote: 0, prev_value: null, delta: null,
@@ -465,7 +470,7 @@ async function main() {
 
   const boardCols = [
     "board_id", "board_version", "origin", "question", "left_label", "right_label",
-    "high_means", "scale_family", "category", "cadence", "is_calibration", "reveal_type",
+    "high_means", "scale_family", "category", "collection", "cadence", "is_calibration", "reveal_type",
     "hidden_from_library", "retired_from_site", "benchmark_value", "benchmark_display", "benchmark_unit",
     "benchmark_source_name", "benchmark_source_url", "benchmark_fielded",
   ];
@@ -481,6 +486,7 @@ async function main() {
       high_means: t.highMeans,
       scale_family: t.scale ?? "",
       category: t.category,
+      collection: "community",
       cadence: cadenceOf(t),
       is_calibration: 0,
       reveal_type: "",
@@ -508,6 +514,7 @@ async function main() {
         high_means: t.highMeans,
         scale_family: t.scale ?? "",
         category: t.category,
+        collection: t.collection ?? "more",
         cadence: cadenceOf(t),
         is_calibration: t.calibration ? 1 : 0,
         reveal_type: revealTypeOf(t) ?? "",

@@ -37,6 +37,46 @@ const BASE = {
   "social-addictive": { mean: 0.74, sd: 0.16 },
   "coffee-addictive": { mean: 0.66, sd: 0.18 },
   slime: { mean: 0.5, sd: 0.14 },
+  "perceived-extremism": { mean: 0.52, sd: 0.22 },
+  "climate-support-perception": { mean: 0.58, sd: 0.2 },
+  "climate-worry-perception": { mean: 0.57, sd: 0.2 },
+  "violence-support-perception": { mean: 0.36, sd: 0.22 },
+  "violence-support-score-perception": { mean: 0.38, sd: 0.22 },
+  "emergency-expense-perception": { mean: 0.48, sd: 0.2 },
+  "abortion-legal-perception": { mean: 0.55, sd: 0.22 },
+  "loneliness-perception": { mean: 0.34, sd: 0.2 },
+  "social-trust-perception": { mean: 0.4, sd: 0.2 },
+  "free-expression-perception": { mean: 0.67, sd: 0.2 },
+  "disagreement-sources": { mean: 0.58, sd: 0.25 },
+  "immigration-status": { mean: 0.58, sd: 0.27 },
+  "local-police": { mean: 0.6, sd: 0.25 },
+  "gun-laws": { mean: 0.62, sd: 0.27 },
+  "prison-purpose": { mean: 0.66, sd: 0.25 },
+  "history-classes": { mean: 0.58, sd: 0.25 },
+  "climate-income": { mean: 0.31, sd: 0.22 },
+  "household-basics": { mean: 0.64, sd: 0.22 },
+  "luck-or-effort": { mean: 0.57, sd: 0.24 },
+  "home-worth": { mean: 0.55, sd: 0.26 },
+  "job-identity": { mean: 0.52, sd: 0.26 },
+  "generational-finances": { mean: 0.39, sd: 0.24 },
+  burnout: { mean: 0.65, sd: 0.22 },
+  "known-by-others": { mean: 0.56, sd: 0.22 },
+  "social-life-comparison": { mean: 0.44, sd: 0.23 },
+  "medical-bill": { mean: 0.56, sd: 0.27 },
+  "relationship-privacy": { mean: 0.56, sd: 0.23 },
+  "health-control": { mean: 0.57, sd: 0.22 },
+  "wallet-return": { mean: 0.54, sd: 0.24 },
+  "beyond-physical": { mean: 0.58, sd: 0.29 },
+  "reasons-for-fewer-kids": { mean: 0.49, sd: 0.29 },
+  "care-for-parents": { mean: 0.63, sd: 0.23 },
+  rootedness: { mean: 0.58, sd: 0.25 },
+  "rural-urban": { mean: 0.57, sd: 0.27 },
+  "online-self-censorship": { mean: 0.35, sd: 0.22 },
+  "division-source": { mean: 0.56, sd: 0.27 },
+  "life-without-short-video": { mean: 0.67, sd: 0.23 },
+  "official-numbers-trust": { mean: 0.57, sd: 0.28 },
+  "person-or-chatbot": { mean: 0.19, sd: 0.2 },
+  "ai-lift-or-leave-behind": { mean: 0.52, sd: 0.27 },
   "social-healthy": { mean: 0.3, sd: 0.18 },
   "social-treatment": { mean: 0.55, sd: 0.22 },
   "social-disorder": { mean: 0.6, sd: 0.19 },
@@ -46,7 +86,6 @@ const BASE = {
   "social-society": { mean: 0.3, sd: 0.18 },
   "porn-society": { mean: 0.26, sd: 0.17 },
   "ai-optimist": { mean: 0.55, sd: 0.24 },
-  "ai-pace": { mean: 0.52, sd: 0.26 },
   "agi-here": { mean: 0.6, sd: 0.24 },
   "singularity-here": { mean: 0.75, sd: 0.2 },
   "opensource-gap": { mean: 0.45, sd: 0.22 },
@@ -77,6 +116,8 @@ const BASE = {
   "pitbulls": { mean: 0.45, sd: 0.3 },
   "social-neuro": { mean: 0.45, sd: 0.22 },
   "college-recommend-2026": { mean: 0.5, sd: 0.26 },
+  "ai-tempo": { mean: 0.57, sd: 0.26 },
+  "mandate-openai-anthropic": { mean: 0.5, sd: 0.26 },
 };
 
 /**
@@ -102,7 +143,7 @@ if (!Number.isFinite(n) || n < 0) {
  * producing nothing usable.
  */
 const topicsSource = await fs.readFile(path.join(process.cwd(), "lib", "topics.ts"), "utf8");
-const declaredIds = [...topicsSource.matchAll(/^\s{4}id: "([a-z-]+)",$/gm)].map((m) => m[1]);
+const declaredIds = [...topicsSource.matchAll(/^\s{4}id: "([a-z0-9-]+)",$/gm)].map((m) => m[1]);
 if (declaredIds.length === 0) {
   console.error("Could not read any board ids from lib/topics.ts.");
   process.exit(1);

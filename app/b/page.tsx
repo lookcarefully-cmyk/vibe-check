@@ -4,8 +4,8 @@ import CommunityLibrary from "@/components/CommunityLibrary";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Vibe Check — boards people made",
-  description: "Boards made by visitors. Answer one, or make your own.",
+  title: "Vibe Check — more boards",
+  description: "Explore more Vibe Check questions and boards made by visitors.",
 };
 
 export default function CommunityLibraryPage() {

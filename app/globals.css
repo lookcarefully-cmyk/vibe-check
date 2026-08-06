@@ -553,6 +553,10 @@ body::after {
   font-size: 0.84rem;
 }
 
+.explore-shuffle {
+  margin-top: clamp(1.2rem, 3vw, 2rem);
+}
+
 .board-group h2 {
   margin: 0 0 0.7rem;
   font-size: 0.72rem;
@@ -1680,6 +1684,56 @@ body::after {
   color: var(--mustard);
 }
 
+.board-reaction {
+  width: 100%;
+  max-width: 32rem;
+  margin: 1.5rem auto 0;
+  padding: 1rem;
+  border: 1px solid rgba(95, 211, 212, 0.24);
+  border-radius: 14px;
+  background: rgba(95, 211, 212, 0.05);
+}
+
+.board-reaction p {
+  margin: 0 0 0.7rem;
+  font-weight: 700;
+}
+
+.board-reaction > div {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+}
+
+.board-reaction button {
+  padding: 0.5rem 0.9rem;
+  border: 1px solid rgba(242, 235, 218, 0.28);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--cream);
+  font: inherit;
+  font-size: 0.82rem;
+  cursor: pointer;
+}
+
+.board-reaction button[aria-pressed="true"] {
+  border-color: var(--teal);
+  background: rgba(95, 211, 212, 0.14);
+}
+
+.board-reaction button:disabled {
+  opacity: 0.55;
+  cursor: wait;
+}
+
+.board-reaction small {
+  display: block;
+  margin-top: 0.65rem;
+  color: rgba(242, 235, 218, 0.48);
+  font-size: 0.72rem;
+}
+
 .reset,
 .hint {
   margin-top: 1.5rem;
@@ -1705,6 +1759,14 @@ body::after {
 .hint {
   font-size: 0.8rem;
   color: rgba(242, 235, 218, 0.45);
+}
+
+.prediction-scope {
+  max-width: 38rem;
+  margin: 0.45rem auto 0;
+  color: rgba(242, 235, 218, 0.48);
+  font-size: 0.76rem;
+  line-height: 1.45;
 }
 
 /* --------------------------------- the returning visitor: has your vibe moved? */
@@ -1947,6 +2009,10 @@ body::after {
 
 .reveal-link:hover {
   color: var(--teal);
+}
+
+.prediction-skip {
+  margin-top: 0.75rem;
 }
 
 .reveal-link:focus-visible,

@@ -4,13 +4,16 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import InfoDialog from "./InfoDialog";
 import Colophon from "./Colophon";
+import { MORE_TOPICS } from "@/lib/experiment";
+import { revealTypeOf } from "@/lib/topics";
 
 /**
- * The public library of boards people made, plus the boards you made yourself.
+ * Curated boards outside the Main Set, plus the public library of boards people
+ * made and the boards this browser made itself.
  *
- * Ranked by answers in the last seven days rather than lifetime totals — see
- * the GET handler in app/api/boards/route.ts for why. A "new" tab exists
- * because a trending-only feed makes a brand-new board invisible forever.
+ * Ranked primarily by answers in the last seven days, with private reactions as
+ * a capped recommendation nudge — see app/api/boards/route.ts. A "new" tab
+ * exists because a trending-only feed makes a brand-new board invisible forever.
  */
 
 interface Listed {
@@ -66,18 +69,46 @@ export default function CommunityLibrary() {
     <main className="shell">
       <header className="masthead">
         <div className="kicker">
-          <span className="kicker-text">Vibe Check · boards people made</span>
+          <span className="kicker-text">Vibe Check · more questions</span>
           <InfoDialog />
         </div>
-        <h1>Boards people made</h1>
+        <h1>More boards</h1>
         <p className="lede">
-          Anyone can make one. Pick any board to start a shuffled community stream.
+          Keep exploring our wider shelf, or try a question somebody made.
         </p>
       </header>
 
       <Link href="/b/new" className="lock-in maker-cta">
         Make a board
       </Link>
+
+      {MORE_TOPICS.length > 0 && (
+        <section className="board-group">
+          <h2>More from Vibe Check</h2>
+          <p className="board-progress">
+            Good questions that aren&rsquo;t in the focused Main Set. Pick one to start
+            a shuffled stream through this wider collection.
+          </p>
+          <ul className="clist">
+            {MORE_TOPICS.map((topic) => {
+              const revealType = revealTypeOf(topic);
+              return (
+                <li key={topic.id}>
+                  <Link href={`/${topic.id}?stream=community-start`}>
+                    {topic.question}
+                  </Link>
+                  <span className="clist-meta">
+                    {topic.leftLabel} → {topic.rightLabel}
+                    {revealType === "real-figure" && " · guess the real figure"}
+                    {revealType === "other-side" && " · guess the other side"}
+                    {revealType === "crowd" && " · guess the crowd"}
+                  </span>
+                </li>
+              );
+            })}
+          </ul>
+        </section>
+      )}
 
       {mine.length > 0 && (
         <section className="board-group">
@@ -93,7 +124,15 @@ export default function CommunityLibrary() {
         </section>
       )}
 
-      <div className="csort" role="tablist" aria-label="Sort boards">
+      <section className="board-group">
+        <h2>Made by visitors</h2>
+        <p className="board-progress">
+          Public boards are screened, but their questions and wording belong to
+          the people who made them.
+        </p>
+      </section>
+
+      <div className="csort" role="tablist" aria-label="Sort visitor-made boards">
         {(["trending", "new"] as const).map((option) => (
           <button
             key={option}
@@ -138,9 +177,9 @@ export default function CommunityLibrary() {
       </p>
 
       <footer className="disclosure">
-        Boards here were made by visitors, not by us. They&rsquo;re screened for
-        the obvious, but a published board is somebody&rsquo;s question, not a
-        claim we&rsquo;re making.{" "}
+        The &ldquo;More from Vibe Check&rdquo; shelf is ours. Boards under &ldquo;Made by
+        visitors&rdquo; are screened for the obvious, but a published community board
+        is somebody else&rsquo;s question, not a claim we&rsquo;re making.{" "}
         <span className="disclosure-cue">Full details under the ? above.</span>
       </footer>
 

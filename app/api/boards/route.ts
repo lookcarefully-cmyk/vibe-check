@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import {
   allCommunityBoards,
+  boardReactionCounts,
   describeHigh,
   deleteCommunityBoard,
   featuredBoards,
@@ -10,6 +11,7 @@ import {
   listedBoards,
   newCreatorToken,
   reportBoard,
+  reactToBoard,
   saveCommunityBoard,
   slugify,
   type CommunityBoard,
@@ -42,10 +44,9 @@ function noStore(body: unknown, status = 200) {
 /**
  * The public library, ranked.
  *
- * "Trending" is answers in the last 7 days, not all-time totals: a board that
- * was busy in March and is dead now is not trending, and ranking by lifetime
- * count would freeze the front of the library permanently in favour of whatever
- * was posted first.
+ * "Trending" is led by answers in the last 7 days, with a capped private
+ * like/dislike nudge. Lifetime totals only break ties: a board that was busy in
+ * March and is dead now should not freeze at the front forever.
  */
 export async function GET(req: Request) {
   const params = new URL(req.url).searchParams;
@@ -60,9 +61,19 @@ export async function GET(req: Request) {
 
     const withStats = await Promise.all(
       boards.map(async (board) => {
-        const records = await store.all(board.slug);
+        const [records, reactions] = await Promise.all([
+          store.all(board.slug),
+          boardReactionCounts(board.slug),
+        ]);
         const recent = records.filter((r) => r.t >= now - 7 * DAY_MS).length;
         const agg = aggregateWindow(records, now);
+        // Reactions nudge discovery without overpowering actual use. A dislike
+        // counts more than a like, but the effect is capped so one small group
+        // cannot permanently bury or crown a new board.
+        const reactionSignal = Math.max(
+          -6,
+          Math.min(6, reactions.likes - 2 * reactions.dislikes),
+        );
         return {
           slug: board.slug,
           question: board.question,
@@ -73,6 +84,7 @@ export async function GET(req: Request) {
           people: agg.count,
           recentAnswers: recent,
           revealType: board.revealType ?? null,
+          rankSignal: recent * 3 + reactionSignal,
         };
       }),
     );
@@ -80,12 +92,16 @@ export async function GET(req: Request) {
     withStats.sort((a, b) =>
       sort === "new"
         ? b.createdAt - a.createdAt
-        : b.recentAnswers - a.recentAnswers ||
+        : b.rankSignal - a.rankSignal ||
+          b.recentAnswers - a.recentAnswers ||
           b.people - a.people ||
           b.createdAt - a.createdAt,
     );
 
-    return noStore({ boards: withStats, sort });
+    return noStore({
+      boards: withStats.map(({ rankSignal: _rankSignal, ...board }) => board),
+      sort,
+    });
   } catch (err) {
     console.error("[boards] GET failed", err);
     return noStore({ error: "Could not load boards." }, 500);
@@ -192,6 +208,25 @@ export async function PATCH(req: Request) {
 
   const board = await getCommunityBoard(slug);
   if (!board) return noStore({ error: "No such board." }, 404);
+
+  // Recommendation feedback is accepted only from a browser that actually
+  // answered this board. It stays private and never doubles as a report.
+  if (action === "react") {
+    const session = typeof body.session === "string" ? body.session : "";
+    const choice = body.choice === "like" || body.choice === "dislike"
+      ? body.choice
+      : null;
+    if (!/^[a-f0-9]{32}$/.test(session) || !choice) {
+      return noStore({ error: "Invalid reaction." }, 400);
+    }
+    const caller = callerToken(req);
+    const limit = await store.hit(`${caller}:react-board`, 50, 24 * 60 * 60);
+    if (!limit.allowed) return noStore({ error: "Too many reactions today." }, 429);
+    const answered = (await store.all(slug)).some((vote) => vote.s === session);
+    if (!answered) return noStore({ error: "Answer this board before rating it." }, 409);
+    await reactToBoard(slug, session, choice);
+    return noStore({ ok: true, choice });
+  }
 
   // Reporting needs no ownership — anyone can flag a board — but is rate limited
   // per connection so a single person can't drive one to the auto-hide threshold

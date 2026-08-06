@@ -80,6 +80,15 @@ export interface Topic {
    */
   category: string;
   /**
+   * Editorial placement for an active curated board.
+   *
+   * `main` is the launch slate: every item must earn scarce attention and the
+   * resulting responses need enough concentration to become useful data.
+   * `more` is the looser shelf beside visitor-made boards. Missing defaults to
+   * `more`, so adding a board can never silently expand the Main Set.
+   */
+  collection?: "main" | "more";
+  /**
    * Keep the board and its data, but hide it from the browse library and the
    * board-page nav. For items that belong to a formal data-collection set and
    * shouldn't be casually browsable, without deleting the board or orphaning
@@ -160,6 +169,8 @@ const OTHER_SIDE_REVEALS = new Set([
   "division-source",
   "official-numbers-trust",
   "ai-lift-or-leave-behind",
+  "relationship-privacy",
+  "prison-purpose",
 ]);
 
 const CROWD_REVEALS = new Set([
@@ -274,6 +285,7 @@ export const TOPICS: Topic[] = [
    */
   {
     id: "perceived-extremism",
+    collection: "main",
     subject: "Political opponents",
     axis: "How many seem extreme?",
     question:
@@ -284,6 +296,7 @@ export const TOPICS: Topic[] = [
     highMeans: "a larger perceived share of political opponents hold extreme views",
     scale: "amount",
     category: "Perception gaps",
+    cadence: "once",
     benchmark: {
       value: 0.3,
       display: "about 30%",
@@ -313,6 +326,7 @@ export const TOPICS: Topic[] = [
   },
   {
     id: "climate-worry-perception",
+    collection: "main",
     subject: "Climate worry",
     axis: "How many are worried?",
     question:
@@ -323,7 +337,7 @@ export const TOPICS: Topic[] = [
     highMeans: "a larger perceived share is at least somewhat worried about global warming",
     scale: "amount",
     category: "Perception gaps",
-    cadence: "month",
+    cadence: "once",
     benchmark: {
       value: 0.64,
       display: "64%",
@@ -352,6 +366,7 @@ export const TOPICS: Topic[] = [
   },
   {
     id: "violence-support-score-perception",
+    collection: "main",
     subject: "Political violence",
     axis: "How much support?",
     question:
@@ -362,6 +377,7 @@ export const TOPICS: Topic[] = [
     highMeans: "greater perceived average support for partisan violence",
     scale: "amount",
     category: "Perception gaps",
+    cadence: "once",
     benchmark: {
       value: 0.098,
       display: "about 9.8 / 100",
@@ -371,6 +387,136 @@ export const TOPICS: Topic[] = [
       fielded: "October 2020 · nationally representative survey of U.S. Democrats and Republicans",
       note:
         "The study found mean support scores of 9.3 among Democrats and 10.3 among Republicans. This is an average support score, not the percentage of people who endorse violence.",
+    },
+  },
+  {
+    id: "emergency-expense-perception",
+    collection: "main",
+    subject: "A $400 emergency",
+    axis: "How many would cover it?",
+    question:
+      "Out of 100 U.S. adults, how many say they would cover a $400 emergency expense using cash, savings, or a credit card paid off at the next statement?",
+    prompt: CORE_PROMPT,
+    leftLabel: "ALMOST NONE",
+    rightLabel: "ALMOST ALL",
+    highMeans: "a larger perceived share would cover a $400 emergency expense with cash or its equivalent",
+    scale: "amount",
+    category: "Perception gaps",
+    cadence: "once",
+    benchmark: {
+      value: 0.63,
+      display: "63%",
+      unit: "percent",
+      sourceName: "Federal Reserve, Survey of Household Economics and Decisionmaking",
+      sourceUrl:
+        "https://www.federalreserve.gov/publications/2026-economic-well-being-of-us-households-in-2025-savings-investments.htm",
+      fielded: "October 2025 · nationally representative survey of 12,934 U.S. adults",
+      note:
+        "The Federal Reserve counts cash, savings, and a credit card paid in full at the next statement as cash or its equivalent.",
+    },
+  },
+  {
+    id: "abortion-legal-perception",
+    collection: "main",
+    subject: "Legal abortion",
+    axis: "How many support it?",
+    question:
+      "Out of 100 U.S. adults, how many say abortion should be legal in all or most cases?",
+    prompt: CORE_PROMPT,
+    leftLabel: "ALMOST NONE",
+    rightLabel: "ALMOST ALL",
+    highMeans: "a larger perceived share supports legal abortion in all or most cases",
+    scale: "amount",
+    category: "Perception gaps",
+    cadence: "once",
+    benchmark: {
+      value: 0.6,
+      display: "60%",
+      unit: "percent",
+      sourceName: "Pew Research Center",
+      sourceUrl:
+        "https://www.pewresearch.org/religion/fact-sheet/public-opinion-on-abortion/",
+      fielded: "January 20–26, 2026 · nationally representative sample of 8,512 U.S. adults",
+      note:
+        "Pew combines respondents who said abortion should be legal in all cases or in most cases.",
+    },
+  },
+  {
+    id: "loneliness-perception",
+    collection: "main",
+    subject: "Persistent loneliness",
+    axis: "How many feel it?",
+    question:
+      "Out of 100 U.S. adults, how many say they feel lonely or isolated all or most of the time?",
+    prompt: CORE_PROMPT,
+    leftLabel: "ALMOST NONE",
+    rightLabel: "ALMOST ALL",
+    highMeans: "a larger perceived share feels lonely or isolated all or most of the time",
+    scale: "amount",
+    category: "Perception gaps",
+    cadence: "once",
+    benchmark: {
+      value: 0.16,
+      display: "16%",
+      unit: "percent",
+      sourceName: "Pew Research Center",
+      sourceUrl:
+        "https://www.pewresearch.org/social-trends/2025/01/16/men-women-and-social-connections/",
+      fielded: "September 3–15, 2024 · nationally representative sample of 6,204 U.S. adults",
+      note:
+        "This is the share who chose all or most of the time, not everyone who ever feels lonely.",
+    },
+  },
+  {
+    id: "social-trust-perception",
+    collection: "main",
+    subject: "Trusting other people",
+    axis: "How many generally do?",
+    question:
+      "Out of 100 U.S. adults, how many say most people can be trusted?",
+    prompt: CORE_PROMPT,
+    leftLabel: "ALMOST NONE",
+    rightLabel: "ALMOST ALL",
+    highMeans: "a larger perceived share says most people can be trusted",
+    scale: "amount",
+    category: "Perception gaps",
+    cadence: "once",
+    benchmark: {
+      value: 0.34,
+      display: "34%",
+      unit: "percent",
+      sourceName: "Pew Research Center, Religious Landscape Study",
+      sourceUrl:
+        "https://www.pewresearch.org/2025/05/08/americans-trust-in-one-another/",
+      fielded: "2023–2024 · nationally representative survey of U.S. adults",
+      note:
+        "The alternative response was that you can't be too careful in dealing with people.",
+    },
+  },
+  {
+    id: "free-expression-perception",
+    collection: "main",
+    subject: "Free expression",
+    axis: "How many defend it?",
+    question:
+      "Out of 100 U.S. adults, how many agree that everyone, regardless of their views, has the right to free, nonviolent expression?",
+    prompt: CORE_PROMPT,
+    leftLabel: "ALMOST NONE",
+    rightLabel: "ALMOST ALL",
+    highMeans: "a larger perceived share supports free, nonviolent expression regardless of viewpoint",
+    scale: "amount",
+    category: "Perception gaps",
+    cadence: "once",
+    benchmark: {
+      value: 0.8,
+      display: "80%",
+      unit: "percent",
+      sourceName: "Kettering Foundation / Gallup, Democracy for All",
+      sourceUrl:
+        "https://news.gallup.com/poll/696494/americans-show-consensus-democracy-related-matters.aspx",
+      fielded: "July 7–August 25, 2025 · probability-based survey of more than 20,000 U.S. adults",
+      note:
+        "Gallup combines 39% who strongly agreed and 41% who agreed with the statement.",
     },
   },
   {
@@ -389,6 +535,7 @@ export const TOPICS: Topic[] = [
   },
   {
     id: "immigration-status",
+    collection: "main",
     subject: "People without legal status",
     axis: "Deport or legalize?",
     question:
@@ -404,6 +551,7 @@ export const TOPICS: Topic[] = [
   },
   {
     id: "local-police",
+    collection: "main",
     subject: "Police where you live",
     axis: "Threat or protection?",
     question: "The police where you live are, on balance...",
@@ -419,6 +567,7 @@ export const TOPICS: Topic[] = [
   },
   {
     id: "gun-laws",
+    collection: "main",
     subject: "Gun laws where you live",
     axis: "Looser or stricter?",
     question: "Gun laws where you live should be...",
@@ -428,6 +577,21 @@ export const TOPICS: Topic[] = [
     leftProse: "looser",
     rightProse: "stricter",
     highMeans: "more support for stricter gun laws",
+    scale: "bipolar",
+    category: "Public life",
+    cadence: "month",
+  },
+  {
+    id: "prison-purpose",
+    collection: "main",
+    subject: "The purpose of prison",
+    axis: "Punishment or rehabilitation?",
+    question:
+      "What should prison focus on more: punishing what someone did, or preparing them to return to society?",
+    prompt: CORE_PROMPT,
+    leftLabel: "PUNISHMENT",
+    rightLabel: "REHABILITATION",
+    highMeans: "more emphasis on rehabilitation and preparing people to return to society",
     scale: "bipolar",
     category: "Public life",
     cadence: "month",
@@ -461,6 +625,7 @@ export const TOPICS: Topic[] = [
   },
   {
     id: "household-basics",
+    collection: "main",
     subject: "Covering the basics",
     axis: "Easier or harder?",
     question:
@@ -474,6 +639,7 @@ export const TOPICS: Topic[] = [
   },
   {
     id: "luck-or-effort",
+    collection: "main",
     subject: "Where you ended up",
     axis: "Luck or effort?",
     question: "Where you've ended up in life so far is mostly...",
@@ -487,6 +653,7 @@ export const TOPICS: Topic[] = [
   },
   {
     id: "home-worth",
+    collection: "main",
     subject: "Buying a home",
     axis: "Still worth it?",
     question: "Is buying a home still worth what it costs?",
@@ -499,6 +666,7 @@ export const TOPICS: Topic[] = [
   },
   {
     id: "job-identity",
+    collection: "main",
     subject: "Your job",
     axis: "Paycheck or identity?",
     question: "Your job: is it just a paycheck, or part of who you are?",
@@ -514,6 +682,7 @@ export const TOPICS: Topic[] = [
   },
   {
     id: "generational-finances",
+    collection: "main",
     subject: "Your generation's finances",
     axis: "Worse or better off?",
     question: "Compared with your parents at your age, how well off are you?",
@@ -527,6 +696,7 @@ export const TOPICS: Topic[] = [
   },
   {
     id: "burnout",
+    collection: "main",
     subject: "Work or school",
     axis: "How close to burnout?",
     question: "Right now, how close are you to burning out at work or school?",
@@ -541,6 +711,7 @@ export const TOPICS: Topic[] = [
   },
   {
     id: "known-by-others",
+    collection: "main",
     subject: "Being known",
     axis: "How well known?",
     question: "How well do the people in your life actually know you?",
@@ -555,6 +726,7 @@ export const TOPICS: Topic[] = [
   },
   {
     id: "social-life-comparison",
+    collection: "main",
     subject: "Your social life",
     axis: "Emptier or fuller?",
     question: "Compared with other people your age, your social life is...",
@@ -570,6 +742,7 @@ export const TOPICS: Topic[] = [
   },
   {
     id: "medical-bill",
+    collection: "main",
     subject: "An unexpected medical bill",
     axis: "How disruptive?",
     question: "If an unexpected $500 medical bill landed tomorrow, how much would it wreck you?",
@@ -577,6 +750,20 @@ export const TOPICS: Topic[] = [
     leftLabel: "NOT AT ALL",
     rightLabel: "COMPLETELY",
     highMeans: "more financially disrupted by an unexpected medical bill",
+    scale: "amount",
+    category: "Health & connection",
+    cadence: "month",
+  },
+  {
+    id: "relationship-privacy",
+    collection: "main",
+    subject: "Privacy in relationships",
+    axis: "How much should remain?",
+    question: "In a committed relationship, how much privacy should each person keep?",
+    prompt: CORE_PROMPT,
+    leftLabel: "ALMOST NONE",
+    rightLabel: "A GREAT DEAL",
+    highMeans: "more personal privacy should remain within a committed relationship",
     scale: "amount",
     category: "Health & connection",
     cadence: "month",
@@ -596,6 +783,7 @@ export const TOPICS: Topic[] = [
   },
   {
     id: "wallet-return",
+    collection: "main",
     subject: "Trusting strangers",
     axis: "Would they return it?",
     question:
@@ -610,6 +798,7 @@ export const TOPICS: Topic[] = [
   },
   {
     id: "beyond-physical",
+    collection: "main",
     subject: "Beyond the physical world",
     axis: "How likely?",
     question: "How likely is it that something exists beyond the physical world?",
@@ -639,6 +828,7 @@ export const TOPICS: Topic[] = [
   },
   {
     id: "care-for-parents",
+    collection: "main",
     subject: "Aging parents",
     axis: "Adult children's duty?",
     question:
@@ -653,6 +843,7 @@ export const TOPICS: Topic[] = [
   },
   {
     id: "rootedness",
+    collection: "main",
     subject: "Where you live",
     axis: "How rooted?",
     question: "How rooted do you feel in the place you live?",
@@ -673,6 +864,7 @@ export const TOPICS: Topic[] = [
      * coordinates, or anything that materially narrows who the person is.
      */
     id: "rural-urban",
+    collection: "main",
     subject: "Where you live",
     axis: "Rural or urban?",
     question: "How rural or urban is the place where you live?",
@@ -688,6 +880,7 @@ export const TOPICS: Topic[] = [
   },
   {
     id: "online-self-censorship",
+    collection: "main",
     subject: "Speaking online",
     axis: "How much do you say?",
     question: "How much of what you actually think do you say out loud online?",
@@ -700,6 +893,7 @@ export const TOPICS: Topic[] = [
   },
   {
     id: "division-source",
+    collection: "main",
     subject: "The country's divisions",
     axis: "Real or manufactured?",
     question:
@@ -713,6 +907,7 @@ export const TOPICS: Topic[] = [
   },
   {
     id: "life-without-short-video",
+    collection: "main",
     subject: "Life without short-video apps",
     axis: "Worse or better?",
     question:
@@ -727,6 +922,7 @@ export const TOPICS: Topic[] = [
   },
   {
     id: "official-numbers-trust",
+    collection: "main",
     subject: "Official statistics",
     axis: "Trust or doubt?",
     question:
@@ -755,6 +951,7 @@ export const TOPICS: Topic[] = [
   },
   {
     id: "ai-lift-or-leave-behind",
+    collection: "main",
     subject: "AI in your life",
     axis: "Lift you up or leave you behind?",
     question: "Will AI leave you behind, or lift you up?",

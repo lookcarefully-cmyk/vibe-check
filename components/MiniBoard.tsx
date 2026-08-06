@@ -66,7 +66,7 @@ export default function MiniBoard({
 
   return (
     <Link
-      href={`/${topic.id}?stream=start`}
+      href={`/${topic.id}?stream=main-start`}
       className={`mini ${active ? "is-active" : ""}`}
       aria-current={active ? "page" : undefined}
     >

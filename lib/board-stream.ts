@@ -82,9 +82,9 @@ function writeStored(streamId: string, order: string[]): void {
  * Return the next randomized research board for this browsing session.
  *
  * `continueStream` is true only for links produced by the stream navigator.
- * Choosing a board from Home or All boards therefore starts a fresh path with
- * that board first and the demographic board next. Reloading a continuation
- * URL keeps the already-created order.
+ * Choosing a board from Home, Browse, or Explore therefore starts a fresh path
+ * with that board first and the demographic board next. Reloading a
+ * continuation URL keeps the already-created order.
  */
 export function boardStreamStep(
   currentId: string,

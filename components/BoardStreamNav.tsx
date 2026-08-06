@@ -8,9 +8,10 @@ import {
   useRef,
   useState,
 } from "react";
-import { EXTRA_TOPICS } from "@/lib/experiment";
+import { EXTRA_TOPICS, MORE_TOPICS } from "@/lib/experiment";
 import { boardStreamStep, type BoardStreamStep } from "@/lib/board-stream";
 import { canAnswerNow } from "@/lib/mine";
+import { readBoardReaction } from "@/lib/reaction";
 import type { Topic } from "@/lib/topics";
 
 interface BoardStreamNavProps {
@@ -20,6 +21,8 @@ interface BoardStreamNavProps {
 }
 
 type StreamKind = "main" | "community";
+
+const CURATED_TOPICS = [...EXTRA_TOPICS, ...MORE_TOPICS];
 
 interface CommunityStreamBoard {
   slug: string;
@@ -87,7 +90,9 @@ export default function BoardStreamNav({
           const response = await fetch("/api/boards?sort=new", { cache: "no-store" });
           const data = response.ok ? await response.json() : { boards: [] };
           const listed = Array.isArray(data.boards)
-            ? (data.boards as CommunityStreamBoard[]).map(topicForCommunity)
+            ? (data.boards as CommunityStreamBoard[])
+              .filter((board) => readBoardReaction(board.slug) !== "dislike")
+              .map(topicForCommunity)
             : [];
           const demographic = EXTRA_TOPICS.find((candidate) => candidate.id === "rural-urban");
           topics = [
@@ -95,6 +100,9 @@ export default function BoardStreamNav({
             ...(demographic && demographic.id !== topic.id && canAnswerNow(demographic, now)
               ? [demographic]
               : []),
+            ...MORE_TOPICS.filter(
+              (candidate) => candidate.id !== topic.id && canAnswerNow(candidate, now),
+            ),
             ...listed.filter(
               (candidate) => candidate.id !== topic.id && canAnswerNow(candidate, now),
             ),
@@ -111,7 +119,7 @@ export default function BoardStreamNav({
       movingRef.current = false;
       setMoving(false);
       if (nextStep?.next) {
-        const curated = EXTRA_TOPICS.some((candidate) => candidate.id === nextStep.next!.id);
+        const curated = CURATED_TOPICS.some((candidate) => candidate.id === nextStep.next!.id);
         const base = curated ? `/${nextStep.next.id}` : `/b/${nextStep.next.id}`;
         router.prefetch(`${base}?stream=${kind}-continue`);
       }
@@ -126,7 +134,7 @@ export default function BoardStreamNav({
     if (!step?.next || movingRef.current) return;
     movingRef.current = true;
     setMoving(true);
-    const curated = EXTRA_TOPICS.some((candidate) => candidate.id === step.next!.id);
+    const curated = CURATED_TOPICS.some((candidate) => candidate.id === step.next!.id);
     const base = curated ? `/${step.next.id}` : `/b/${step.next.id}`;
     router.push(`${base}?stream=${streamKind}-continue`);
   }, [router, step, streamKind]);

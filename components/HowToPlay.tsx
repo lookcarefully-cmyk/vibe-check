@@ -9,7 +9,7 @@ export default function HowToPlay() {
   const steps = [
     "Tap the dial where you land on the question.",
     "Lock your answer in.",
-    "The dial opens up and shows where everyone else landed.",
+    "See where everyone else landed.",
   ];
 
   return (

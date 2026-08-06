@@ -24,8 +24,8 @@ export default function ExploreHub() {
           <p className="explore-kicker">Research-led</p>
           <h2>Main set</h2>
           <p>
-            {EXTRA_TOPICS.length} questions chosen and worded as one collection. Start
-            anywhere, then swipe or click through as many as you want.
+            Our focused set of research-led questions. Start anywhere, then swipe or
+            click through as many as you want.
           </p>
           <div className="explore-actions">
             <StartMainSet label="Start scrolling" />

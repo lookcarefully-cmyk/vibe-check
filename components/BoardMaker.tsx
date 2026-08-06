@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 import Dial from "./Dial";
 import Colophon from "./Colophon";
+import SharePrompt from "./SharePrompt";
 import { BIN_COUNT, type WindowedAggregate } from "@/lib/aggregate";
 import { bandFor } from "@/lib/likert";
 import { guessScale } from "@/lib/board-shape";
@@ -131,17 +132,12 @@ export default function BoardMaker() {
         <div className="made">
           <input className="made-url" readOnly value={url} onFocus={(e) => e.target.select()} />
           <div className="made-actions">
-            <button
-              type="button"
-              className="lock-in"
-              onClick={() => void navigator.clipboard?.writeText(url)}
-            >
-              Copy link
-            </button>
             <Link href={`/b/${created.slug}`} className="reset">
               Open it
             </Link>
           </div>
+
+          <SharePrompt question={question.trim()} path={`/b/${created.slug}`} />
 
           {created.notice && <p className="made-notice">{created.notice}</p>}
 
@@ -169,7 +165,7 @@ export default function BoardMaker() {
         </div>
         <h1>Make a board</h1>
         <p className="lede">
-          Write a question with two ends to it. You get a private link straight
+          Write a question with two ends to it. You get an unlisted link straight
           away; putting it in the public library is up to you.
         </p>
       </header>
@@ -305,7 +301,7 @@ export default function BoardMaker() {
           />
         </div>
         <p className="maker-hint is-quiet">
-          Drag it — this is exactly what people will see. Nothing is recorded.
+          Tap or drag it — this is exactly what people will see. Nothing is recorded.
         </p>
       </section>
 
@@ -347,7 +343,7 @@ function PublishToggle({ slug, token }: { slug: string; token: string }) {
           : "Only people with the link can see this board."}
       </p>
       <button type="button" className="reset" onClick={() => void toggle()} disabled={busy}>
-        {busy ? "Saving…" : listed ? "Make it private again" : "Add it to the public library"}
+        {busy ? "Saving…" : listed ? "Make it unlisted again" : "Add it to the public library"}
       </button>
       {error && <p className="error">{error}</p>}
     </div>

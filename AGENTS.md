@@ -145,6 +145,12 @@ Each of these was arrived at by making the opposite mistake first.
    the crowd (the faint aim line and the outline on your band). It is not the
    colour of the choosing needle.
 
+   **Sharing is a blind invitation.** `SharePrompt` and the Open Graph card send
+   only the question, its poles and the canonical board link. Never include the
+   visitor's answer, the crowd result, or even the participation count in share
+   text or artwork. A recipient must arrive at the same uncontaminated blank dial
+   as someone who found the board directly.
+
 2. **Everything drawn on the dial is a position on the spectrum, never a
    percentage of people.** An early version put "80%" (share of respondents)
    next to "66%" (position on the scale) and they read as comparable numbers.

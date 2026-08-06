@@ -280,9 +280,10 @@ export default function InfoDialog() {
             </p>
             <p className="info-note">
               Some of these questions are personal. Your answers are grouped together by a
-              random ID so they can be compared with each other — but nothing that could
-              identify you is stored alongside them, and no name, email, account or IP
-              address is ever attached. A set of numbers and a random string is not a person.
+              random ID so they can be compared with each other, but no name, email, account,
+              precise location or IP address is attached to an answer. Because a linked
+              answer history is still sensitive, individual records are kept private and
+              only aggregate results are published.
             </p>
           </section>
 

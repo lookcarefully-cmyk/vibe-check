@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { EXTRA_TOPICS } from "@/lib/experiment";
 import { canAnswerNow } from "@/lib/mine";
 
-export default function StartMainSet({ label = "Start the main set" }: { label?: string }) {
+export default function StartMainSet({ label = "Start with a question" }: { label?: string }) {
   const router = useRouter();
 
   const start = () => {

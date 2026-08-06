@@ -8,6 +8,7 @@ import InfoDialog from "./InfoDialog";
 import BoardStreamNav from "./BoardStreamNav";
 import BoardReaction from "./BoardReaction";
 import Colophon from "./Colophon";
+import SharePrompt from "./SharePrompt";
 import Sparkline from "./Sparkline";
 import { eventsFor } from "@/lib/events";
 import {
@@ -550,7 +551,7 @@ export default function VibeCheck({
         {/* A div, not a p: it contains a <dialog>, which isn't phrasing content. */}
         <div className="kicker">
           <span className="kicker-text">
-            {community ? "Vibe Check · a board someone made" : "Vibe Check · public data collection"}
+            {community ? "Vibe Check · a board someone made" : "Vibe Check · public opinion, made visible"}
           </span>
           <InfoDialog />
         </div>
@@ -1016,6 +1017,11 @@ export default function VibeCheck({
             </div>
           </dl>
 
+          <SharePrompt
+            question={topic.question}
+            path={community ? `/b/${topic.id}` : `/${topic.id}`}
+          />
+
           {agg.count < 5 && (
             <p className="thin-data">
               Only {agg.count} {agg.count === 1 ? "response" : "responses"} so far — the
@@ -1158,9 +1164,9 @@ export default function VibeCheck({
           </>
         ) : (
           <>
-            Anonymous: your answer, any prediction, the time, and a random ID that groups
-            your marks together. No name, email, account or IP. Results are public, so
-            anyone can see how the crowd answered.{" "}
+            Private by design: your answer, any prediction, the time, and a random browser
+            ID that groups your marks together. No name, email, account, or precise
+            location; your IP is never attached to an answer. Aggregate results are public.{" "}
           </>
         )}
         <span className="disclosure-cue">Full details under the ? above.</span>

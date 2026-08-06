@@ -48,7 +48,7 @@ export default function BoardIndex() {
     <main className="shell">
       <header className="masthead">
         <div className="kicker">
-          <span className="kicker-text">Vibe Check · public data collection</span>
+          <span className="kicker-text">Vibe Check · public opinion, made visible</span>
           <InfoDialog />
         </div>
         <h1>Main set</h1>
@@ -116,8 +116,9 @@ export default function BoardIndex() {
       )}
 
       <footer className="disclosure">
-        Anonymous: your answer, any prediction, the time, and a random ID that groups your
-        marks together. No name, email, account or IP. Results are public, so anyone can see how the crowd answered.{" "}
+        Private by design: your answer, any prediction, the time, and a random browser ID
+        that groups your marks together. No name, email, account, or precise location;
+        your IP is never attached to an answer. Aggregate results are public.{" "}
         <span className="disclosure-cue">Full details under the ? above.</span>
       </footer>
 

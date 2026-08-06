@@ -635,14 +635,6 @@ body::after {
   justify-content: center;
 }
 
-.board-stream-meta,
-.board-stream-finished small {
-  font-size: 0.6rem;
-  font-weight: 650;
-  letter-spacing: 0.03em;
-  opacity: 0.68;
-}
-
 .board-stream-finished {
   min-width: 11.5rem;
   padding: 0.55rem 1.1rem;
@@ -654,6 +646,10 @@ body::after {
 
 .board-stream-gesture {
   display: none;
+  font-size: 0.6rem;
+  font-weight: 650;
+  letter-spacing: 0.03em;
+  opacity: 0.68;
 }
 
 /* ------------------------------------------------------- how to play */

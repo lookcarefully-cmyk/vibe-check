@@ -152,7 +152,6 @@ export default function BoardStreamNav({
       {step.complete ? (
         <div className="board-stream-finished" role="status">
           <span>That&rsquo;s every board</span>
-          <small>{step.position} of {step.total} seen</small>
         </div>
       ) : (
         <button
@@ -164,9 +163,8 @@ export default function BoardStreamNav({
         >
           <span className="board-stream-action">
             <span>{moving ? "Loading…" : answered ? "Next question" : "Skip"}</span>
-            <small className="board-stream-meta">
-              {step.position} of {step.total}
-              <span className="board-stream-gesture"> · swipe left, or up here</span>
+            <small className="board-stream-gesture">
+              Swipe left, or up here
             </small>
           </span>
           <span className="board-stream-arrow" aria-hidden="true">→</span>

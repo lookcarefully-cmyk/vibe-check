@@ -419,9 +419,10 @@ export default function Dial({
             ))}
         </g>
 
-        {/* The viewer's own answer beside the crowd's, in the reveal only. The
-            choosing phase uses the full teal needle below, but only after the
-            viewer has placed it. */}
+        {/* The viewer's own answer beside the crowd's, in the reveal only —
+            teal means "you" here, where both are on the face at once. The
+            choosing phase has no crowd to distinguish yourself from, so it uses
+            the red needle below, drawn only once the viewer has placed it. */}
         {showOwn && isResult && (
           <line
             className="aim"
@@ -441,8 +442,9 @@ export default function Dial({
       {/*
         The ray fan is a smoothed estimate; this is the discrete truth, banded
         into the same ten zones the result is worded in. The viewer's own band is
-        called out in teal — the same colour their aim line uses everywhere else,
-        so "teal means you" stays consistent.
+        called out in teal — the same colour as their aim line just above, so
+        within the reveal "teal means you" stays consistent. (The choosing
+        needle is red; teal is a reveal-only convention.)
       */}
       {isResult && agg.count > 0 && (
         <g className="bands">

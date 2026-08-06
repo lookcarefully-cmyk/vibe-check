@@ -88,10 +88,17 @@ Each of these was arrived at by making the opposite mistake first.
    below 10 people; an exact-midpoint opinion has no opposite half and falls
    back, explicitly, to a whole-crowd prediction.
 
-   The choosing dial starts with **no needle or hub anywhere**. The first tap
-   places the visitor's teal needle; subsequent taps or a drag adjust it, and a
-   separate button commits it. Never pre-place a midpoint needle. The red needle
-   belongs to the result phase and represents the crowd, not the visitor.
+   The choosing dial starts with **no needle, no hub, no dot anywhere**. The
+   first click or tap places the classic **red** needle (and its hub) at that
+   spot; subsequent taps or a drag re-aim it, and a separate button commits it.
+   Never pre-place a midpoint needle, a slider handle, or a baseline dot — a
+   restored dot in `902dc02` was removed again in `14c32e8` and must stay gone.
+
+   The same red needle is reused in the result phase, where it swings to the
+   crowd mean: one needle, two meanings — your answer becomes the crowd's. Teal
+   is still "you", but only in the reveal, where it marks your own answer among
+   the crowd (the faint aim line and the outline on your band). It is not the
+   colour of the choosing needle.
 
 2. **Everything drawn on the dial is a position on the spectrum, never a
    percentage of people.** An early version put "80%" (share of respondents)
@@ -166,7 +173,7 @@ Each of these was arrived at by making the opposite mistake first.
    improved; the cut points must not move once real data exists, because they
    can always be nudged so the number lands in a more quotable band.
 
-11. **Three wording families, one shared geometry.** All use the same ten
+11. **Several wording families, one shared geometry.** All use the same ten
    10-point bands, so a percentage sits the same distance from neutral on every
    board and results stay comparable. What differs is grammar, because the
    questions differ in kind:
@@ -178,6 +185,8 @@ Each of these was arrived at by making the opposite mistake first.
    | `amount` | how much there should be | "a good deal" |
    | `proximity` | how close something is to happening | "a long way off" |
    | `pace` | how much faster or slower | "much slower" |
+   | `permission` | whether something should be allowed, and how widely | "in a narrow set of cases" |
+   | `probability` | how likely something is | "somewhat likely" |
 
    Only `bipolar` interpolates the board's pole names. The others have fixed
    wording because their questions aren't about resembling one of two things.

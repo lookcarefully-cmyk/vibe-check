@@ -61,15 +61,14 @@ export const isExperimentTopic = (topicId: string): boolean =>
  * parked that's most of them; with it running, its items are withheld so they
  * can't be taken out of order or previewed.
  *
- * Boards flagged `hiddenFromLibrary` are excluded either way: they stay in
- * TOPICS (and keep their votes) but don't appear in the browsable set. That's
- * how a formal data-collection item is kept off the casual browse page without
- * being deleted. See lib/topics.ts.
+ * Boards flagged `hiddenFromLibrary` or `retiredFromSite` are excluded either
+ * way: they stay in TOPICS (and keep their votes) but don't appear in the
+ * browsable set or randomized stream. See lib/topics.ts.
  */
 export const EXTRA_TOPICS: Topic[] = (EXPERIMENT_ENABLED
   ? TOPICS.filter((t) => !isExperimentTopic(t.id))
   : TOPICS
-).filter((t) => !t.hiddenFromLibrary);
+).filter((t) => !t.hiddenFromLibrary && !t.retiredFromSite);
 
 /**
  * The browse page grouped by what each board is about.

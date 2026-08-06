@@ -62,6 +62,11 @@ Adding a board is one object in `lib/topics.ts`. It needs `category` (free text,
 creates a new browse section if unused) and `scale` (which wording family
 translates its percentage into words).
 
+Removing a board from the public site means setting `retiredFromSite: true`,
+never deleting its object. `EXTRA_TOPICS` filters retired boards out of both the
+Main Set library and randomized streams, while the registry keeps their wording
+and poles attached to historical votes and research exports.
+
 ## The experiment, while parked
 
 Everyone rates how addictive shortform social media is. What's randomised is

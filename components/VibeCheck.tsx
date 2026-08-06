@@ -1,11 +1,11 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import Dial, { type Phase } from "./Dial";
 import InfoDialog from "./InfoDialog";
-import TopicNav from "./TopicNav";
+import BoardStreamNav from "./BoardStreamNav";
 import Colophon from "./Colophon";
 import Sparkline from "./Sparkline";
 import { eventsFor } from "@/lib/events";
@@ -20,7 +20,6 @@ import { bandCounts, bandFor, bandIndex, reading } from "@/lib/likert";
 import { getSessionId } from "@/lib/session";
 import {
   EXPERIMENT_ENABLED,
-  EXTRA_TOPICS,
   isExperimentTopic,
   positionInArm,
 } from "@/lib/experiment";
@@ -102,7 +101,6 @@ export default function VibeCheck({
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [flash, setFlash] = useState(false);
-  const [navKey, setNavKey] = useState(0);
   const [activeBand, setActiveBand] = useState<number | null>(null);
   // Whether a fetch has come back yet. Without this, the empty starting
   // aggregate is indistinguishable from a failed load, and the "couldn't load"
@@ -384,7 +382,6 @@ export default function VibeCheck({
         } else {
           setPhase("result");
         }
-        setNavKey((k) => k + 1);
       } catch (err) {
         setError(err instanceof Error ? err.message : "Could not record your vote.");
       } finally {
@@ -464,28 +461,6 @@ export default function VibeCheck({
     setPredictionTouched(false);
     setPredictionResult(null);
   };
-
-  /**
-   * A short shelf of other boards, shown *below* this one.
-   *
-   * The full grid used to sit above the dial, which meant clicking a board
-   * landed you on a wall of tiles with the actual question below the fold. Only
-   * a handful are shown here; the rest are one link away.
-   *
-   * Picked as the boards following this one in declaration order (wrapping), so
-   * it's deterministic — a random pick would differ between the server and the
-   * client and blow up hydration.
-   */
-  const moreTopics = useMemo(() => {
-    const pool = EXTRA_TOPICS;
-    const start = Math.max(0, pool.findIndex((t) => t.id === topic.id)) + 1;
-    const out: Topic[] = [];
-    for (let k = 0; k < pool.length && out.length < 4; k += 1) {
-      const candidate = pool[(start + k) % pool.length];
-      if (candidate.id !== topic.id) out.push(candidate);
-    }
-    return out;
-  }, [topic.id]);
 
   const isResult = phase === "result";
   // During the run the eight-tile nav is hidden: it's an escape hatch out of
@@ -1109,21 +1084,14 @@ export default function VibeCheck({
         </>
       )}
 
-      {/* Where to go next. Hidden during the run, which must not offer exits. */}
-      {!midRun && moreTopics.length > 0 && (
-        <section className="board-group more-boards">
-          <h2>More questions</h2>
-          <TopicNav activeId={topic.id} refreshKey={navKey} topics={moreTopics} />
-          <p className="board-index-run">
-            <Link href="/boards">Browse all {EXTRA_TOPICS.length} questions &rarr;</Link>
-            {community && (
-              <>
-                {" · "}
-                <Link href="/b">Boards people made &rarr;</Link>
-              </>
-            )}
-          </p>
-        </section>
+      {/* One clear continuation replaces the old four-choice shelf. The order
+          lives in sessionStorage and no next-board result is previewed here. */}
+      {!midRun && <BoardStreamNav currentId={topic.id} answered={isResult} />}
+
+      {community && (
+        <p className="board-index-run">
+          <Link href="/b">Boards people made &rarr;</Link>
+        </p>
       )}
 
       {/* Reporting, community boards only. Made by a visitor, not by us. */}

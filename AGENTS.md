@@ -28,6 +28,13 @@ make community boards; those are unlisted by default, moderated through
 `/admin`, auto-hidden at four reports, and only reach the home page after owner
 approval. Do not bypass those reach gates.
 
+Opening any board starts a session-scoped randomized board stream. The chosen
+board stays first, `rural-urban` is next (unless it was the chosen board), and
+the remaining research boards are shuffled. The floating navigator is the one
+clear continuation: tap/click Next, or swipe up/left on it on a phone. “All
+boards” is always beside it. Do not bring back the four-tile “More questions”
+shelf; it recreated the choice overload this stream exists to remove.
+
 The 30-board research slate now has three reveal instruments. Type 1 boards are
 standalone guesses scored against published benchmarks. Type 2/3 boards bank the
 visitor's own opinion, then collect a separate prediction of the opposite half

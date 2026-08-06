@@ -549,15 +549,86 @@ body::after {
   color: rgba(242, 235, 218, 0.5);
 }
 
-/* the "more questions" shelf at the foot of a board page */
-.more-boards {
-  margin-top: clamp(2rem, 5vw, 3rem);
-  padding-top: clamp(1.25rem, 3vw, 1.75rem);
-  border-top: 1px solid rgba(255, 255, 255, 0.09);
+/* ------------------------------------------------ randomized board stream */
+
+/*
+ * One persistent decision after a board: continue, or open the full library.
+ * It stays intentionally number-free so it cannot preview another board's
+ * result before the visitor has answered it.
+ */
+.board-stream {
+  position: fixed;
+  z-index: 30;
+  right: max(1rem, env(safe-area-inset-right));
+  bottom: max(1rem, env(safe-area-inset-bottom));
+  display: flex;
+  align-items: stretch;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 999px;
+  background: rgba(8, 18, 58, 0.94);
+  box-shadow: 0 12px 36px rgba(2, 8, 32, 0.42);
+  backdrop-filter: blur(14px);
 }
 
-.more-boards .board-index-run {
-  margin-top: 1rem;
+.board-stream-all,
+.board-stream-next {
+  min-height: 3.25rem;
+  font: inherit;
+  font-weight: 700;
+}
+
+.board-stream-all {
+  display: grid;
+  place-items: center;
+  padding: 0.7rem 1rem;
+  color: rgba(242, 235, 218, 0.72);
+  text-decoration: none;
+  font-size: 0.78rem;
+}
+
+.board-stream-next {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  min-width: 10.5rem;
+  padding: 0.7rem 1.1rem;
+  border: 0;
+  border-left: 1px solid rgba(255, 255, 255, 0.14);
+  background: var(--teal);
+  color: var(--navy);
+  cursor: pointer;
+  touch-action: pan-y;
+}
+
+.board-stream.is-answered .board-stream-next {
+  background: var(--mustard);
+}
+
+.board-stream-next:disabled {
+  cursor: wait;
+  opacity: 0.72;
+}
+
+.board-stream-next:hover:not(:disabled) .board-stream-arrow {
+  transform: translateX(3px);
+}
+
+.board-stream-all:focus-visible,
+.board-stream-next:focus-visible {
+  outline: 3px solid var(--cream);
+  outline-offset: -4px;
+}
+
+.board-stream-arrow {
+  font-size: 1.25rem;
+  line-height: 1;
+  transition: transform 160ms var(--ease-out);
+}
+
+.board-stream-gesture {
+  display: none;
 }
 
 /* ------------------------------------------------------- how to play */
@@ -1774,6 +1845,43 @@ body::after {
 /* ----------------------------------------------------------- responsive */
 
 @media (max-width: 640px) {
+  .shell {
+    padding-bottom: calc(7.25rem + env(safe-area-inset-bottom));
+  }
+  .board-stream {
+    right: max(0.65rem, env(safe-area-inset-right));
+    bottom: max(0.65rem, env(safe-area-inset-bottom));
+    /* Leave the lower-left corner clear. In local development Next.js puts its
+       inspector button there; the extra space also keeps the secondary link
+       visually separate from the primary swipe target on narrow phones. */
+    left: max(4rem, env(safe-area-inset-left));
+    border-radius: 18px;
+  }
+  .board-stream-all {
+    flex: 0 0 auto;
+    padding-inline: 0.85rem;
+  }
+  .board-stream-next {
+    flex: 1 1 auto;
+    justify-content: center;
+    min-width: 0;
+    padding: 0.55rem 0.8rem;
+  }
+  .board-stream-action {
+    display: flex;
+    flex-direction: column;
+  }
+  .board-stream-gesture {
+    display: block;
+    position: absolute;
+    bottom: 0.18rem;
+    left: 0;
+    right: 0;
+    font-size: 0.58rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    opacity: 0.66;
+  }
   .benchmark-heading {
     display: block;
   }

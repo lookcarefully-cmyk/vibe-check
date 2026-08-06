@@ -69,7 +69,7 @@ interface DialProps {
    * spectrum until you put it there. A pre-positioned handle at 50% anchors
    * everyone to the midpoint and invites a lazy flick to the nearest end — the
    * exact failure mode the survey-methods literature pins on slider widgets. So
-   * before the first tap there is no dot, no handle, no fill; `placed` gates it.
+   * before the first tap there is no needle, no hub, no fill; `placed` gates it.
    */
   placed?: boolean;
 }
@@ -176,7 +176,7 @@ export default function Dial({
    * Never let a bad value reach the geometry. A NaN pick propagates into every
    * coordinate derived from it, and an SVG carrying NaN attributes collapses to
    * a 0x0 box — the whole dial vanishes, which is a far worse failure than a
-   * misplaced handle.
+   * misplaced needle.
    */
   const safePick = Number.isFinite(pick) ? Math.min(1, Math.max(0, pick)) : 0.5;
 
@@ -220,7 +220,7 @@ export default function Dial({
     if (!svg) return pick;
     const box = svg.getBoundingClientRect();
     // A zero-width box (not laid out yet, or hidden) would divide to NaN, and a
-    // NaN pick propagates straight into the handle position and the vote body.
+    // NaN pick propagates straight into the needle position and the vote body.
     if (!box.width) return pick;
     const userX = ((e.clientX - box.left) / box.width) * VIEW.w;
     const value = (userX - (CX - R_FACE)) / (2 * R_FACE);
@@ -233,7 +233,6 @@ export default function Dial({
     return Math.abs(clamped - 0.5) <= CENTER_DETENT ? 0.5 : clamped;
   }
 
-  const handleX = CX - R_FACE + safePick * 2 * R_FACE;
   const [aimX, aimY] = polar(safePick, R_FACE - 10);
 
   /*
@@ -271,12 +270,12 @@ export default function Dial({
     // A mouse used to aim on plain hover, but that is incompatible with a
     // separate confirm button: to reach the button the cursor has to leave the
     // dial, and the last spot it hovered on the way out became the answer. So
-    // the handle appeared to jump the instant you went to lock it in. Press,
-    // drag, release; the handle then stays exactly where you left it.
+    // the needle appeared to jump the instant you went to lock it in. Press,
+    // drag, release; the needle then stays exactly where you left it.
     if (dragging.current) onPick(valueFromEvent(e));
   };
 
-  // Releasing settles the handle; it does not vote. The confirm button does.
+  // Releasing settles the needle; it does not vote. The confirm button does.
   const endDrag = (e: React.PointerEvent<SVGSVGElement>) => {
     dragging.current = false;
     try {
@@ -305,7 +304,7 @@ export default function Dial({
       aria-valuemax={interactive ? 100 : undefined}
       aria-valuenow={interactive && placed ? Math.round(pick * 100) : undefined}
       aria-valuetext={
-        // Screen-reader users get a number for their own handle position —
+        // Screen-reader users get a number for their own needle position —
         // there is no other way to convey it. It is their own pick, never the
         // crowd's average, so it carries no anchor. Before they interact there
         // is no value: exposing the internal 0.5 placeholder would silently
@@ -420,9 +419,9 @@ export default function Dial({
             ))}
         </g>
 
-        {/* The viewer's own answer beside the crowd's, in the reveal only. In
-            the choosing phase there is no radial aim line — the answer is a dot
-            on the spectrum line below, placed only where the viewer taps. */}
+        {/* The viewer's own answer beside the crowd's, in the reveal only. The
+            choosing phase uses the full teal needle below, but only after the
+            viewer has placed it. */}
         {showOwn && isResult && (
           <line
             className="aim"
@@ -592,8 +591,8 @@ export default function Dial({
       {/*
         No number is drawn while choosing, deliberately. Showing a running
         percentage turns a felt judgement into a number-picking task and anchors
-        people to the 50% the dial starts at. Position is conveyed by the aim
-        line and the handle; the arithmetic only appears once an answer is in.
+        people to the 50% the dial starts at. Position is conveyed by the needle;
+        the arithmetic only appears once an answer is in.
       */}
 
       {/* ----------------------------------------------- notches + ends */}
@@ -617,36 +616,35 @@ export default function Dial({
         {topic.rightLabel}
       </text>
 
-      {/* --------------------------------------- the VAS: a line and a dot */}
+      {/* ------------------------------------------ chosen-answer needle */}
       {/*
-        A visual-analogue scale, not a slider. In the choosing phase the spectrum
-        is a bare line between the two poles with NOTHING on it until the viewer
-        taps — no handle waiting at 50%, no fill. The mark they place is a single
-        dot at the tapped position, on the same horizontal axis the pointer maps
-        to (see valueFromEvent), so it sits under their finger.
+        Nothing is drawn here until the first deliberate tap: no midpoint
+        handle and no default direction. Once placed, the viewer's own needle
+        makes this behave like the dial it looks like. It remains adjustable;
+        the separate button is still the only thing that commits the answer.
       */}
-      {showOwn && !isResult && (
-        <g className="vas">
-          <line
-            className="vas-line"
-            x1={CX - R_FACE}
-            y1={CY}
-            x2={CX + R_FACE}
-            y2={CY}
-            strokeLinecap="round"
-          />
-          {placed && (
-            <g className="vas-dot" style={{ transform: `translateX(${handleX - CX}px)` }}>
-              <circle cx={CX} cy={CY} r="20" />
-            </g>
-          )}
+      {showOwn && !isResult && placed && (
+        <g className="choice-indicator">
+          <g
+            className="choice-needle"
+            style={{ transform: `rotate(${rotationOf(safePick)}deg)` }}
+          >
+            <line
+              x1={CX}
+              y1={CY}
+              x2={CX}
+              y2={CY - (bandIn - 10)}
+              strokeLinecap="round"
+            />
+          </g>
+          <circle className="choice-hub" cx={CX} cy={CY} r={R_HUB} />
+          <circle className="choice-hub-ring" cx={CX} cy={CY} r={R_HUB - 12} />
         </g>
       )}
 
       {/* ---------------------------------------------- needle + red hub */}
-      {/* Result phase only: the needle points at the crowd mean, and the hub is
-          its pivot. In the choosing phase there is no needle and no hub — the
-          only thing on the dial is the viewer's own dot. */}
+      {/* Result phase: the red needle replaces the teal choice needle and points
+          at the crowd mean. */}
       {isResult && agg.count > 0 && (
         <>
           <g

@@ -88,6 +88,11 @@ Each of these was arrived at by making the opposite mistake first.
    below 10 people; an exact-midpoint opinion has no opposite half and falls
    back, explicitly, to a whole-crowd prediction.
 
+   The choosing dial starts with **no needle or hub anywhere**. The first tap
+   places the visitor's teal needle; subsequent taps or a drag adjust it, and a
+   separate button commits it. Never pre-place a midpoint needle. The red needle
+   belongs to the result phase and represents the crowd, not the visitor.
+
 2. **Everything drawn on the dial is a position on the spectrum, never a
    percentage of people.** An early version put "80%" (share of respondents)
    next to "66%" (position on the scale) and they read as comparable numbers.

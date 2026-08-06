@@ -159,8 +159,8 @@ function buildRows(topic: Topic, records: VoteRecord[], origin: string): Row[] {
     return {
       vote_id: `${topic.id}:${r.t}:${(r.s || "anon").slice(0, 8)}:${i}`,
       board_id: topic.id,
-      // Stamped on the record from v6 onward; older answers predate board
-      // versioning and are reported as version 1, which is what they were.
+      // Older answers that predate per-board version stamps are reported as
+      // version 1, which is what those original definitions were.
       board_version: r.bv ?? 1,
       origin,
       board_question: topic.question,
@@ -311,8 +311,8 @@ hand. Store version \`${STORE_VERSION}\`. ${totals.boards} boards, ${totals.answ
 
 **This is the part that decides whether an analysis is right or wrong.**
 
-People may answer a board again when their view changes (weekly on most boards).
-So the raw rows are *answers*, not *people*. Taking a plain mean over them
+People may answer a board again on its board-specific cadence. So the raw rows
+are *answers*, not *people*. Taking a plain mean over them
 measures the average **person-week**: someone who answers thirty weeks running
 counts thirty times, and boards with loyal returning voters get pulled toward
 whatever those few think.

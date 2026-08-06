@@ -51,7 +51,7 @@ export default function CommunityLibrary() {
   useEffect(() => {
     let cancelled = false;
     setLoaded(false);
-    fetch(`/api/boards?sort=${sort}`, { cache: "no-store" })
+    fetch(`/api/boards?sort=${sort}`)
       .then((r) => (r.ok ? r.json() : { boards: [] }))
       .then((d) => {
         if (!cancelled) {

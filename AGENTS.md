@@ -267,11 +267,12 @@ Each of these was arrived at by making the opposite mistake first.
 One record per answer:
 
 ```json
-{ "v": 0.74, "t": 1785620561526, "s": "<random 32-hex>", "g": "A", "p": 2 }
+{ "v": 0.74, "t": 1785620561526, "s": "<random 32-hex>", "g": "A", "p": 2, "e": "2026-W31", "n": 1, "bv": 1 }
 ```
 
 `v` position 0..1 · `t` unix ms · `s` per-browser random id · `g` arm · `p`
-position within the arm (0 outside the experiment).
+position within the arm (0 outside the experiment) · `e` cadence epoch · `n`
+this browser's answer number on this board · `bv` board wording version.
 
 `s` groups one person's answers together. It is not derived from anything about
 them and is never returned by a public endpoint. `g` and `p` are written at vote
@@ -288,6 +289,18 @@ session id in that file is private for the same reason it is private in votes.
 `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN` and it switches to Redis
 automatically. The file backend does not work on serverless hosting, and its
 rate limiter is per-process, so it's effectively absent in production.
+
+**The append-only lists are the source of truth.** `latest-votes:*` and
+`latest-predictions:*` hashes are derived request indexes; `live-results:*` is a
+short-lived materialisation of the exact `aggregateWindow` result. They exist so
+a 20,000-person board does not reread its whole history for every POST. They may
+be rebuilt from the raw lists and must never be exported as if they were new
+research rows. A busy result may trail writes by up to two minutes; no raw vote
+is delayed or dropped.
+
+`lib/live-results.ts` is the only request-time cache for board numbers. It still
+calls `aggregateWindow`; do not replace it with increment-only averages, which
+cannot correctly handle re-votes, rolling windows or opposite-side partitions.
 
 ## Running it
 
@@ -317,9 +330,9 @@ Built and deployed on Vercel. A small pre-launch set of real responses exists;
 the site has not yet been pushed to a broad audience. Preserve those records and
 use a launch-date analysis window rather than deleting them.
 
-Open items are in `DEPLOY-CHECKLIST.md` — briefly: Upstash + Vercel setup (needs
-Will's accounts), a social link-preview image, a styled 404, a raw-data export,
-and backups.
+`DEPLOY-CHECKLIST.md` predates the current build. Current capacity and data
+readiness are tracked in `LAUNCH-READINESS.md`; the remaining owner decisions
+are the Upstash billing tier/budget and a second private copy of the raw export.
 
 `QUESTION-DESIGN.md` is the reasoning history: hypotheses considered, things
 tried and rejected, and why. Useful for understanding *why* the design is what it

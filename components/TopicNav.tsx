@@ -33,20 +33,26 @@ export default function TopicNav({
     // Which boards this viewer has already seen the results of — either by
     // answering, or by trading their vote for a look. Read on the client only,
     // so the server never renders a revealed average into the HTML.
+    const answeredIds = topics
+      .filter(
+        (t) =>
+          window.localStorage.getItem(voteStorageKey(t.id)) !== null ||
+          window.localStorage.getItem(revealStorageKey(t.id)) !== null,
+      )
+      .map((t) => t.id);
     setAnswered(
-      new Set(
-        topics
-          .filter(
-            (t) =>
-              window.localStorage.getItem(voteStorageKey(t.id)) !== null ||
-              window.localStorage.getItem(revealStorageKey(t.id)) !== null,
-          )
-          .map((t) => t.id),
-      ),
+      new Set(answeredIds),
     );
 
+    // Unanswered tiles never show numbers, so fetching their aggregates would
+    // spend database work for data this browser is not allowed to see anyway.
+    if (answeredIds.length === 0) {
+      setSummary([]);
+      return;
+    }
+
     let cancelled = false;
-    fetch("/api/summary", { cache: "no-store" })
+    fetch(`/api/summary?ids=${encodeURIComponent(answeredIds.join(","))}`)
       .then((res) => (res.ok ? res.json() : []))
       .then((data) => {
         if (!cancelled && Array.isArray(data)) setSummary(data);

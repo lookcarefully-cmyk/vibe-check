@@ -191,10 +191,10 @@ export async function boardReactionCounts(
   slug: string,
 ): Promise<{ likes: number; dislikes: number }> {
   const [likes, dislikes] = await Promise.all([
-    store.setMembers(KEY.reactions(slug, "like")),
-    store.setMembers(KEY.reactions(slug, "dislike")),
+    store.setSize(KEY.reactions(slug, "like")),
+    store.setSize(KEY.reactions(slug, "dislike")),
   ]);
-  return { likes: likes.length, dislikes: dislikes.length };
+  return { likes, dislikes };
 }
 
 export async function deleteCommunityBoard(slug: string): Promise<void> {

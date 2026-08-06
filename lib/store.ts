@@ -32,6 +32,15 @@ const votesKey = (topic: string) => `${NS}:${STORE_VERSION}:votes:${topic}`;
 const predictionsKey = (topic: string) =>
   `${NS}:predictions:${PREDICTION_VERSION}:${topic}`;
 const rateKey = (bucket: string) => `${NS}:${STORE_VERSION}:rl:${bucket}`;
+const latestVotesKey = (topic: string) =>
+  `${NS}:${STORE_VERSION}:latest-votes:${topic}`;
+const latestVotesReadyKey = (topic: string) =>
+  `${NS}:${STORE_VERSION}:latest-votes-ready:${topic}`;
+const latestPredictionsKey = (topic: string) =>
+  `${NS}:predictions:${PREDICTION_VERSION}:latest:${topic}`;
+const latestPredictionsReadyKey = (topic: string) =>
+  `${NS}:predictions:${PREDICTION_VERSION}:latest-ready:${topic}`;
+const lockKey = (bucket: string) => `${NS}:${STORE_VERSION}:lock:${bucket}`;
 
 /** One recorded answer. */
 export interface VoteRecord {
@@ -110,8 +119,16 @@ export interface RateResult {
 export interface VoteStore {
   push(topic: string, record: VoteRecord): Promise<number>;
   all(topic: string): Promise<VoteRecord[]>;
+  /** Latest answer for one anonymous browser, without reading the whole board. */
+  latestVote(topic: string, session: string): Promise<VoteRecord | null>;
   pushPrediction(topic: string, record: PredictionRecord): Promise<number>;
   allPredictions(topic: string): Promise<PredictionRecord[]>;
+  /** One prediction attached to one particular vote. */
+  latestPrediction(
+    topic: string,
+    session: string,
+    voteAt: number,
+  ): Promise<PredictionRecord | null>;
   /**
    * Generic key/value, used for community-made boards. Curated boards live in
    * lib/topics.ts because they're part of the source; boards anyone can create
@@ -124,6 +141,9 @@ export interface VoteStore {
   setAdd(key: string, member: string): Promise<void>;
   setRemove(key: string, member: string): Promise<void>;
   setMembers(key: string): Promise<string[]>;
+  setSize(key: string): Promise<number>;
+  /** Short distributed lock used to collapse expensive cache rebuilds. */
+  acquire(bucket: string, seconds: number): Promise<boolean>;
   /**
    * Fixed-window counter. Returns allowed=false once `limit` is exceeded within
    * `windowSeconds`.
@@ -214,22 +234,93 @@ async function upstash(command: (string | number)[]): Promise<unknown> {
   return json.result;
 }
 
+function latestVotes(records: VoteRecord[]): Map<string, VoteRecord> {
+  const latest = new Map<string, VoteRecord>();
+  const counts = new Map<string, number>();
+  for (const record of records) {
+    if (!record.s) continue;
+    counts.set(record.s, (counts.get(record.s) ?? 0) + 1);
+    const current = latest.get(record.s);
+    if (!current || record.t >= current.t) latest.set(record.s, record);
+  }
+  for (const [session, record] of latest) {
+    if (!record.n) latest.set(session, { ...record, n: counts.get(session) ?? 1 });
+  }
+  return latest;
+}
+
+async function ensureLatestVoteIndex(topic: string): Promise<void> {
+  if (await upstash(["GET", latestVotesReadyKey(topic)])) return;
+  const raw = (await upstash(["LRANGE", votesKey(topic), 0, -1])) as string[] | null;
+  const fields: (string | number)[] = [];
+  for (const [session, record] of latestVotes(parseRecords(raw ?? []))) {
+    fields.push(session, JSON.stringify(record));
+  }
+  // Keep migration requests comfortably below Upstash's request-size ceiling.
+  // This normally runs once while the pre-launch lists are tiny, but it should
+  // still recover safely if a derived index is ever rebuilt years later.
+  for (let i = 0; i < fields.length; i += 2_000) {
+    await upstash(["HSET", latestVotesKey(topic), ...fields.slice(i, i + 2_000)]);
+  }
+  await upstash(["SET", latestVotesReadyKey(topic), "1"]);
+}
+
+async function ensureLatestPredictionIndex(topic: string): Promise<void> {
+  if (await upstash(["GET", latestPredictionsReadyKey(topic)])) return;
+  const raw = (await upstash([
+    "LRANGE",
+    predictionsKey(topic),
+    0,
+    -1,
+  ])) as string[] | null;
+  const fields: (string | number)[] = [];
+  for (const record of parsePredictions(raw ?? [])) {
+    fields.push(`${record.s}:${record.vt}`, JSON.stringify(record));
+  }
+  for (let i = 0; i < fields.length; i += 2_000) {
+    await upstash([
+      "HSET",
+      latestPredictionsKey(topic),
+      ...fields.slice(i, i + 2_000),
+    ]);
+  }
+  await upstash(["SET", latestPredictionsReadyKey(topic), "1"]);
+}
+
 const upstashStore: VoteStore = {
   kind: "upstash",
   async push(topic, record) {
-    // No cap: trimming would silently redefine the average as "the most recent
-    // N people" with nothing on the page saying so.
-    return (await upstash(["RPUSH", votesKey(topic), JSON.stringify(record)])) as number;
+    // Append the irreplaceable raw row and refresh the per-session lookup in a
+    // single Redis command. The list remains the analysis source of truth; the
+    // hash only keeps cadence checks O(1) when a board becomes popular.
+    return (await upstash([
+      "EVAL",
+      "redis.call('RPUSH', KEYS[1], ARGV[1]); redis.call('HSET', KEYS[2], ARGV[2], ARGV[1]); return redis.call('LLEN', KEYS[1])",
+      2,
+      votesKey(topic),
+      latestVotesKey(topic),
+      JSON.stringify(record),
+      record.s,
+    ])) as number;
   },
   async all(topic) {
     const raw = (await upstash(["LRANGE", votesKey(topic), 0, -1])) as string[] | null;
     return parseRecords(raw ?? []);
   },
+  async latestVote(topic, session) {
+    await ensureLatestVoteIndex(topic);
+    const raw = (await upstash(["HGET", latestVotesKey(topic), session])) as string | null;
+    return parseRecords(raw ? [raw] : [])[0] ?? null;
+  },
   async pushPrediction(topic, record) {
     return (await upstash([
-      "RPUSH",
+      "EVAL",
+      "redis.call('RPUSH', KEYS[1], ARGV[1]); redis.call('HSET', KEYS[2], ARGV[2], ARGV[1]); return redis.call('LLEN', KEYS[1])",
+      2,
       predictionsKey(topic),
+      latestPredictionsKey(topic),
       JSON.stringify(record),
+      `${record.s}:${record.vt}`,
     ])) as number;
   },
   async allPredictions(topic) {
@@ -240,6 +331,15 @@ const upstashStore: VoteStore = {
       -1,
     ])) as string[] | null;
     return parsePredictions(raw ?? []);
+  },
+  async latestPrediction(topic, session, voteAt) {
+    await ensureLatestPredictionIndex(topic);
+    const raw = (await upstash([
+      "HGET",
+      latestPredictionsKey(topic),
+      `${session}:${voteAt}`,
+    ])) as string | null;
+    return parsePredictions(raw ? [raw] : [])[0] ?? null;
   },
   async hit(bucket, limit, windowSeconds) {
     const k = rateKey(bucket);
@@ -265,6 +365,12 @@ const upstashStore: VoteStore = {
   },
   async setMembers(key) {
     return ((await upstash(["SMEMBERS", key])) as string[] | null) ?? [];
+  },
+  async setSize(key) {
+    return Number(await upstash(["SCARD", key])) || 0;
+  },
+  async acquire(bucket, seconds) {
+    return (await upstash(["SET", lockKey(bucket), "1", "NX", "EX", seconds])) === "OK";
   },
 };
 
@@ -372,6 +478,18 @@ const fileStore: VoteStore = {
     const value = (await readKv())[key];
     return Array.isArray(value) ? value : [];
   },
+  async setSize(key) {
+    const value = (await readKv())[key];
+    return Array.isArray(value) ? value.length : 0;
+  },
+  async acquire(bucket, seconds) {
+    const now = Date.now();
+    const key = `lock:${bucket}`;
+    const existing = localCounters.get(key);
+    if (existing && existing.expires >= now) return false;
+    localCounters.set(key, { count: 1, expires: now + seconds * 1000 });
+    return true;
+  },
   push(topic, record) {
     const chainKey = `votes:${topic}`;
     const prior = chains.get(chainKey) ?? Promise.resolve();
@@ -390,6 +508,12 @@ const fileStore: VoteStore = {
     return next;
   },
   all: readVotes,
+  async latestVote(topic, session) {
+    const mine = (await readVotes(topic)).filter((record) => record.s === session);
+    if (!mine.length) return null;
+    const latest = mine.reduce((a, b) => (b.t >= a.t ? b : a));
+    return latest.n ? latest : { ...latest, n: mine.length };
+  },
   pushPrediction(topic, record) {
     const chainKey = `predictions:${topic}`;
     const prior = chains.get(chainKey) ?? Promise.resolve();
@@ -408,6 +532,13 @@ const fileStore: VoteStore = {
     return next;
   },
   allPredictions: readPredictions,
+  async latestPrediction(topic, session, voteAt) {
+    return (
+      (await readPredictions(topic)).find(
+        (record) => record.s === session && record.vt === voteAt,
+      ) ?? null
+    );
+  },
   async hit(bucket, limit, windowSeconds) {
     /*
      * In-memory, so this only limits one process. That is fine for local dev and

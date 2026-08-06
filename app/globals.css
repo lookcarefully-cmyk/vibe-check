@@ -2092,6 +2092,12 @@ body::after {
   }
   .shell {
     padding-bottom: calc(7.25rem + env(safe-area-inset-bottom));
+    /* Preserve ordinary vertical scrolling while keeping a horizontal swipe
+       available to the board-stream navigator. Without this hint, mobile
+       Safari/Chrome can claim the gesture and send pointercancel before the
+       app sees the completed swipe. The dial overrides this with `none` so its
+       own drag-to-aim interaction stays unchanged. */
+    touch-action: pan-y;
   }
   .board-stream {
     right: max(0.65rem, env(safe-area-inset-right));

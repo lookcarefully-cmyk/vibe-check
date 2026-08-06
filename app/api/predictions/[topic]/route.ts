@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server";
-import { aggregateWindow } from "@/lib/aggregate";
 import { callerToken, isValidSessionId, originIsAllowed } from "@/lib/request";
+import { comparisonResult, getLiveSnapshot } from "@/lib/live-results";
 import { resolveBoard } from "@/lib/boards";
 import { revealTypeOf, versionOf } from "@/lib/topics";
-import { store, type PredictionRecord, type VoteRecord } from "@/lib/store";
+import { store, type PredictionRecord } from "@/lib/store";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -22,22 +22,13 @@ function json(body: unknown, status = 200) {
   });
 }
 
-function comparison(records: VoteRecord[], own: number, kind: "other-side" | "crowd") {
-  const now = Date.now();
+async function comparison(topic: string, own: number, kind: "other-side" | "crowd") {
   const exactMiddle = own === 0.5;
   const effectiveKind = kind === "other-side" && exactMiddle ? "crowd" : kind;
   const side =
     effectiveKind === "crowd" ? "crowd" : own < 0.5 ? "right" : "left";
-
-  const agg = aggregateWindow(
-    records,
-    now,
-    side === "right"
-      ? (vote) => vote.v > 0.5
-      : side === "left"
-        ? (vote) => vote.v < 0.5
-        : () => true,
-  );
+  const snapshot = await getLiveSnapshot(topic, Date.now(), 1);
+  const agg = comparisonResult(snapshot, side);
   const minimum = effectiveKind === "other-side" ? MIN_OTHER_SIDE_RESPONSES : 1;
   const suppressed = agg.count < minimum;
 
@@ -91,20 +82,13 @@ export async function POST(req: Request, { params }: Params) {
       return json({ error: "This connection has sent a lot of predictions today." }, 429);
     }
 
-    const [votes, predictions] = await Promise.all([
-      store.all(topic.id),
-      store.allPredictions(topic.id),
-    ]);
-    const mine = votes.filter((vote) => vote.s === session).sort((a, b) => b.t - a.t);
-    const ownVote = mine[0];
+    const ownVote = await store.latestVote(topic.id, session);
     if (!ownVote) {
       return json({ error: "Record an answer before making a prediction." }, 409);
     }
 
     const rounded = Math.round(value * 1000) / 1000;
-    const existing = predictions.find(
-      (prediction) => prediction.s === session && prediction.vt === ownVote.t,
-    );
+    const existing = await store.latestPrediction(topic.id, session, ownVote.t);
     const prediction = existing?.v ?? rounded;
 
     if (!existing) {
@@ -123,7 +107,7 @@ export async function POST(req: Request, { params }: Params) {
     return json({
       prediction,
       own: ownVote.v,
-      comparison: comparison(votes, ownVote.v, revealType),
+      comparison: await comparison(topic.id, ownVote.v, revealType),
     });
   } catch (err) {
     console.error("[predictions] POST failed", err);

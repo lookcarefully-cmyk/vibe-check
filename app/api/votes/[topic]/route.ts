@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import { aggregateWindow, weeklySeries } from "@/lib/aggregate";
 import { checkEligibility, epochKey } from "@/lib/epoch";
+import { getLiveSnapshot, publicResult } from "@/lib/live-results";
 import { callerToken, isValidSessionId, originIsAllowed } from "@/lib/request";
 import { store, type VoteRecord } from "@/lib/store";
 import { cadenceOf, versionOf } from "@/lib/topics";
@@ -57,7 +57,6 @@ export async function GET(_req: Request, { params }: Params) {
   if (!topic) return noStore({ error: "Unknown topic." }, 404);
 
   try {
-    const records = await store.all(topic.id);
     const now = Date.now();
     /*
      * Windowed and deduped to one answer per person — see aggregateWindow. The
@@ -68,8 +67,7 @@ export async function GET(_req: Request, { params }: Params) {
      * Session ids and timestamps still never leave; the series is aggregate-only.
      */
     return edgeCached({
-      ...aggregateWindow(records, now),
-      series: weeklySeries(records, now),
+      ...publicResult(await getLiveSnapshot(topic.id, now)),
       cadence: cadenceOf(topic),
     });
   } catch (err) {
@@ -139,11 +137,7 @@ export async function POST(req: Request, { params }: Params) {
      */
     const now = Date.now();
     const cadence = cadenceOf(topic);
-    const existing = await store.all(topic.id);
-    const mine = existing.filter((r) => r.s === session);
-    const latestMine = mine.length
-      ? mine.reduce((latest, record) => (record.t >= latest.t ? record : latest))
-      : null;
+    const latestMine = await store.latestVote(topic.id, session);
     const lastMine = latestMine?.t ?? null;
     const eligibility = checkEligibility(lastMine, cadence, now);
 
@@ -175,17 +169,24 @@ export async function POST(req: Request, { params }: Params) {
       g: armValue,
       p: positionValue,
       e: epochKey(now, cadence),
-      n: mine.length + 1,
+      n: (latestMine?.n ?? 0) + 1,
       bv: versionOf(topic),
     };
     await store.push(topic.id, record);
 
-    // Aggregate from what was already read plus this answer, rather than
-    // re-reading the whole list — same result, one fewer round trip.
-    const records = [...existing, record];
+    /*
+     * Return the materialised crowd snapshot rather than rereading the entire
+     * append-only list after every write. It may trail a viral board briefly,
+     * but the visitor's own answer is already confirmed separately and the
+     * exact aggregate refreshes within the bounded cache window.
+     *
+     * `minimumCount=1` handles the first vote on a board: an empty snapshot
+     * fetched before voting is rebuilt so the first person never sees a fake
+     * "no crowd" result after their answer was accepted.
+     */
+    const snapshot = await getLiveSnapshot(topic.id, now, 1);
     return noStore({
-      ...aggregateWindow(records, now),
-      series: weeklySeries(records, now),
+      ...publicResult(snapshot),
       cadence,
       recordedAt: now,
     });

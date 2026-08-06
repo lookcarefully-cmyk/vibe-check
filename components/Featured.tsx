@@ -45,7 +45,7 @@ export default function Featured() {
   useEffect(() => {
     if (EXPERIMENT_ENABLED) return;
     let cancelled = false;
-    fetch("/api/boards?sort=trending&featured=1", { cache: "no-store" })
+    fetch("/api/boards?sort=trending&featured=1")
       .then((r) => (r.ok ? r.json() : { boards: [] }))
       .then((d) => {
         if (!cancelled && Array.isArray(d.boards)) setTrending(d.boards.slice(0, 4));

@@ -8,11 +8,9 @@
 # The private per-answer export (session ids) is generated in the runner and
 # never committed. Nothing here can leak it: only export/public is copied.
 #
-# NOT ENABLED YET. It needs:
-#   1. this repo pushed to GitHub
-#   2. two repo secrets: KV_REST_API_URL and KV_REST_API_TOKEN
-#      (Vercel > project > Storage > your Upstash database > .env.local tab)
-# Until then it simply never runs.
+# This workflow is enabled. If the export returns an Upstash 401, refresh
+# KV_REST_API_READ_ONLY_TOKEN in GitHub Actions and confirm KV_REST_API_URL
+# points to the same database. Never substitute the read-write token here.
 
 name: Publish data
 

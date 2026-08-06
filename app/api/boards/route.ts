@@ -41,6 +41,12 @@ function noStore(body: unknown, status = 200) {
   });
 }
 
+function publicCached(body: unknown) {
+  return NextResponse.json(body, {
+    headers: { "Cache-Control": "public, s-maxage=60, stale-while-revalidate=300" },
+  });
+}
+
 /**
  * The public library, ranked.
  *
@@ -98,7 +104,7 @@ export async function GET(req: Request) {
           b.createdAt - a.createdAt,
     );
 
-    return noStore({
+    return publicCached({
       boards: withStats.map(({ rankSignal: _rankSignal, ...board }) => board),
       sort,
     });
@@ -222,7 +228,7 @@ export async function PATCH(req: Request) {
     const caller = callerToken(req);
     const limit = await store.hit(`${caller}:react-board`, 50, 24 * 60 * 60);
     if (!limit.allowed) return noStore({ error: "Too many reactions today." }, 429);
-    const answered = (await store.all(slug)).some((vote) => vote.s === session);
+    const answered = await store.latestVote(slug, session);
     if (!answered) return noStore({ error: "Answer this board before rating it." }, 409);
     await reactToBoard(slug, session, choice);
     return noStore({ ok: true, choice });

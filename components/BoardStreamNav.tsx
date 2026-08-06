@@ -87,7 +87,7 @@ export default function BoardStreamNav({
 
       if (kind === "community") {
         try {
-          const response = await fetch("/api/boards?sort=new", { cache: "no-store" });
+          const response = await fetch("/api/boards?sort=new");
           const data = response.ok ? await response.json() : { boards: [] };
           const listed = Array.isArray(data.boards)
             ? (data.boards as CommunityStreamBoard[])

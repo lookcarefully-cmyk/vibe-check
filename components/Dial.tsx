@@ -233,9 +233,6 @@ export default function Dial({
     return Math.abs(clamped - 0.5) <= CENTER_DETENT ? 0.5 : clamped;
   }
 
-  // Horizontal position of the placed dot: linear in value, matching where the
-  // pointer maps (see valueFromEvent), so the dot sits under the finger.
-  const handleX = CX - R_FACE + safePick * 2 * R_FACE;
   const [aimX, aimY] = polar(safePick, R_FACE - 10);
 
   /*
@@ -619,42 +616,25 @@ export default function Dial({
         {topic.rightLabel}
       </text>
 
-      {/* ------------------------------------------ chosen-answer needle */}
+      {/* ------------------------------------- the needle: your choice, then the crowd's */}
       {/*
-        Nothing is drawn here until the first deliberate tap: no midpoint
-        handle and no default direction. Once placed, the viewer's own needle
-        makes this behave like the dial it looks like. It remains adjustable;
-        the separate button is still the only thing that commits the answer.
-      */}
-      {/* Gated on the choosing phase, NOT showOwn: every choose phase — placing
-          your own answer OR predicting the crowd (Codex's predict round passes
-          showOwn=false) — needs a line to tap and a dot to see. `showOwn` only
-          governs the own-answer marker in the RESULT view. */}
-      {!isResult && (
-        <g className="vas">
-          <line
-            className="vas-line"
-            x1={CX - R_FACE}
-            y1={CY}
-            x2={CX + R_FACE}
-            y2={CY}
-            strokeLinecap="round"
-          />
-          {placed && (
-            <g className="vas-dot" style={{ transform: `translateX(${handleX - CX}px)` }}>
-              <circle cx={CX} cy={CY} r="20" />
-            </g>
-          )}
-        </g>
-      )}
+        Nothing is drawn on the face until the first deliberate tap — no needle,
+        no hub, no default direction — so the scale starts genuinely unanchored
+        (the survey-methods reason the slider handle was removed). On the first
+        tap the classic red needle appears at that spot, pivoting from the centre
+        hub; tapping again or dragging re-aims it; only the button commits.
 
-      {/* ---------------------------------------------- needle + red hub */}
-      {/* Result phase: the red needle replaces the teal choice needle and points
-          at the crowd mean. */}
-      {isResult && agg.count > 0 && (
+        In the result phase the same red needle swings to the crowd mean. One
+        needle, two meanings — your answer becomes the crowd's.
+
+        Gated on `placed`, NOT `showOwn`: the prediction round passes
+        showOwn=false but still needs the needle to place a guess. `showOwn` only
+        governs the faint own-answer marker among the crowd (the aim line above).
+      */}
+      {((isResult && agg.count > 0) || (!isResult && placed)) && (
         <>
           <g
-            className="needle"
+            className={isResult ? "needle" : "needle needle-choose"}
             style={{ transform: `rotate(${rotationOf(needleValue)}deg)` }}
           >
             {/* Stops just inside the band ring, so the ring reads as its own track. */}

@@ -1238,24 +1238,11 @@ body::after {
   transition: transform 1100ms var(--ease-out), opacity 500ms ease 300ms;
 }
 
-/* the visual-analogue scale: a bare spectrum line and the dot you place on it */
-.vas-line {
-  stroke: rgba(10, 18, 56, 0.35);
-  stroke-width: 5;
-  stroke-dasharray: 2 12;
-}
-
-.vas-dot {
-  transform-box: view-box;
-  transform-origin: 500px 500px;
-  /* eases to the tapped spot, so a drag reads as continuous rather than jumping */
+/* the choosing-phase needle: same red pointer as the crowd needle, but it
+   follows your taps quickly instead of the slow theatrical result swing. It
+   appears only after the first tap (gated by `placed` in Dial.tsx). */
+.needle-choose {
   transition: transform 180ms var(--ease-out);
-}
-
-.vas-dot circle {
-  fill: var(--teal-deep);
-  stroke: var(--cream);
-  stroke-width: 5;
 }
 
 .margin,
@@ -1849,7 +1836,6 @@ body::after {
     animation-delay: 0ms;
   }
   .needle,
-  .vas-dot,
   .face {
     transition-duration: 1ms;
   }

@@ -93,8 +93,8 @@ export default function InfoDialog() {
             </p>
             <p>
               The <strong>monthly AI Pulse</strong> is a separate three-question set.
-              Its wording stays fixed so changes from one month to the next can be read
-              as movement in this crowd rather than movement in the question.
+              By tracking answers to the same question set each month, we can see how 
+              our outlook on AI changes over time.
             </p>
           </section>
 

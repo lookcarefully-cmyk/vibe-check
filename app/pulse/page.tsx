@@ -12,12 +12,21 @@ export const metadata: Metadata = {
     siteName: "Vibe Check",
     type: "website",
     url: "/pulse",
+    images: [
+      {
+        url: "/ai-poll-card.png",
+        width: 1200,
+        height: 630,
+        alt: "Vibe Check monthly AI poll — how are we feeling about AI?",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
     title: "How are we feeling about AI?",
     description:
       "Three stable questions, once a month. See where people land and how the answers move over time.",
+    images: ["/ai-poll-card.png"],
   },
 };
 

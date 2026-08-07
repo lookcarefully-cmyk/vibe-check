@@ -1164,7 +1164,7 @@ export const TOPICS: Topic[] = [
     collection: "pulse",
     subject: "AI development",
     axis: "Pause or accelerate?",
-    question: "From here, how fast should advanced AI development move?",
+    question: "From here, how fast should AI development move?",
     prompt: CORE_PROMPT,
     leftLabel: "PAUSE DEVELOPMENT",
     rightLabel: "ACCELERATE",

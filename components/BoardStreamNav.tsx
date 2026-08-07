@@ -150,6 +150,19 @@ export default function BoardStreamNav({
     router.push(`${base}?stream=${streamKind}-continue`);
   }, [router, step, streamKind]);
 
+  const continueIntoMain = useCallback(() => {
+    if (movingRef.current) return;
+    movingRef.current = true;
+    setMoving(true);
+    const available = EXTRA_TOPICS.filter((candidate) => canAnswerNow(candidate, Date.now()));
+    if (available.length === 0) {
+      router.push("/explore");
+      return;
+    }
+    const next = available[Math.floor(Math.random() * available.length)];
+    router.push(`/${next.id}?stream=main-start`);
+  }, [router]);
+
   /*
    * On a phone, a left swipe on the non-interactive page background advances
    * the stream. The dial, links, buttons and form controls are excluded so a
@@ -256,9 +269,22 @@ export default function BoardStreamNav({
       >
         Exit
       </Link>
-      {step.complete ? (
+      {step.complete && streamKind === "pulse" ? (
+        <button
+          type="button"
+          className="board-stream-next"
+          onClick={continueIntoMain}
+          disabled={moving}
+          aria-label="Start answering more questions in the Main Set"
+        >
+          <span className="board-stream-action">
+            <span>{moving ? "Loading…" : "Answer more questions"}</span>
+          </span>
+          <span className="board-stream-arrow" aria-hidden="true">→</span>
+        </button>
+      ) : step.complete ? (
         <div className="board-stream-finished" role="status">
-          <span>{streamKind === "pulse" ? "End of this Pulse" : "That’s every board"}</span>
+          <span>That&rsquo;s every board</span>
         </div>
       ) : (
         <button

@@ -42,7 +42,9 @@ the choice overload this stream exists to remove.
 
 Pulse boards instead stay in their own stable three-item order. The navigator's
 Exit returns to `/pulse`, and reaching the last available item ends rather than
-spilling into the Main or community stream.
+spilling into the community stream. The gold “Answer more questions” action at
+the end deliberately starts a fresh randomized Main Set; it preserves momentum
+while the separate Exit still returns to the Pulse page.
 
 The front door leads with the monthly AI Pulse, then offers three choices: start
 the randomized Main Set, open `/explore`, or make a board. `/explore` is the

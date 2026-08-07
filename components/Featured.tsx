@@ -84,7 +84,7 @@ export default function Featured() {
 
       <section className="home-pulse" aria-labelledby="home-pulse-title">
         <div>
-          <p className="explore-kicker">New · monthly AI Pulse</p>
+          <p className="explore-kicker">Live· monthly AI Pulse</p>
           <h2 id="home-pulse-title">Three questions to track how AI sentiment changes overtime.</h2>
           <p>
             AI alignment, humanity&rsquo;s future, and whether development should

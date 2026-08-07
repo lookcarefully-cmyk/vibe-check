@@ -214,6 +214,26 @@ export default function Dial({
   const chipTop = 20;
   const chipX = Math.min(VIEW.w - chipW / 2 - 10, Math.max(chipW / 2 + 10, markerX));
 
+  // Published benchmarks are positions on this same scale, so they can be
+  // drawn without mixing a share-of-people number into the geometry. Keep the
+  // marker at the outside of the band ring: it stays distinct from the red
+  // crowd needle and the teal line that means "you" in the reveal.
+  const benchmarkValue = topic.benchmark
+    ? Math.min(1, Math.max(0, topic.benchmark.value))
+    : 0.5;
+  const [benchmarkX, benchmarkY] = polar(benchmarkValue, bandOut + 8);
+  const benchmarkLabel = topic.benchmark
+    ? `PUBLISHED ${topic.benchmark.display.toUpperCase()}`
+    : "";
+  const benchmarkChipFont = 16 * t;
+  const benchmarkChipW = benchmarkLabel.length * benchmarkChipFont * 0.72 + 38;
+  const benchmarkChipH = benchmarkChipFont * 2.15;
+  const benchmarkChipTop = 82;
+  const benchmarkChipX = Math.min(
+    VIEW.w - benchmarkChipW / 2 - 10,
+    Math.max(benchmarkChipW / 2 + 10, benchmarkX),
+  );
+
   /** Pointer x -> value, using the horizontal track across the dial face. */
   function valueFromEvent(e: React.PointerEvent<SVGSVGElement>): number {
     const svg = svgRef.current;
@@ -297,8 +317,8 @@ export default function Dial({
         interactive
           ? `${topic.question} Tap or click the spectrum to place your answer. Drag to fine-tune, then confirm it with the button below. 0 percent is ${topic.leftLabel.toLowerCase()} and 100 percent is ${topic.rightLabel.toLowerCase()}.`
           : agg.count > 0
-            ? `Average answer: ${Math.round(agg.mean * 100)} percent toward ${topic.rightLabel.toLowerCase()}, from ${agg.count} responses.`
-            : `No crowd answers yet. The scale runs from ${topic.leftLabel.toLowerCase()} to ${topic.rightLabel.toLowerCase()}.`
+            ? `Average answer: ${Math.round(agg.mean * 100)} percent toward ${topic.rightLabel.toLowerCase()}, from ${agg.count} responses.${topic.benchmark ? ` Published estimate: ${topic.benchmark.display}.` : ""}`
+            : `No crowd answers yet. The scale runs from ${topic.leftLabel.toLowerCase()} to ${topic.rightLabel.toLowerCase()}.${topic.benchmark ? ` Published estimate: ${topic.benchmark.display}.` : ""}`
       }
       aria-valuemin={interactive ? 0 : undefined}
       aria-valuemax={interactive ? 100 : undefined}
@@ -594,6 +614,49 @@ export default function Dial({
             style={{ fontSize: chipFont }}
           >
             {chipLabel}
+          </text>
+        </g>
+      )}
+
+      {/* A benchmark is revealed only after answering, never while choosing. */}
+      {isResult && topic.benchmark && (
+        <g className="benchmark-marker">
+          <line
+            x1={benchmarkChipX}
+            y1={benchmarkChipTop + benchmarkChipH}
+            x2={benchmarkX}
+            y2={benchmarkY}
+            stroke="#F2B138"
+            strokeWidth="3"
+            strokeDasharray="7 7"
+          />
+          <rect
+            x={benchmarkX - 7}
+            y={benchmarkY - 7}
+            width="14"
+            height="14"
+            rx="2"
+            fill="#F2B138"
+            stroke="#101A4A"
+            strokeWidth="3"
+            transform={`rotate(45 ${benchmarkX} ${benchmarkY})`}
+          />
+          <rect
+            x={benchmarkChipX - benchmarkChipW / 2}
+            y={benchmarkChipTop}
+            width={benchmarkChipW}
+            height={benchmarkChipH}
+            rx={benchmarkChipH / 2}
+            fill="#F2B138"
+          />
+          <text
+            className="benchmark-chip-text"
+            x={benchmarkChipX}
+            y={benchmarkChipTop + benchmarkChipH * 0.68}
+            textAnchor="middle"
+            style={{ fontSize: benchmarkChipFont }}
+          >
+            {benchmarkLabel}
           </text>
         </g>
       )}

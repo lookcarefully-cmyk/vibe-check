@@ -1922,6 +1922,16 @@ body::after {
   letter-spacing: 0.13em;
 }
 
+.benchmark-marker {
+  animation: fade-up 650ms var(--ease-out) 900ms both;
+}
+
+.benchmark-chip-text {
+  fill: var(--navy);
+  font-weight: 800;
+  letter-spacing: 0.07em;
+}
+
 /* -------------------------------------------------------------- results */
 
 .results {

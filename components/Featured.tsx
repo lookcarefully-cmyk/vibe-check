@@ -86,14 +86,14 @@ export default function Featured() {
           <Link href="/explore" className="reset">Explore boards</Link>
           <Link href="/b/new" className="reset">Make a board</Link>
         </div>
-        <p>The questions are shuffled. Keep going for as long as you like.</p>
+        <p>questions are shuffled, your answers are anonymous.</p>
       </section>
 
       <HowToPlay />
 
       <section className="home-pulse" aria-labelledby="home-pulse-title">
         <div>
-          <p className="explore-kicker">Live· monthly AI Pulse</p>
+          <p className="explore-kicker">New· monthly AI Pulse</p>
           <h2 id="home-pulse-title">Answer three questions to help track AI sentiment over time.</h2>
           <p>
             AI alignment, humanity&rsquo;s future, and whether development should

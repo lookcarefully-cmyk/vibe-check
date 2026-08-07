@@ -4,11 +4,14 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import InfoDialog from "./InfoDialog";
-import HowToPlay from "./HowToPlay";
 import Colophon from "./Colophon";
-import StartMainSet from "./StartMainSet";
-import { EXPERIMENT_ENABLED } from "@/lib/experiment";
+import VibeCheck from "./VibeCheck";
+import { EXPERIMENT_ENABLED, MAIN_TOPICS } from "@/lib/experiment";
 import { readRunState, nextHref } from "@/lib/run";
+import { canAnswerNow } from "@/lib/mine";
+import type { Topic } from "@/lib/topics";
+
+const HOME_TOPIC_KEY = "vibecheck:home-topic:v1";
 
 /** A trending community board, as returned by /api/boards. */
 interface TrendingBoard {
@@ -31,12 +34,43 @@ interface TrendingBoard {
 export default function Featured() {
   const router = useRouter();
   const [trending, setTrending] = useState<TrendingBoard[]>([]);
+  const [homeTopic, setHomeTopic] = useState<Topic | null>(null);
+  const [homeTopicReady, setHomeTopicReady] = useState(false);
 
   useEffect(() => {
     if (!EXPERIMENT_ENABLED) return;
     const state = readRunState();
     router.replace(state.complete ? "/results" : nextHref(state));
   }, [router]);
+
+  // Put a real, answerable board on the front page. Keep the choice stable on
+  // refresh, but pick another once this browser has answered it. Rural/urban is
+  // deliberately not first: the stream places that context question second so
+  // the site opens like a game rather than an intake form.
+  useEffect(() => {
+    if (EXPERIMENT_ENABLED) return;
+    const now = Date.now();
+    const available = MAIN_TOPICS.filter(
+      (topic) => topic.id !== "rural-urban" && canAnswerNow(topic, now),
+    );
+    let selected: Topic | undefined;
+    try {
+      const stored = window.sessionStorage.getItem(HOME_TOPIC_KEY);
+      selected = available.find((topic) => topic.id === stored);
+    } catch {
+      /* storage-restricted browsing still gets a random board */
+    }
+    selected ??= available[Math.floor(Math.random() * available.length)];
+    if (selected) {
+      try {
+        window.sessionStorage.setItem(HOME_TOPIC_KEY, selected.id);
+      } catch {
+        /* keeping the selection across refreshes is optional */
+      }
+      setHomeTopic(selected);
+    }
+    setHomeTopicReady(true);
+  }, []);
 
   // The top few published community boards, by answers in the last 7 days. Only
   // `listed` boards come back (published + past moderation), so nothing unvetted
@@ -80,16 +114,21 @@ export default function Featured() {
         </p>
       </header>
 
-      <section className="front-door-actions" aria-label="Start or explore">
-        <StartMainSet label="Answer a question" />
-        <div className="front-door-secondary">
-          <Link href="/explore" className="reset">Explore boards</Link>
-          <Link href="/b/new" className="reset">Make a board</Link>
-        </div>
-        <p>The questions are shuffled. Keep going for as long as you like.</p>
-      </section>
+      {homeTopic ? (
+        <VibeCheck topic={homeTopic} embedded />
+      ) : homeTopicReady ? (
+        <section className="home-board-empty">
+          <p>You&rsquo;ve answered every question currently available.</p>
+          <Link href="/explore" className="lock-in">Explore the results</Link>
+        </section>
+      ) : (
+        <p className="home-board-loading">Loading a question…</p>
+      )}
 
-      <HowToPlay />
+      <nav className="home-utility-links" aria-label="More ways to participate">
+        <Link href="/explore" className="reset">Explore boards</Link>
+        <Link href="/b/new" className="reset">Make a board</Link>
+      </nav>
 
       <section className="home-pulse" aria-labelledby="home-pulse-title">
         <div>

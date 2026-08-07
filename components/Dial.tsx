@@ -498,9 +498,17 @@ export default function Dial({
                 <path
                   className="band-hit"
                   d={annularSector(b.from, b.to, R_BAND_HIT_IN, R_BAND_HIT_OUT)}
-                  onPointerEnter={() => onBandFocus?.(b.i)}
-                  onPointerDown={() => onBandFocus?.(b.i)}
-                  onPointerLeave={() => onBandFocus?.(null)}
+                  onPointerEnter={(event) => {
+                    if (event.pointerType === "mouse") onBandFocus?.(b.i);
+                  }}
+                  onPointerDown={(event) => {
+                    // Touch has no hover: keep the selected band active after
+                    // the finger lifts so its readout remains legible below.
+                    if (event.pointerType !== "mouse") onBandFocus?.(b.i);
+                  }}
+                  onPointerLeave={(event) => {
+                    if (event.pointerType === "mouse") onBandFocus?.(null);
+                  }}
                 />
               </g>
             );

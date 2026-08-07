@@ -102,10 +102,13 @@ const showStageFromTop = () => {
 export default function VibeCheck({
   topic,
   community = false,
+  embedded = false,
 }: {
   topic: Topic;
   /** True for a board someone made, which is labelled as such and not ours. */
   community?: boolean;
+  /** A full voting instrument placed inside another page, such as Home. */
+  embedded?: boolean;
 }) {
   const [phase, setPhase] = useState<Phase>("choose");
   const [pick, setPick] = useState(0.5);
@@ -535,9 +538,10 @@ export default function VibeCheck({
       : `${Math.round(v * 100)}%`;
 
   const predictionQuestion = "Where do you think others landed?";
+  const Root = embedded ? "section" : "main";
 
   return (
-    <main className="shell">
+    <Root className={embedded ? "home-board" : "shell"}>
       {/*
         Nothing but the question above the dial. The board grid lives at the
         bottom now — see moreTopics — because arriving on a board should put you
@@ -551,12 +555,14 @@ export default function VibeCheck({
 
       <header className="masthead">
         {/* A div, not a p: it contains a <dialog>, which isn't phrasing content. */}
-        <div className="kicker">
-          <span className="kicker-text">
-            {community ? "Vibe Check · a board someone made" : "Vibe Check · public opinion, made visible"}
-          </span>
-          <InfoDialog />
-        </div>
+        {!embedded && (
+          <div className="kicker">
+            <span className="kicker-text">
+              {community ? "Vibe Check · a board someone made" : "Vibe Check · public opinion, made visible"}
+            </span>
+            <InfoDialog />
+          </div>
+        )}
         <h1>{predicting ? predictionQuestion : topic.question}</h1>
         <p className="lede">
           {predicting
@@ -661,6 +667,29 @@ export default function VibeCheck({
           placed={predicting ? predictionTouched : touched}
         />
       </div>
+
+      {isResult && agg.count > 0 && activeBand !== null && (() => {
+        const counts = bandCounts(agg.counts);
+        const total = counts.reduce((a, b) => a + b, 0);
+        const n = counts[activeBand] ?? 0;
+        const label = bandFor((activeBand + 0.5) / counts.length, topic.scale, {
+          left: topic.leftLabel,
+          right: topic.rightLabel,
+          leftProse: topic.leftProse,
+          rightProse: topic.rightProse,
+        });
+        const own = revealed ? -1 : bandIndex(pick);
+        return (
+          <p className="band-readout" role="status" aria-live="polite">
+            <strong>{label}</strong> — {n === 0 ? (
+              "nobody landed here"
+            ) : (
+              <><strong>{Math.round((n / total) * 100)}%</strong> of answers ({n}{n === 1 ? " person" : " people"})</>
+            )}
+            {activeBand === own && <span className="band-you"> · your band</span>}
+          </p>
+        );
+      })()}
 
       {error && (
         <p className="error" role="alert">
@@ -901,24 +930,6 @@ export default function VibeCheck({
                 const share = (i: number) => Math.round((counts[i] / total) * 100);
                 // -1 matches no band, so none of the "yours" wording applies.
                 const own = revealed ? -1 : bandIndex(pick);
-
-                if (activeBand !== null) {
-                  const n = counts[activeBand];
-                  return (
-                    <p className="margin-copy band-copy is-active">
-                      <strong>{label(activeBand)}</strong> —{" "}
-                      {n === 0 ? (
-                        "nobody landed here"
-                      ) : (
-                        <>
-                          <strong>{share(activeBand)}%</strong> of answers ({n}
-                          {n === 1 ? " person" : " people"})
-                        </>
-                      )}
-                      {activeBand === own && <span className="band-you"> · your band</span>}
-                    </p>
-                  );
-                }
 
                 const top = counts.indexOf(Math.max(...counts));
                 const occupied = counts.filter((c) => c > 0).length;
@@ -1161,7 +1172,7 @@ export default function VibeCheck({
       {community && <ReportBoard slug={topic.id} />}
 
       {/* Standing disclosure, so it's readable without opening the dialog. */}
-      <footer className="disclosure">
+      {!embedded && <footer className="disclosure">
         {community ? (
           <>
             This board was made by a visitor, not by us. It&rsquo;s screened for the
@@ -1176,10 +1187,10 @@ export default function VibeCheck({
           </>
         )}
         <span className="disclosure-cue">Full details under the ? above.</span>
-      </footer>
+      </footer>}
 
-      <Colophon />
-    </main>
+      {!embedded && <Colophon />}
+    </Root>
   );
 }
 

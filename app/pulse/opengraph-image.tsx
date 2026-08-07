@@ -6,6 +6,10 @@ import { ImageResponse } from "next/og";
  * currently landing and anchoring their response.
  */
 export const runtime = "nodejs";
+// Render at request time. Vercel's static image prerender kept the background
+// but dropped the card's text and badges, while the same ImageResponse renders
+// correctly in the app runtime.
+export const dynamic = "force-dynamic";
 export const alt = "Vibe Check monthly AI Pulse — how are we feeling about AI?";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";

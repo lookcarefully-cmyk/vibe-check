@@ -15,26 +15,9 @@ const W = 120;
 const H = 78;
 const CX = W / 2;
 const CY = 66;
-const R_SCALLOP = 54;
+const R_BORDER = 54;
 const R_RIM = 48;
 const R_FACE = 40;
-const BUMPS = 11;
-
-function scalloped(radius: number, base: number): string {
-  const pts: [number, number][] = [];
-  for (let i = 0; i <= BUMPS; i += 1) {
-    const a = Math.PI - (i / BUMPS) * Math.PI;
-    pts.push([CX + radius * Math.cos(a), CY - radius * Math.sin(a)]);
-  }
-  const chord = 2 * radius * Math.sin(Math.PI / (2 * BUMPS));
-  const r = chord * 0.62;
-  let d = `M ${pts[0][0].toFixed(2)} ${pts[0][1].toFixed(2)}`;
-  for (let i = 1; i < pts.length; i += 1) {
-    d += ` A ${r.toFixed(2)} ${r.toFixed(2)} 0 0 1 ${pts[i][0].toFixed(2)} ${pts[i][1].toFixed(2)}`;
-  }
-  return `${d} L ${CX + radius} ${CY + base} L ${CX - radius} ${CY + base} Z`;
-}
-
 function dome(radius: number, base: number): string {
   return `M ${CX - radius} ${CY} A ${radius} ${radius} 0 0 1 ${CX + radius} ${CY} L ${CX + radius} ${CY + base} L ${CX - radius} ${CY + base} Z`;
 }
@@ -71,7 +54,7 @@ export default function MiniBoard({
       aria-current={active ? "page" : undefined}
     >
       <svg viewBox={`0 0 ${W} ${H}`} aria-hidden="true">
-        <path d={scalloped(R_SCALLOP, 12)} className="mini-scallop" />
+        <path d={dome(R_BORDER, 12)} className="mini-border" />
         <path d={dome(R_RIM, 12)} className="mini-body" />
         <path d={dome(R_FACE, 0)} className="mini-face" />
         {reveal && (

@@ -21,18 +21,16 @@ import {
   R_HUB,
   R_RAY_MAX,
   R_RIM,
-  R_SCALLOP,
+  R_BORDER,
   VIEW,
   annularSector,
   dome,
   polar,
   rotationOf,
-  scallopedDome,
   seededRandom,
 } from "@/lib/geometry";
 
 const BASE = 122; // how far the dial body extends below the hub line
-const SCALLOPS = 24;
 const HALF_RAY = (1 / (RAY_COUNT - 1)) * 0.36; // angular half-width, in value units
 // An invisible landing zone around neutral. This makes an intentional midpoint
 // tap reliable on a phone without drawing a centre mark that would anchor people.
@@ -405,8 +403,9 @@ export default function Dial({
         ))}
       </g>
 
-      {/* ------------------------------------------- scalloped white border */}
-      <path className="scallop" d={scallopedDome(R_SCALLOP, SCALLOPS, BASE)} fill="#FBF7EE" />
+      {/* A plain outer arch keeps the instrument distinctive without echoing
+          the scalloped shell of the Wavelength game. */}
+      <path className="dial-border" d={dome(R_BORDER, BASE)} fill="#FBF7EE" />
 
       {/* ------------------------------------------------- navy dial body */}
       <path d={dome(R_RIM, BASE)} fill="#101A4A" />

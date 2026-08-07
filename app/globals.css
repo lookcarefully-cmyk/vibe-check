@@ -144,7 +144,7 @@ body::after {
   display: block;
 }
 
-.mini-scallop {
+.mini-border {
   fill: rgba(251, 247, 238, 0.9);
 }
 
@@ -1704,7 +1704,7 @@ body::after {
   fill: var(--teal);
 }
 
-.scallop {
+.dial-border {
   filter: drop-shadow(0 24px 60px rgba(0, 0, 0, 0.45));
 }
 

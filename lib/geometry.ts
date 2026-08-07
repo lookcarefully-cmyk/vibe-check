@@ -9,7 +9,7 @@ export const VIEW = { w: 1000, h: 636 };
 export const CX = 500;
 export const CY = 500;
 
-export const R_SCALLOP = 478; // outer edge of the white zigzag border
+export const R_BORDER = 478; // outer edge of the clean cream border
 export const R_RIM = 442; // outer edge of the navy rim
 export const R_FACE = 398; // the light dial face
 export const R_HUB = 46;
@@ -71,29 +71,6 @@ export function rotationOf(value: number): number {
 export function polar(value: number, radius: number): [number, number] {
   const a = angleOf(value);
   return [CX + radius * Math.cos(a), CY - radius * Math.sin(a)];
-}
-
-/**
- * A closed path tracing the dome with `bumps` outward semicircular scallops,
- * then squared off along the bottom.
- */
-export function scallopedDome(radius: number, bumps: number, base: number): string {
-  const pts: [number, number][] = [];
-  for (let i = 0; i <= bumps; i += 1) {
-    const a = Math.PI - (i / bumps) * Math.PI;
-    pts.push([CX + radius * Math.cos(a), CY - radius * Math.sin(a)]);
-  }
-  // Bump radius must exceed half the chord or the arc is unsatisfiable.
-  const chord = 2 * radius * Math.sin(Math.PI / (2 * bumps));
-  const r = chord * 0.62;
-
-  let d = `M ${pts[0][0].toFixed(2)} ${pts[0][1].toFixed(2)}`;
-  for (let i = 1; i < pts.length; i += 1) {
-    // sweep-flag 1: clockwise on screen == bulging away from the centre.
-    d += ` A ${r.toFixed(2)} ${r.toFixed(2)} 0 0 1 ${pts[i][0].toFixed(2)} ${pts[i][1].toFixed(2)}`;
-  }
-  d += ` L ${CX + radius} ${CY + base} L ${CX - radius} ${CY + base} Z`;
-  return d;
 }
 
 /**

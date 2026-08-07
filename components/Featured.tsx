@@ -80,6 +80,15 @@ export default function Featured() {
         </p>
       </header>
 
+      <section className="front-door-actions" aria-label="Start or explore">
+        <StartMainSet label="Answer a question" />
+        <div className="front-door-secondary">
+          <Link href="/explore" className="reset">Explore boards</Link>
+          <Link href="/b/new" className="reset">Make a board</Link>
+        </div>
+        <p>The questions are shuffled. Keep going for as long as you like.</p>
+      </section>
+
       <HowToPlay />
 
       <section className="home-pulse" aria-labelledby="home-pulse-title">
@@ -92,13 +101,6 @@ export default function Featured() {
           </p>
         </div>
         <Link href="/pulse" className="lock-in">Take the AI Pulse</Link>
-      </section>
-
-      <section className="front-door-actions" aria-label="Start or explore">
-        <StartMainSet />
-        <Link href="/explore" className="reset">Explore boards</Link>
-        <Link href="/b/new" className="reset">Make a board</Link>
-        <p>The order is shuffled. Swipe or click through as many as you want.</p>
       </section>
 
       {trending.length > 0 && (

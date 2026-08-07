@@ -18,6 +18,8 @@ interface BoardStreamNavProps {
   topic: Topic;
   answered: boolean;
   community: boolean;
+  /** An unlisted board shared on its own, not a multi-board private set. */
+  standalone?: boolean;
 }
 
 type StreamKind = "main" | "community" | "pulse";
@@ -50,6 +52,7 @@ export default function BoardStreamNav({
   topic,
   answered,
   community,
+  standalone = false,
 }: BoardStreamNavProps) {
   const router = useRouter();
   const [step, setStep] = useState<BoardStreamStep | null>(null);
@@ -282,6 +285,19 @@ export default function BoardStreamNav({
           </span>
           <span className="board-stream-arrow" aria-hidden="true">→</span>
         </button>
+      ) : step.complete && standalone ? (
+        <button
+          type="button"
+          className="board-stream-next"
+          onClick={continueIntoMain}
+          disabled={moving}
+          aria-label="Answer more questions"
+        >
+          <span className="board-stream-action">
+            <span>{moving ? "Loading…" : "Answer more questions"}</span>
+          </span>
+          <span className="board-stream-arrow" aria-hidden="true">→</span>
+        </button>
       ) : step.complete ? (
         <div className="board-stream-finished" role="status">
           <span>That&rsquo;s every board</span>
@@ -292,10 +308,10 @@ export default function BoardStreamNav({
           className="board-stream-next"
           onClick={goNext}
           disabled={moving}
-          aria-label={answered ? "Go to the next question" : "Skip to the next question"}
+          aria-label={standalone ? "Answer more questions" : answered ? "Go to the next question" : "Skip to the next question"}
         >
           <span className="board-stream-action">
-            <span>{moving ? "Loading…" : answered ? "Next question" : "Skip"}</span>
+            <span>{moving ? "Loading…" : standalone ? "Answer more questions" : answered ? "Next question" : "Skip"}</span>
             <small className="board-stream-gesture">
               Swipe left, or up here
             </small>

@@ -2,6 +2,7 @@ import Link from "next/link";
 
 interface SubscribeCalloutProps {
   compact?: boolean;
+  prominent?: boolean;
 }
 
 /**
@@ -12,9 +13,12 @@ interface SubscribeCalloutProps {
  * Most importantly, no email can be joined to the anonymous browser id used by
  * the research data.
  */
-export default function SubscribeCallout({ compact = false }: SubscribeCalloutProps) {
+export default function SubscribeCallout({
+  compact = false,
+  prominent = false,
+}: SubscribeCalloutProps) {
   return (
-    <aside className={`subscribe-callout${compact ? " is-compact" : ""}`}>
+    <aside className={`subscribe-callout${compact ? " is-compact" : ""}${prominent ? " is-prominent" : ""}`}>
       <div>
         <p className="subscribe-kicker">One reminder a month</p>
         <h2>Come back when the next Pulse opens.</h2>
@@ -24,7 +28,7 @@ export default function SubscribeCallout({ compact = false }: SubscribeCalloutPr
           never connected to your answers here.
         </p>
       </div>
-      <Link href="/subscribe" className="reset">
+      <Link href="/subscribe" className={prominent ? "lock-in" : "reset"}>
         Get the monthly reminder
       </Link>
     </aside>

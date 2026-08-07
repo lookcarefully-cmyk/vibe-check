@@ -10,7 +10,6 @@ import BoardReaction from "./BoardReaction";
 import Colophon from "./Colophon";
 import SharePrompt from "./SharePrompt";
 import Sparkline from "./Sparkline";
-import SubscribeCallout from "./SubscribeCallout";
 import { eventsFor } from "@/lib/events";
 import {
   BIN_COUNT,
@@ -24,7 +23,6 @@ import { getSessionId } from "@/lib/session";
 import {
   EXPERIMENT_ENABLED,
   isExperimentTopic,
-  PULSE_FINAL_TOPIC_ID,
   positionInArm,
 } from "@/lib/experiment";
 import {
@@ -102,10 +100,13 @@ const showStageFromTop = () => {
 export default function VibeCheck({
   topic,
   community = false,
+  standalone = false,
 }: {
   topic: Topic;
   /** True for a board someone made, which is labelled as such and not ours. */
   community?: boolean;
+  /** True for an unlisted, share-link board rather than a public collection. */
+  standalone?: boolean;
 }) {
   const [phase, setPhase] = useState<Phase>("choose");
   const [pick, setPick] = useState(0.5);
@@ -1029,10 +1030,6 @@ export default function VibeCheck({
             path={community ? `/b/${topic.id}` : `/${topic.id}`}
           />
 
-          {topic.id === PULSE_FINAL_TOPIC_ID && !revealed && (
-            <SubscribeCallout compact />
-          )}
-
           {agg.count < 5 && (
             <p className="thin-data">
               Only {agg.count} {agg.count === 1 ? "response" : "responses"} so far — the
@@ -1153,7 +1150,12 @@ export default function VibeCheck({
       {/* One clear continuation replaces the old four-choice shelf. The order
           lives in sessionStorage and no next-board result is previewed here. */}
       {!midRun && (
-        <BoardStreamNav topic={topic} answered={isResult} community={community} />
+        <BoardStreamNav
+          topic={topic}
+          answered={isResult}
+          community={community}
+          standalone={standalone}
+        />
       )}
 
       {community && (

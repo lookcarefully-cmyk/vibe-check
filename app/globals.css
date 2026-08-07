@@ -716,6 +716,31 @@ body::after {
   margin-top: 0.4rem;
 }
 
+.subscribe-callout.is-prominent {
+  flex-direction: column;
+  gap: 0.85rem;
+  border-color: rgba(242, 177, 56, 0.56);
+  background:
+    radial-gradient(circle at 50% 0%, rgba(242, 177, 56, 0.16), transparent 60%),
+    rgba(242, 177, 56, 0.075);
+  text-align: center;
+}
+
+.subscribe-callout.is-prominent p:not(.subscribe-kicker) {
+  margin-right: auto;
+  margin-left: auto;
+}
+
+.subscribe-callout.is-prominent .lock-in {
+  margin-top: 0;
+  background: var(--mustard);
+  text-decoration: none;
+}
+
+.subscribe-callout.is-prominent .lock-in:hover {
+  background: #ffc754;
+}
+
 /* ---------------------------------------------------------- maker ideas */
 
 .maker-ideas {

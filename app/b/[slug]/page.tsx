@@ -24,5 +24,5 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
 export default async function CommunityBoardPage({ params }: Params) {
   const board = await getCommunityBoard((await params).slug);
   if (!board) notFound();
-  return <VibeCheck topic={toTopic(board)} community />;
+  return <VibeCheck topic={toTopic(board)} community standalone={!board.listed} />;
 }

@@ -69,6 +69,8 @@ export default function PulseLanding() {
         </p>
       </header>
 
+      <SubscribeCallout prominent />
+
       <section className="pulse-card" aria-labelledby="pulse-month">
         <p className="pulse-date" id="pulse-month">{month}</p>
         <ol className="pulse-questions">
@@ -118,8 +120,6 @@ export default function PulseLanding() {
         The questions remain the same each month to track sentiment shifts. Respondents
         are self-selected, so the results describe this crowd rather than its population.
       </p>
-
-      <SubscribeCallout />
 
       <p className="board-index-run">
         <Link href="/explore">Explore every board</Link>

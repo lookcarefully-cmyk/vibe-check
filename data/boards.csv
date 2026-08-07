@@ -1,46 +1,92 @@
-board_id,board_version,origin,question,left_label,right_label,high_means,scale_family,category,cadence,is_calibration,hidden_from_library
-social-addictive,1,curated,Is shortform social media addictive?,NOT ADDICTIVE,ADDICTIVE,more addictive,addictive,Screens & attention,week,0,1
-coffee-addictive,1,curated,Is coffee addictive?,NOT ADDICTIVE,ADDICTIVE,more addictive,addictive,Everyday habits,week,0,1
-slime,1,curated,Is slime a liquid or a solid?,LIQUID,SOLID,more solid,bipolar,Other,once,1,1
-social-healthy,1,curated,Is shortform social media bad or good for your mental health?,HARMFUL,HEALTHY,better for mental health,bipolar,Screens & attention,week,0,0
-social-treatment,1,curated,Someone says shortform video has taken over their life. What treatment should they be able to get?,NONE,FULL CLINICAL CARE,more access to treatment,amount,Screens & attention,week,0,1
-social-disorder,1,curated,Is compulsive shortform scrolling a real disorder or just a bad habit?,REAL DISORDER,JUST A HABIT,less clinically serious,bipolar,Screens & attention,week,0,1
-social-neuro,1,curated,"Long-term shortform social media use is, neurologically:",HARMFUL,HARMLESS,more neurologically harmless,bipolar,Screens & attention,week,0,0
-porn-addictive,1,curated,Is internet porn addictive?,NOT ADDICTIVE,ADDICTIVE,more addictive,addictive,Sex & relationships,week,0,0
-porn-healthy,1,curated,Is internet porn harmful or healthy?,HARMFUL,HEALTHY,healthier,bipolar,Sex & relationships,week,0,0
-social-polarizing,1,curated,Is shortform social media politically polarizing or politically unifying?,POLARIZING,UNIFYING,more unifying,bipolar,Screens & attention,week,0,0
-social-society,1,curated,Is shortform social media bad or good for society?,BAD FOR SOCIETY,GOOD FOR SOCIETY,better for society,bipolar,Screens & attention,week,0,1
-porn-society,1,curated,Is internet porn bad or good for society?,BAD FOR SOCIETY,GOOD FOR SOCIETY,better for society,bipolar,Sex & relationships,week,0,0
-ai-optimist,1,curated,"On AI, are you an optimist or a doomer?",OPTIMIST,DOOMER,more doomer,bipolar,AI,week,0,0
-ai-tempo,1,curated,Should AI progress slow down or speed up?,SLOW DOWN,ACCELERATE,should accelerate,pace,AI,week,0,0
-agi-here,1,curated,AGI: are we there yet?,WE'RE THERE,NOT EVEN CLOSE,further away,proximity,AI,week,0,0
-singularity-here,1,curated,The singularity: are we there yet?,WE'RE THERE,NOT EVEN CLOSE,further away,proximity,AI,week,0,0
-opensource-gap,1,curated,Open-source AI catching up to closed frontier models: are we there yet?,WE'RE THERE,NOT EVEN CLOSE,further away,proximity,AI,week,0,0
-anthropic-mandate,1,curated,Does Anthropic still have the mandate of heaven?,LOST THE MANDATE,HAS THE MANDATE,still has the mandate,bipolar,AI labs,week,0,0
-openai-mandate,1,curated,Does OpenAI still have the mandate of heaven?,LOST THE MANDATE,HAS THE MANDATE,still has the mandate,bipolar,AI labs,week,0,0
-mandate-openai-anthropic,1,curated,Who holds the mandate of heaven — OpenAI or Anthropic?,OPENAI,ANTHROPIC,Anthropic over OpenAI,bipolar,AI labs,week,0,0
-fable-coded,1,curated,Is Fable SF-coded or NYC-coded?,SF-CODED,NYC-CODED,more NYC-coded,bipolar,SF or NYC?,month,0,0
-opus-coded,1,curated,Is Opus SF-coded or NYC-coded?,SF-CODED,NYC-CODED,more NYC-coded,bipolar,SF or NYC?,month,0,0
-cursor-coded,1,curated,Is Cursor SF-coded or NYC-coded?,SF-CODED,NYC-CODED,more NYC-coded,bipolar,SF or NYC?,month,0,0
-chatgpt-coded,1,curated,Is ChatGPT SF-coded or NYC-coded?,SF-CODED,NYC-CODED,more NYC-coded,bipolar,SF or NYC?,month,0,0
-grok-coded,1,curated,Is Grok SF-coded or NYC-coded?,SF-CODED,NYC-CODED,more NYC-coded,bipolar,SF or NYC?,month,0,0
-us-hegemony-end,1,curated,The end of US hegemony: are we there yet?,WE'RE THERE,NOT EVEN CLOSE,further away,proximity,Big shifts,week,0,0
-college-end,1,curated,The end of the collegiate model of education: are we there yet?,WE'RE THERE,NOT EVEN CLOSE,further away,proximity,Big shifts,week,0,0
-college-recommend-2026,1,curated,Would you recommend your kid goes to college today?,NO,YES,more likely to recommend college,bipolar,Big shifts,week,0,0
-kids-social,1,curated,Is social media access for children under 12 harmful or beneficial?,HARMFUL,BENEFICIAL,more beneficial,bipolar,Kids & screens,week,0,0
-online-gambling,1,curated,Should online gambling be illegal or legal?,ILLEGAL,LEGAL,should be legal,bipolar,Law & policy,week,0,0
-prediction-markets,1,curated,Should prediction markets be illegal or legal?,ILLEGAL,LEGAL,should be legal,bipolar,Law & policy,week,0,0
-llm-smarter,1,curated,Do LLMs make people smarter or dumber?,SMARTER,DUMBER,people end up dumber,bipolar,AI,week,0,0
-ai-art,1,curated,"AI-generated art: a new creative frontier, or a threat to human artistry?",CREATIVE FRONTIER,THREAT TO ARTISTRY,more of a threat to human artistry,bipolar,AI,week,0,0
-ai-jobs,1,curated,Will AI create jobs or replace them?,CREATE JOBS,REPLACE JOBS,more job replacement,bipolar,AI,week,0,0
-ai-regulation,1,curated,How should society approach the regulation of advanced AI?,UNFETTERED INNOVATION,PREEMPTIVE REGULATION,more regulation,bipolar,AI,week,0,0
-ai-money,1,curated,Has AI lost you money or made you money?,LOST ME MONEY,MADE ME MONEY,made them more money,bipolar,AI,week,0,0
-college-worth,1,curated,A four-year college degree is…,OUTDATED MODEL,FOUNDATIONAL NECESSITY,more of a necessity,bipolar,Big shifts,week,0,0
-opus-chad,1,curated,Is Opus a chud or a chad?,CHUD,CHAD,more chad,bipolar,Chud or Chad?,week,0,0
-fable-chad,1,curated,Is Fable a chud or a chad?,CHUD,CHAD,more chad,bipolar,Chud or Chad?,week,0,0
-chatgpt-chad,1,curated,Is ChatGPT a chud or a chad?,CHUD,CHAD,more chad,bipolar,Chud or Chad?,week,0,0
-gemini-chad,1,curated,Is Gemini a chud or a chad?,CHUD,CHAD,more chad,bipolar,Chud or Chad?,week,0,0
-grok-chad,1,curated,Is Grok a chud or a chad?,CHUD,CHAD,more chad,bipolar,Chud or Chad?,week,0,0
-labubu,1,curated,Labubu: toy or asset class?,TOY,ASSET CLASS,more of an asset class,bipolar,Other,week,0,0
-pitbulls,1,curated,Should people be allowed to own pit bulls?,NEVER,ALWAYS,more permissive,permission,Law & policy,week,0,0
-is-it-good-that-americans-tax-dc3991,1,community,Is it good that Americans’ tax dollars go towards foreign aid?,NO,YES,closer to yes,bipolar,Community,week,0,1
+board_id,board_version,origin,question,left_label,right_label,high_means,scale_family,category,collection,cadence,is_calibration,reveal_type,hidden_from_library,retired_from_site,benchmark_value,benchmark_display,benchmark_unit,benchmark_source_name,benchmark_source_url,benchmark_fielded
+social-addictive,1,curated,Is shortform social media addictive?,NOT ADDICTIVE,ADDICTIVE,more addictive,addictive,Screens & attention,more,week,0,,1,0,,,,,,
+coffee-addictive,1,curated,Is coffee addictive?,NOT ADDICTIVE,ADDICTIVE,more addictive,addictive,Everyday habits,more,week,0,,1,0,,,,,,
+slime,1,curated,Is slime a liquid or a solid?,LIQUID,SOLID,more solid,bipolar,Other,more,once,1,,1,0,,,,,,
+perceived-extremism,1,curated,"Out of 100 people who vote the opposite way from you, how many hold views you'd honestly call extreme?",NONE OF THEM,ALL 100,a larger perceived share of political opponents hold extreme views,amount,Perception gaps,main,once,0,real-figure,0,0,0.3,about 30%,percent,"More in Common / YouGov, The Perception Gap",https://perceptiongap.us/media/anvpqwr2/perception-gap-report-1-0-3.pdf,"2019 · representative sample of 2,100 Americans"
+climate-support-perception,1,curated,"Out of 100 people in your country, how many want the government doing more about climate change?",ALMOST NONE,ALMOST ALL,a larger perceived share wants more government climate action,amount,Perception gaps,more,month,0,,1,0,,,,,,
+climate-worry-perception,1,curated,"Out of 100 U.S. adults, how many are at least somewhat worried about global warming?",ALMOST NONE,ALMOST ALL,a larger perceived share is at least somewhat worried about global warming,amount,Perception gaps,main,once,0,real-figure,0,0,0.64,64%,percent,Yale Program on Climate Change Communication,https://climatecommunication.yale.edu/publications/climate-change-in-the-american-mind-beliefs-attitudes-fall-2025/toc/5/,"November 6–14, 2025 · nationally representative sample of 1,146 U.S. adults"
+violence-support-perception,1,curated,"Out of 100 people on the political side you like least, how many would endorse violence to get their way?",NONE OF THEM,ALL 100,a larger perceived share endorses political violence,amount,Perception gaps,more,week,0,,1,0,,,,,,
+violence-support-score-perception,1,curated,"On a 0–100 scale, how much do people on the political side you like least support using violence to advance political goals?",NO SUPPORT,FULL SUPPORT,greater perceived average support for partisan violence,amount,Perception gaps,main,once,0,real-figure,0,0,0.098,about 9.8 / 100,score100,"Mernyk et al., Proceedings of the National Academy of Sciences",https://doi.org/10.1073/pnas.2116851119,October 2020 · nationally representative survey of U.S. Democrats and Republicans
+emergency-expense-perception,1,curated,"Out of 100 U.S. adults, how many say they would cover a $400 emergency expense using cash, savings, or a credit card paid off at the next statement?",ALMOST NONE,ALMOST ALL,a larger perceived share would cover a $400 emergency expense with cash or its equivalent,amount,Perception gaps,main,once,0,real-figure,0,0,0.63,63%,percent,"Federal Reserve, Survey of Household Economics and Decisionmaking",https://www.federalreserve.gov/publications/2026-economic-well-being-of-us-households-in-2025-savings-investments.htm,"October 2025 · nationally representative survey of 12,934 U.S. adults"
+abortion-legal-perception,1,curated,"Out of 100 U.S. adults, how many say abortion should be legal in all or most cases?",ALMOST NONE,ALMOST ALL,a larger perceived share supports legal abortion in all or most cases,amount,Perception gaps,main,once,0,real-figure,0,0,0.6,60%,percent,Pew Research Center,https://www.pewresearch.org/religion/fact-sheet/public-opinion-on-abortion/,"January 20–26, 2026 · nationally representative sample of 8,512 U.S. adults"
+loneliness-perception,1,curated,"Out of 100 U.S. adults, how many say they feel lonely or isolated all or most of the time?",ALMOST NONE,ALMOST ALL,a larger perceived share feels lonely or isolated all or most of the time,amount,Perception gaps,main,once,0,real-figure,0,0,0.16,16%,percent,Pew Research Center,https://www.pewresearch.org/social-trends/2025/01/16/men-women-and-social-connections/,"September 3–15, 2024 · nationally representative sample of 6,204 U.S. adults"
+social-trust-perception,1,curated,"Out of 100 U.S. adults, how many say most people can be trusted?",ALMOST NONE,ALMOST ALL,a larger perceived share says most people can be trusted,amount,Perception gaps,main,once,0,real-figure,0,0,0.34,34%,percent,"Pew Research Center, Religious Landscape Study",https://www.pewresearch.org/2025/05/08/americans-trust-in-one-another/,2023–2024 · nationally representative survey of U.S. adults
+free-expression-perception,1,curated,"Out of 100 U.S. adults, how many agree that everyone, regardless of their views, has the right to free, nonviolent expression?",ALMOST NONE,ALMOST ALL,"a larger perceived share supports free, nonviolent expression regardless of viewpoint",amount,Perception gaps,main,once,0,real-figure,0,0,0.8,80%,percent,"Kettering Foundation / Gallup, Democracy for All",https://news.gallup.com/poll/696494/americans-show-consensus-democracy-related-matters.aspx,"July 7–August 25, 2025 · probability-based survey of more than 20,000 U.S. adults"
+disagreement-sources,1,curated,"What you believe about people who disagree with you: how much comes from meeting them, and how much from reading about them?",MEETING THEM,READING ABOUT THEM,more of the belief comes from reading about people rather than meeting them,bipolar,Perception gaps,more,month,0,crowd,0,0,,,,,,
+immigration-status,1,curated,"People living in the country without legal status: deport them, or give them legal status?",DEPORT,LEGAL STATUS,more support for providing legal status,bipolar,Public life,main,week,0,other-side,0,0,,,,,,
+local-police,1,curated,"The police where you live are, on balance...",A THREAT TO ME,A PROTECTION FOR ME,the police feel more protective,bipolar,Public life,main,month,0,other-side,0,0,,,,,,
+gun-laws,1,curated,Gun laws where you live should be...,MUCH LOOSER,MUCH STRICTER,more support for stricter gun laws,bipolar,Public life,main,month,0,other-side,0,0,,,,,,
+prison-purpose,1,curated,"What should prison focus on more: punishing what someone did, or preparing them to return to society?",PUNISHMENT,REHABILITATION,more emphasis on rehabilitation and preparing people to return to society,bipolar,Public life,main,month,0,other-side,0,0,,,,,,
+history-classes,1,curated,School history classes should leave kids feeling...,ASHAMED,PROUD,more emphasis on pride in country,bipolar,Public life,more,month,0,other-side,0,0,,,,,,
+climate-income,1,curated,How much of your own income would you give every year to fight climate change?,NOT A CENT,A TENTH OF IT,willing to give a larger share of income toward climate action,amount,Public life,more,month,0,other-side,0,0,,,,,,
+household-basics,1,curated,"Compared with a year ago, is it getting easier or harder for your household to cover the basics?",MUCH EASIER,MUCH HARDER,covering basics has become harder,bipolar,Money & work,main,week,0,crowd,0,0,,,,,,
+luck-or-effort,1,curated,Where you've ended up in life so far is mostly...,LUCK,EFFORT,more attributed to personal effort,bipolar,Money & work,main,month,0,other-side,0,0,,,,,,
+home-worth,1,curated,Is buying a home still worth what it costs?,STILL WORTH IT,NOT WORTH IT,home ownership feels less worth its cost,bipolar,Money & work,main,week,0,crowd,0,0,,,,,,
+job-identity,1,curated,"Your job: is it just a paycheck, or part of who you are?",JUST A PAYCHECK,PART OF WHO I AM,work is more central to personal identity,bipolar,Money & work,main,month,0,crowd,0,0,,,,,,
+generational-finances,1,curated,"Compared with your parents at your age, how well off are you?",FAR WORSE OFF,FAR BETTER OFF,better off than their parents were at the same age,bipolar,Money & work,main,month,0,crowd,0,0,,,,,,
+burnout,1,curated,"Right now, how close are you to burning out at work or school?",FULLY RESTED,COMPLETELY BURNT OUT,closer to complete burnout,bipolar,Money & work,main,week,0,crowd,0,0,,,,,,
+known-by-others,1,curated,How well do the people in your life actually know you?,NOBODY REALLY KNOWS ME,I'M FULLY KNOWN,feels more fully known by people in their life,bipolar,Health & connection,main,week,0,crowd,0,0,,,,,,
+social-life-comparison,1,curated,"Compared with other people your age, your social life is...",EMPTIER THAN THEIRS,FULLER THAN THEIRS,a fuller social life than perceived peers,bipolar,Health & connection,main,month,0,crowd,0,0,,,,,,
+medical-bill,1,curated,"If an unexpected $500 medical bill landed tomorrow, how much would it wreck you?",NOT AT ALL,COMPLETELY,more financially disrupted by an unexpected medical bill,amount,Health & connection,main,month,0,crowd,0,0,,,,,,
+relationship-privacy,1,curated,"In a committed relationship, how much privacy should each person keep?",ALMOST NONE,A GREAT DEAL,more personal privacy should remain within a committed relationship,amount,Health & connection,main,month,0,other-side,0,0,,,,,,
+health-control,1,curated,How much control do you feel you have over your own health?,NONE AT ALL,TOTAL CONTROL,more perceived control over personal health,amount,Health & connection,more,month,0,crowd,0,0,,,,,,
+wallet-return,1,curated,"If you dropped your wallet with cash in it near your home, how likely is a stranger to return it?",NO CHANCE,CERTAIN,a higher perceived chance that a stranger would return the wallet,probability,"Trust, meaning & place",main,month,0,crowd,0,0,,,,,,
+beyond-physical,1,curated,How likely is it that something exists beyond the physical world?,CERTAINLY NOT,CERTAINLY YES,a higher perceived chance that something exists beyond the physical world,probability,"Trust, meaning & place",main,month,0,other-side,0,0,,,,,,
+reasons-for-fewer-kids,1,curated,"If you're not having more children: is it that you can't afford it, or that you don't want to?",CAN'T AFFORD IT,DON'T WANT TO,personal preference matters more than affordability,bipolar,"Trust, meaning & place",more,month,0,other-side,0,0,,,,,,
+care-for-parents,1,curated,How much should adult children be expected to care for their aging parents themselves?,NOT THEIR JOB,ENTIRELY THEIR JOB,greater expected responsibility for adult children,amount,"Trust, meaning & place",main,month,0,other-side,0,0,,,,,,
+rootedness,1,curated,How rooted do you feel in the place you live?,A STRANGER HERE,DEEPLY ROOTED,more deeply rooted in the place they live,bipolar,"Trust, meaning & place",main,month,0,crowd,0,0,,,,,,
+rural-urban,1,curated,How rural or urban is the place where you live?,VERY RURAL,DENSE URBAN CORE,lives in a more densely urban setting,bipolar,"Trust, meaning & place",main,month,0,,0,0,,,,,,
+online-self-censorship,2,curated,How much of what you actually think are you willing to say online?,ALMOST NONE,ALL OF IT,a larger share of their real views is expressed online,amount,Media & technology,main,week,0,crowd,0,0,,,,,,
+division-source,2,curated,The political division you see in the country is mostly...,REAL DISAGREEMENT,AMPLIFIED ONLINE,the perceived division feels more amplified online,bipolar,Media & technology,main,week,0,other-side,0,0,,,,,,
+life-without-short-video,1,curated,"Assuming nobody else had them either, your life without short-video apps would be...",MUCH WORSE,MUCH BETTER,life would be better without short-video apps,bipolar,Media & technology,main,month,0,crowd,0,0,,,,,,
+official-numbers-trust,1,curated,"When official numbers come out - jobs, inflation, crime - do you take them at face value or assume they're cooked?",TAKE THEM AT FACE VALUE,ASSUME THEY'RE COOKED,more sceptical of official statistics,bipolar,Media & technology,main,week,0,other-side,0,0,,,,,,
+person-or-chatbot,1,curated,"When something is really weighing on you, are you more likely to talk to a person or to a chatbot?",A PERSON,A CHATBOT,more likely to talk to a chatbot,bipolar,Media & technology,more,week,0,crowd,0,0,,,,,,
+ai-lift-or-leave-behind,1,curated,"Will AI leave you behind, or lift you up?",LEAVE ME BEHIND,LIFT ME UP,AI is more likely to lift them up,bipolar,Media & technology,main,week,0,other-side,0,0,,,,,,
+social-healthy,1,curated,Is shortform social media bad or good for your mental health?,HARMFUL,HEALTHY,better for mental health,bipolar,Screens & attention,more,week,0,,0,0,,,,,,
+social-treatment,1,curated,Someone says shortform video has taken over their life. What treatment should they be able to get?,NONE,FULL CLINICAL CARE,more access to treatment,amount,Screens & attention,more,week,0,,1,0,,,,,,
+social-disorder,1,curated,Is compulsive shortform scrolling a real disorder or just a bad habit?,REAL DISORDER,JUST A HABIT,less clinically serious,bipolar,Screens & attention,more,week,0,,1,0,,,,,,
+social-neuro,1,curated,"Long-term shortform social media use is, neurologically:",HARMFUL,HARMLESS,more neurologically harmless,bipolar,Screens & attention,more,week,0,,0,0,,,,,,
+porn-addictive,1,curated,Is internet porn addictive?,NOT ADDICTIVE,ADDICTIVE,more addictive,addictive,Sex & relationships,more,week,0,,0,0,,,,,,
+porn-healthy,1,curated,Is internet porn harmful or healthy?,HARMFUL,HEALTHY,healthier,bipolar,Sex & relationships,more,week,0,,0,0,,,,,,
+social-polarizing,1,curated,Is shortform social media politically polarizing or politically unifying?,POLARIZING,UNIFYING,more unifying,bipolar,Screens & attention,more,week,0,,0,0,,,,,,
+social-society,1,curated,Is shortform social media bad or good for society?,BAD FOR SOCIETY,GOOD FOR SOCIETY,better for society,bipolar,Screens & attention,more,week,0,,1,0,,,,,,
+porn-society,1,curated,Is internet porn bad or good for society?,BAD FOR SOCIETY,GOOD FOR SOCIETY,better for society,bipolar,Sex & relationships,more,week,0,,0,0,,,,,,
+ai-alignment-confidence,1,curated,How likely is it that advanced AI will reliably act in humanity’s best interests?,VERY UNLIKELY,VERY LIKELY,greater confidence that advanced AI will act in humanity's best interests,probability,Monthly AI Pulse,pulse,month,0,,0,0,,,,,,
+ai-humanity-future,1,curated,"Overall, will advanced AI make humanity’s future worse or better?",MUCH WORSE,MUCH BETTER,a more positive expected effect of advanced AI on humanity's future,bipolar,Monthly AI Pulse,pulse,month,0,,0,0,,,,,,
+ai-development-speed,1,curated,"From here, how fast should advanced AI development move?",PAUSE DEVELOPMENT,ACCELERATE,a preference for faster advanced AI development,pace,Monthly AI Pulse,pulse,month,0,,0,0,,,,,,
+ai-optimist,1,curated,"On AI, are you an optimist or a doomer?",OPTIMIST,DOOMER,more doomer,bipolar,AI,more,week,0,,0,0,,,,,,
+ai-tempo,1,curated,Should AI progress slow down or speed up?,SLOW DOWN,ACCELERATE,should accelerate,pace,AI,more,week,0,,0,0,,,,,,
+agi-here,1,curated,AGI: are we there yet?,WE'RE THERE,NOT EVEN CLOSE,further away,proximity,AI,more,week,0,,0,0,,,,,,
+singularity-here,1,curated,The singularity: are we there yet?,WE'RE THERE,NOT EVEN CLOSE,further away,proximity,AI,more,week,0,,0,0,,,,,,
+opensource-gap,1,curated,Open-source AI catching up to closed frontier models: are we there yet?,WE'RE THERE,NOT EVEN CLOSE,further away,proximity,AI,more,week,0,,0,0,,,,,,
+anthropic-mandate,1,curated,Does Anthropic still have the mandate of heaven?,LOST THE MANDATE,HAS THE MANDATE,still has the mandate,bipolar,AI labs,more,week,0,,0,0,,,,,,
+openai-mandate,1,curated,Does OpenAI still have the mandate of heaven?,LOST THE MANDATE,HAS THE MANDATE,still has the mandate,bipolar,AI labs,more,week,0,,0,0,,,,,,
+mandate-openai-anthropic,1,curated,Who holds the mandate of heaven — OpenAI or Anthropic?,OPENAI,ANTHROPIC,Anthropic over OpenAI,bipolar,AI labs,more,week,0,,0,0,,,,,,
+fable-coded,1,curated,Is Fable SF-coded or NYC-coded?,SF-CODED,NYC-CODED,more NYC-coded,bipolar,SF or NYC?,more,month,0,,0,1,,,,,,
+opus-coded,1,curated,Is Opus SF-coded or NYC-coded?,SF-CODED,NYC-CODED,more NYC-coded,bipolar,SF or NYC?,more,month,0,,0,1,,,,,,
+cursor-coded,1,curated,Is Cursor SF-coded or NYC-coded?,SF-CODED,NYC-CODED,more NYC-coded,bipolar,SF or NYC?,more,month,0,,0,1,,,,,,
+chatgpt-coded,1,curated,Is ChatGPT SF-coded or NYC-coded?,SF-CODED,NYC-CODED,more NYC-coded,bipolar,SF or NYC?,more,month,0,,0,1,,,,,,
+grok-coded,1,curated,Is Grok SF-coded or NYC-coded?,SF-CODED,NYC-CODED,more NYC-coded,bipolar,SF or NYC?,more,month,0,,0,1,,,,,,
+us-hegemony-end,1,curated,The end of US hegemony: are we there yet?,WE'RE THERE,NOT EVEN CLOSE,further away,proximity,Big shifts,more,week,0,,0,0,,,,,,
+college-end,1,curated,The end of the collegiate model of education: are we there yet?,WE'RE THERE,NOT EVEN CLOSE,further away,proximity,Big shifts,more,week,0,,0,0,,,,,,
+college-recommend-2026,1,curated,Would you recommend your kid goes to college today?,NO,YES,more likely to recommend college,bipolar,Big shifts,more,week,0,,0,0,,,,,,
+kids-social,1,curated,Is social media access for children under 12 harmful or beneficial?,HARMFUL,BENEFICIAL,more beneficial,bipolar,Kids & screens,more,week,0,,0,0,,,,,,
+online-gambling,1,curated,Should online gambling be illegal or legal?,ILLEGAL,LEGAL,should be legal,bipolar,Law & policy,more,week,0,,0,0,,,,,,
+prediction-markets,1,curated,Should prediction markets be illegal or legal?,ILLEGAL,LEGAL,should be legal,bipolar,Law & policy,more,week,0,,0,0,,,,,,
+llm-smarter,1,curated,Do LLMs make people smarter or dumber?,SMARTER,DUMBER,people end up dumber,bipolar,AI,more,week,0,,0,0,,,,,,
+ai-art,1,curated,"AI-generated art: a new creative frontier, or a threat to human artistry?",CREATIVE FRONTIER,THREAT TO ARTISTRY,more of a threat to human artistry,bipolar,AI,more,week,0,,0,0,,,,,,
+ai-jobs,1,curated,Will AI create jobs or replace them?,CREATE JOBS,REPLACE JOBS,more job replacement,bipolar,AI,more,week,0,,0,0,,,,,,
+ai-regulation,1,curated,How should society approach the regulation of advanced AI?,UNFETTERED INNOVATION,PREEMPTIVE REGULATION,more regulation,bipolar,AI,more,week,0,,0,0,,,,,,
+ai-money,1,curated,Has AI lost you money or made you money?,LOST ME MONEY,MADE ME MONEY,made them more money,bipolar,AI,more,week,0,,0,0,,,,,,
+college-worth,1,curated,A four-year college degree is…,OUTDATED MODEL,FOUNDATIONAL NECESSITY,more of a necessity,bipolar,Big shifts,more,week,0,,0,0,,,,,,
+opus-chad,1,curated,Is Opus a chud or a chad?,CHUD,CHAD,more chad,bipolar,Chud or Chad?,more,week,0,,1,1,,,,,,
+fable-chad,1,curated,Is Fable a chud or a chad?,CHUD,CHAD,more chad,bipolar,Chud or Chad?,more,week,0,,1,1,,,,,,
+chatgpt-chad,1,curated,Is ChatGPT a chud or a chad?,CHUD,CHAD,more chad,bipolar,Chud or Chad?,more,week,0,,1,1,,,,,,
+gemini-chad,1,curated,Is Gemini a chud or a chad?,CHUD,CHAD,more chad,bipolar,Chud or Chad?,more,week,0,,1,1,,,,,,
+grok-chad,1,curated,Is Grok a chud or a chad?,CHUD,CHAD,more chad,bipolar,Chud or Chad?,more,week,0,,1,1,,,,,,
+labubu,1,curated,Labubu: toy or asset class?,TOY,ASSET CLASS,more of an asset class,bipolar,Other,more,week,0,,0,0,,,,,,
+pitbulls,1,curated,Should people be allowed to own pit bulls?,NEVER,ALWAYS,more permissive,permission,Law & policy,more,week,0,,0,0,,,,,,
+is-it-good-that-americans-tax-dc3991,1,community,Is it good that Americans’ tax dollars go towards foreign aid?,NO,YES,closer to yes,bipolar,Community,community,week,0,,1,0,,,,,,
+our-next-group-trip-should-be-4ab42a,1,community,Our next group trip should be…,CITY WEEKEND,CABIN ESCAPE,closer to cabin escape,bipolar,Friends,community,week,0,,1,0,,,,,,
+the-man-made-horrors-are-8ef6a5,1,community,The Man Made Horrors are:,WITHIN MY COMPREHENSION,BEYOND MY COMPREHENSION,closer to beyond my comprehension,bipolar,Community,community,week,0,,0,0,,,,,,
+this-trend-is-0fa08a,1,community,This trend is…,JUST GETTING STARTED,ALREADY OVER,closer to already over,bipolar,Culture,community,week,0,,1,0,,,,,,

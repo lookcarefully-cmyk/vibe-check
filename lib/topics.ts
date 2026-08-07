@@ -1088,10 +1088,10 @@ export const TOPICS: Topic[] = [
   /*
    * These three questions are deliberately stable and live outside both the
    * Main Set and More. Together they form one small recurring instrument:
-   * expected alignment, expected consequences, and preferred development
-   * speed. Keeping the wording fixed is what makes month-to-month movement
-   * interpretable rather than a change in the question masquerading as a
-   * change in opinion.
+   * current perceived alignment, expected breadth of benefit, and preferred
+   * development speed. Keeping the wording fixed is what makes month-to-month
+   * movement interpretable rather than a change in the question masquerading
+   * as a change in opinion.
    */
   {
     id: "ai-alignment-confidence",
@@ -1107,6 +1107,10 @@ export const TOPICS: Topic[] = [
     scale: "probability",
     category: "Monthly AI Pulse",
     cadence: "month",
+    // Retained so its pre-launch answers remain interpretable. The revised
+    // Pulse asks about present alignment under a new id rather than combining
+    // two different constructs into one time series.
+    retiredFromSite: true,
   },
   {
     id: "ai-humanity-future",
@@ -1120,6 +1124,37 @@ export const TOPICS: Topic[] = [
     leftProse: "worse",
     rightProse: "better",
     highMeans: "a more positive expected effect of advanced AI on humanity's future",
+    scale: "bipolar",
+    category: "Monthly AI Pulse",
+    cadence: "month",
+    // Retained for the same reason as the original alignment item above.
+    retiredFromSite: true,
+  },
+  {
+    id: "ai-current-alignment",
+    collection: "pulse",
+    subject: "Current AI alignment",
+    axis: "Aligned with humanity?",
+    question:
+      "Based on what you see today, how aligned are the most advanced AI models with human values and interests?",
+    prompt: CORE_PROMPT,
+    leftLabel: "NOT AT ALL ALIGNED",
+    rightLabel: "HIGHLY ALIGNED",
+    highMeans: "a stronger perception that the most advanced AI models are aligned with human values and interests",
+    scale: "bipolar",
+    category: "Monthly AI Pulse",
+    cadence: "month",
+  },
+  {
+    id: "ai-benefit-distribution",
+    collection: "pulse",
+    subject: "Who benefits from AI",
+    axis: "Narrow or broad benefit?",
+    question: "Who is advanced AI currently on track to benefit?",
+    prompt: CORE_PROMPT,
+    leftLabel: "A VERY SMALL GROUP",
+    rightLabel: "HUMANITY BROADLY",
+    highMeans: "an expectation that the benefits of advanced AI will reach humanity more broadly",
     scale: "bipolar",
     category: "Monthly AI Pulse",
     cadence: "month",

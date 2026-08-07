@@ -71,7 +71,7 @@ export default function PulseCard() {
             marginTop: 48,
           }}
         >
-          {["Alignment", "Humanity’s future", "Move faster or slower"].map((label, index) => (
+          {["Alignment today", "Who benefits", "Move faster or slower"].map((label, index) => (
             <div
               key={label}
               style={{

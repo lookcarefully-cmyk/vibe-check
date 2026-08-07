@@ -102,13 +102,10 @@ const showStageFromTop = () => {
 export default function VibeCheck({
   topic,
   community = false,
-  embedded = false,
 }: {
   topic: Topic;
   /** True for a board someone made, which is labelled as such and not ours. */
   community?: boolean;
-  /** A full voting instrument placed inside another page, such as Home. */
-  embedded?: boolean;
 }) {
   const [phase, setPhase] = useState<Phase>("choose");
   const [pick, setPick] = useState(0.5);
@@ -538,10 +535,9 @@ export default function VibeCheck({
       : `${Math.round(v * 100)}%`;
 
   const predictionQuestion = "Where do you think others landed?";
-  const Root = embedded ? "section" : "main";
 
   return (
-    <Root className={embedded ? "home-board" : "shell"}>
+    <main className="shell">
       {/*
         Nothing but the question above the dial. The board grid lives at the
         bottom now — see moreTopics — because arriving on a board should put you
@@ -555,14 +551,12 @@ export default function VibeCheck({
 
       <header className="masthead">
         {/* A div, not a p: it contains a <dialog>, which isn't phrasing content. */}
-        {!embedded && (
-          <div className="kicker">
-            <span className="kicker-text">
-              {community ? "Vibe Check · a board someone made" : "Vibe Check · public opinion, made visible"}
-            </span>
-            <InfoDialog />
-          </div>
-        )}
+        <div className="kicker">
+          <span className="kicker-text">
+            {community ? "Vibe Check · a board someone made" : "Vibe Check · public opinion, made visible"}
+          </span>
+          <InfoDialog />
+        </div>
         <h1>{predicting ? predictionQuestion : topic.question}</h1>
         <p className="lede">
           {predicting
@@ -1172,7 +1166,7 @@ export default function VibeCheck({
       {community && <ReportBoard slug={topic.id} />}
 
       {/* Standing disclosure, so it's readable without opening the dialog. */}
-      {!embedded && <footer className="disclosure">
+      <footer className="disclosure">
         {community ? (
           <>
             This board was made by a visitor, not by us. It&rsquo;s screened for the
@@ -1187,10 +1181,10 @@ export default function VibeCheck({
           </>
         )}
         <span className="disclosure-cue">Full details under the ? above.</span>
-      </footer>}
+      </footer>
 
-      {!embedded && <Colophon />}
-    </Root>
+      <Colophon />
+    </main>
   );
 }
 

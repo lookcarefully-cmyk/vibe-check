@@ -63,7 +63,8 @@ export const isExperimentTopic = (topicId: string): boolean =>
  *
  * Boards flagged `hiddenFromLibrary` or `retiredFromSite` are excluded either
  * way. Among the remaining curated boards, `collection` separates the tightly
- * edited launch slate from the looser shelf on the More/Community page.
+ * edited launch slate, the monthly Pulse, and the looser shelf on the
+ * More/Community page.
  */
 const ACTIVE_LIBRARY_TOPICS: Topic[] = (EXPERIMENT_ENABLED
   ? TOPICS.filter((t) => !isExperimentTopic(t.id))
@@ -75,9 +76,17 @@ export const MAIN_TOPICS: Topic[] = ACTIVE_LIBRARY_TOPICS.filter(
   (topic) => topic.collection === "main",
 );
 
+/** Stable, ordered questions that make up the recurring monthly AI Pulse. */
+export const PULSE_TOPICS: Topic[] = ACTIVE_LIBRARY_TOPICS.filter(
+  (topic) => topic.collection === "pulse",
+);
+
+/** Used for the one reminder prompt after the final Pulse result. */
+export const PULSE_FINAL_TOPIC_ID = PULSE_TOPICS[PULSE_TOPICS.length - 1]?.id ?? "";
+
 /** Curated extras kept available beside community-made boards. */
 export const MORE_TOPICS: Topic[] = ACTIVE_LIBRARY_TOPICS.filter(
-  (topic) => topic.collection !== "main",
+  (topic) => topic.collection !== "main" && topic.collection !== "pulse",
 );
 
 /** Compatibility name used by the existing Main Set UI. */

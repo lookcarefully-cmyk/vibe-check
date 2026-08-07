@@ -42,6 +42,16 @@ and a Vercel account. ~20 minutes, mostly you clicking through signup.
 Options: a free `something.vercel.app` subdomain, or a custom domain (~$12/yr).
 A custom domain looks more legitimate when a stranger lands on it from Substack.
 
+### A5. Connect monthly Pulse reminders to Substack — **DONE**
+
+The site links to `/subscribe`, which redirects to
+`https://vibecheckpublicdata.substack.com/`. `SUBSTACK_URL` remains an optional
+Vercel override if the publication moves later.
+
+Do not embed a Substack form in Vibe Check and do not copy subscriber emails into
+the vote store. The separate redirect is the privacy boundary: Substack knows the
+email; Vibe Check knows the anonymous browser id; neither system receives both.
+
 ---
 
 ## B. Decide before collection starts — **ALL DONE**

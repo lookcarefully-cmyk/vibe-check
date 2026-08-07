@@ -87,9 +87,14 @@ export default function InfoDialog() {
               </li>
             </ol>
             <p>
-              A shuffled stream is optional and finite: it does not loop back through
-              boards you already completed. Explore lets you browse the focused Main Set,
-              a wider shelf from Vibe Check, and boards made by visitors.
+              The shuffled feed does not loop back through boards you already completed.
+              Explore lets you browse the focused Main Set, the monthly AI Pulse, and a
+              community pool that grows as visitors publish boards.
+            </p>
+            <p>
+              The <strong>monthly AI Pulse</strong> is a separate three-question set.
+              Its wording stays fixed so changes from one month to the next can be read
+              as movement in this crowd rather than movement in the question.
             </p>
           </section>
 
@@ -183,12 +188,13 @@ export default function InfoDialog() {
           </section>
 
           <section>
-            <h3>Main, More and community boards</h3>
+            <h3>Main and community boards</h3>
             <p>
               The <strong>Main Set</strong> is the smaller research-led collection where
-              responses are deliberately concentrated. <strong>More from Vibe Check</strong>
-              holds good questions outside that focused slate. Both are written by this
-              project and are clearly separated from visitor-made boards.
+              responses are deliberately concentrated. The <strong>Community</strong> page
+              is the larger browse pool: additional Vibe Check questions appear alongside
+              public boards people make. Visitor-made items are marked as such, and their
+              individual pages carry a separate disclosure.
             </p>
             <p>
               Anyone can make a standard board, an &ldquo;other side&rdquo; board, or a
@@ -213,6 +219,11 @@ export default function InfoDialog() {
                 your prediction are stored as two separate kinds of record.
               </li>
               <li>No account, no email, no name, no cookies, no tracking scripts.</li>
+              <li>
+                Monthly reminder signup happens on Substack, not inside Vibe Check.
+                Substack keeps that email; it is never sent back here or joined to the
+                random browser ID used for answers.
+              </li>
               <li>
                 The optional place question records only where you place yourself between
                 rural and densely urban. <strong>No address, GPS location, city or ZIP code

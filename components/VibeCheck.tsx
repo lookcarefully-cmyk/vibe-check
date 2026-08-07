@@ -10,6 +10,7 @@ import BoardReaction from "./BoardReaction";
 import Colophon from "./Colophon";
 import SharePrompt from "./SharePrompt";
 import Sparkline from "./Sparkline";
+import SubscribeCallout from "./SubscribeCallout";
 import { eventsFor } from "@/lib/events";
 import {
   BIN_COUNT,
@@ -23,6 +24,7 @@ import { getSessionId } from "@/lib/session";
 import {
   EXPERIMENT_ENABLED,
   isExperimentTopic,
+  PULSE_FINAL_TOPIC_ID,
   positionInArm,
 } from "@/lib/experiment";
 import {
@@ -1021,6 +1023,10 @@ export default function VibeCheck({
             question={topic.question}
             path={community ? `/b/${topic.id}` : `/${topic.id}`}
           />
+
+          {topic.id === PULSE_FINAL_TOPIC_ID && !revealed && (
+            <SubscribeCallout compact />
+          )}
 
           {agg.count < 5 && (
             <p className="thin-data">

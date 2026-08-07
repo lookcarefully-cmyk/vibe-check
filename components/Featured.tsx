@@ -82,6 +82,18 @@ export default function Featured() {
 
       <HowToPlay />
 
+      <section className="home-pulse" aria-labelledby="home-pulse-title">
+        <div>
+          <p className="explore-kicker">New · monthly AI Pulse</p>
+          <h2 id="home-pulse-title">Three questions. Once a month.</h2>
+          <p>
+            AI alignment, humanity&rsquo;s future, and whether development should
+            pause or accelerate. Answer now, then watch the lines move over time.
+          </p>
+        </div>
+        <Link href="/pulse" className="lock-in">Take the AI Pulse</Link>
+      </section>
+
       <section className="front-door-actions" aria-label="Start or explore">
         <StartMainSet />
         <Link href="/explore" className="reset">Explore boards</Link>

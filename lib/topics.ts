@@ -87,7 +87,7 @@ export interface Topic {
    * `more` is the looser shelf beside visitor-made boards. Missing defaults to
    * `more`, so adding a board can never silently expand the Main Set.
    */
-  collection?: "main" | "more";
+  collection?: "main" | "more" | "pulse";
   /**
    * Keep the board and its data, but hide it from the browse library and the
    * board-page nav. For items that belong to a formal data-collection set and
@@ -1082,6 +1082,63 @@ export const TOPICS: Topic[] = [
     highMeans: "better for society",
     scale: "bipolar",
     category: "Sex & relationships",
+  },
+
+  /* ------------------------------------------------ monthly AI Pulse */
+  /*
+   * These three questions are deliberately stable and live outside both the
+   * Main Set and More. Together they form one small recurring instrument:
+   * expected alignment, expected consequences, and preferred development
+   * speed. Keeping the wording fixed is what makes month-to-month movement
+   * interpretable rather than a change in the question masquerading as a
+   * change in opinion.
+   */
+  {
+    id: "ai-alignment-confidence",
+    collection: "pulse",
+    subject: "AI alignment",
+    axis: "Act in humanity's interests?",
+    question:
+      "How likely is it that advanced AI will reliably act in humanity’s best interests?",
+    prompt: CORE_PROMPT,
+    leftLabel: "VERY UNLIKELY",
+    rightLabel: "VERY LIKELY",
+    highMeans: "greater confidence that advanced AI will act in humanity's best interests",
+    scale: "probability",
+    category: "Monthly AI Pulse",
+    cadence: "month",
+  },
+  {
+    id: "ai-humanity-future",
+    collection: "pulse",
+    subject: "AI and humanity",
+    axis: "Worse or better?",
+    question: "Overall, will advanced AI make humanity’s future worse or better?",
+    prompt: CORE_PROMPT,
+    leftLabel: "MUCH WORSE",
+    rightLabel: "MUCH BETTER",
+    leftProse: "worse",
+    rightProse: "better",
+    highMeans: "a more positive expected effect of advanced AI on humanity's future",
+    scale: "bipolar",
+    category: "Monthly AI Pulse",
+    cadence: "month",
+  },
+  {
+    id: "ai-development-speed",
+    collection: "pulse",
+    subject: "AI development",
+    axis: "Pause or accelerate?",
+    question: "From here, how fast should advanced AI development move?",
+    prompt: CORE_PROMPT,
+    leftLabel: "PAUSE DEVELOPMENT",
+    rightLabel: "ACCELERATE",
+    leftProse: "pause",
+    rightProse: "accelerate",
+    highMeans: "a preference for faster advanced AI development",
+    scale: "pace",
+    category: "Monthly AI Pulse",
+    cadence: "month",
   },
 
   /* ------------------------------------------------------ hot topics */

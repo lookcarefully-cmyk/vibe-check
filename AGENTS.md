@@ -28,7 +28,7 @@ make community boards; those are unlisted by default, moderated through
 `/admin`, auto-hidden at four reports, and only reach the home page after owner
 approval. Do not bypass those reach gates.
 
-Opening any board starts a session-scoped randomized board stream. The chosen
+Opening a Main or More board starts a session-scoped randomized board stream. The chosen
 board stays first, `rural-urban` is next when it is still answerable (unless it
 was the chosen board), and the remaining currently-answerable research boards
 are shuffled. Boards this browser already answered and cannot answer again yet,
@@ -40,12 +40,18 @@ up/left on the control itself on a phone. An explicit “Exit” beside it retur
 to Explore. Do not bring back the four-tile “More questions” shelf; it recreated
 the choice overload this stream exists to remove.
 
-The front door has three choices: start the randomized Main Set, open `/explore`,
-or make a board. `/explore` is the junction between the research-led Main Set
-and the More + Community page. That page labels curated extras as “More from
-Vibe Check” and visitor-made questions as “Made by visitors”; do not imply that
-our demoted boards were visitor submissions. Its finite shuffled stream may mix
-those two secondary shelves, but neither may silently enter the Main Set.
+Pulse boards instead stay in their own stable three-item order. The navigator's
+Exit returns to `/pulse`, and reaching the last available item ends rather than
+spilling into the Main or community stream.
+
+The front door leads with the monthly AI Pulse, then offers three choices: start
+the randomized Main Set, open `/explore`, or make a board. `/explore` is the
+junction between the Pulse, research-led Main Set, and Community. Community is
+one mixed browse pool: curated extras and public visitor-made boards are
+interleaved, and the six-item preview deliberately guarantees early public
+visitor boards some visibility. Visitor-made items remain quietly marked and
+retain their board-page safety disclosure; do not imply that curated extras were
+visitor submissions. Neither kind may silently enter the Main Set.
 
 The 32-board Main Set now has three reveal instruments. Type 1 boards are
 standalone guesses scored against published benchmarks. Type 2/3 boards bank the
@@ -55,6 +61,14 @@ or whole Vibe Check crowd before revealing any result. `revealTypeOf` in
 records under a separate storage namespace; never mix them into vote rows.
 Real-figure boards use `cadence: "once"`: after the reveal, a later answer would
 measure memory for the published number rather than the original perception gap.
+
+The monthly AI Pulse is a separate, ordered three-question collection at
+`/pulse`: expected alignment, expected effect on humanity's future, and preferred
+development speed. Its boards use `collection: "pulse"` and `cadence: "month"`;
+they do not enter either randomized library stream. Keep their wording stable —
+the entire point is to compare the same measures month to month. Pulse reminder
+signup is a plain handoff to Substack through `/subscribe`; Vibe Check never
+receives the email and must never join newsletter identity to the browser id.
 
 Community creators may choose the original immediate crowd reveal, a whole-crowd
 prediction, or an opposite-side prediction. The choice is stored as optional
@@ -72,7 +86,8 @@ community stream. Reports remain the safety mechanism.
 Adding a board is one object in `lib/topics.ts`. It needs `category` (free text,
 creates a new browse section if unused) and `scale` (which wording family
 translates its percentage into words). It enters the secondary shelf by default;
-only `collection: "main"` places it in the focused Main Set. This is deliberate:
+only `collection: "main"` places it in the focused Main Set. The three Pulse
+boards are the only items with `collection: "pulse"`. This is deliberate:
 a new idea must not silently dilute the launch data collection.
 
 Removing a board from the public site means setting `retiredFromSite: true`,

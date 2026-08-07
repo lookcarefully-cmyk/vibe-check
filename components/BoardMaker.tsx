@@ -38,6 +38,33 @@ const EMPTY_AGG: WindowedAggregate = {
   changePoints: null,
 };
 
+const STARTER_IDEAS = [
+  {
+    label: "Settle a group-chat debate",
+    question: "Our next group trip should be…",
+    left: "CITY WEEKEND",
+    right: "CABIN ESCAPE",
+    category: "Friends",
+    revealType: "standard" as CreatorReveal,
+  },
+  {
+    label: "Poll your followers",
+    question: "This trend is…",
+    left: "JUST GETTING STARTED",
+    right: "ALREADY OVER",
+    category: "Culture",
+    revealType: "crowd" as CreatorReveal,
+  },
+  {
+    label: "Test a perception gap",
+    question: "Where do you think people who disagree with you land?",
+    left: "CLOSER THAN IT SEEMS",
+    right: "FAR APART",
+    category: "Debate",
+    revealType: "other-side" as CreatorReveal,
+  },
+];
+
 interface Created {
   slug: string;
   token: string;
@@ -169,6 +196,38 @@ export default function BoardMaker() {
           away; putting it in the public library is up to you.
         </p>
       </header>
+
+      <section className="maker-ideas" aria-labelledby="maker-ideas-title">
+        <div>
+          <p className="explore-kicker">Need a starting point?</p>
+          <h2 id="maker-ideas-title">Make one for your people.</h2>
+          <p>
+            Group chats, follower polls, teams and niche communities all work. Pick
+            an example to load it, then make the wording yours.
+          </p>
+        </div>
+        <div className="maker-idea-buttons">
+          {STARTER_IDEAS.map((idea) => (
+            <button
+              type="button"
+              key={idea.label}
+              onClick={() => {
+                setQuestion(idea.question);
+                setLeft(idea.left);
+                setRight(idea.right);
+                setCategory(idea.category);
+                setRevealType(idea.revealType);
+              }}
+            >
+              {idea.label}
+            </button>
+          ))}
+        </div>
+        <small>
+          Every new board starts unlisted, so it is ready for a private link before
+          you decide whether to put it in the public library.
+        </small>
+      </section>
 
       <div className="maker">
         <label className="maker-field">

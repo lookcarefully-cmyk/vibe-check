@@ -8,7 +8,7 @@ import {
   useRef,
   useState,
 } from "react";
-import { EXTRA_TOPICS, MORE_TOPICS } from "@/lib/experiment";
+import { EXTRA_TOPICS, MORE_TOPICS, PULSE_TOPICS } from "@/lib/experiment";
 import { boardStreamStep, type BoardStreamStep } from "@/lib/board-stream";
 import { canAnswerNow } from "@/lib/mine";
 import { readBoardReaction } from "@/lib/reaction";
@@ -20,9 +20,9 @@ interface BoardStreamNavProps {
   community: boolean;
 }
 
-type StreamKind = "main" | "community";
+type StreamKind = "main" | "community" | "pulse";
 
-const CURATED_TOPICS = [...EXTRA_TOPICS, ...MORE_TOPICS];
+const CURATED_TOPICS = [...EXTRA_TOPICS, ...MORE_TOPICS, ...PULSE_TOPICS];
 
 interface CommunityStreamBoard {
   slug: string;
@@ -73,7 +73,9 @@ export default function BoardStreamNav({
       const streamParam = new URLSearchParams(window.location.search).get("stream") ?? "";
       const kind: StreamKind = streamParam.startsWith("community") || community
         ? "community"
-        : "main";
+        : streamParam.startsWith("pulse") || topic.collection === "pulse"
+          ? "pulse"
+          : "main";
       const continueStream = streamParam.endsWith("continue");
       const now = Date.now();
       // Keep the page we're standing on so the navigator can locate its place,
@@ -84,6 +86,15 @@ export default function BoardStreamNav({
           (candidate) => candidate.id !== topic.id && canAnswerNow(candidate, now),
         ),
       ];
+
+      if (kind === "pulse") {
+        topics = [
+          topic,
+          ...PULSE_TOPICS.filter(
+            (candidate) => candidate.id !== topic.id && canAnswerNow(candidate, now),
+          ),
+        ];
+      }
 
       if (kind === "community") {
         try {
@@ -228,21 +239,26 @@ export default function BoardStreamNav({
 
   if (!step) return null;
 
+  const exitHref = streamKind === "pulse" ? "/pulse" : "/explore";
+  const exitLabel = streamKind === "pulse"
+    ? "Exit the AI Pulse"
+    : "Exit the question stream and open Explore";
+
   return (
     <nav
       className={`board-stream${answered ? " is-answered" : ""}${step.complete ? " is-complete" : ""}`}
       aria-label="Question navigation"
     >
       <Link
-        href="/explore"
+        href={exitHref}
         className="board-stream-all"
-        aria-label="Exit the question stream and open Explore"
+        aria-label={exitLabel}
       >
         Exit
       </Link>
       {step.complete ? (
         <div className="board-stream-finished" role="status">
-          <span>That&rsquo;s every board</span>
+          <span>{streamKind === "pulse" ? "End of this Pulse" : "That’s every board"}</span>
         </div>
       ) : (
         <button

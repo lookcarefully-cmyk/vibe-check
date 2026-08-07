@@ -32,8 +32,14 @@ function shuffle<T>(items: T[]): T[] {
   return shuffled;
 }
 
-function makeOrder(currentId: string, topics: Topic[]): string[] {
+function makeOrder(currentId: string, topics: Topic[], streamId: string): string[] {
   const ids = [...new Set(topics.map((topic) => topic.id))];
+
+  // Pulse is a three-item instrument with a stable question order, not a
+  // discovery feed. The caller puts the entry question first and the remaining
+  // available Pulse questions after it; preserve that order exactly.
+  if (streamId === "pulse") return ids;
+
   const demographic = ids.includes(DEMOGRAPHIC_TOPIC_ID)
     && currentId !== DEMOGRAPHIC_TOPIC_ID
     ? [DEMOGRAPHIC_TOPIC_ID]
@@ -103,8 +109,8 @@ export function boardStreamStep(
   // session order. Community is live: freeze the list for this pass so a board
   // published mid-scroll cannot rebuild the order and repeat things already
   // seen. Boards hidden during the pass are simply skipped below.
-  if (!hasCurrent || (streamId === "main" && !hasEveryTopic)) {
-    order = makeOrder(currentId, topics);
+  if (!hasCurrent || ((streamId === "main" || streamId === "pulse") && !hasEveryTopic)) {
+    order = makeOrder(currentId, topics, streamId);
     writeStored(streamId, order);
   }
 

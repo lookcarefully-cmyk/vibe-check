@@ -3,7 +3,6 @@ import InfoDialog from "./InfoDialog";
 import StartMainSet from "./StartMainSet";
 import Colophon from "./Colophon";
 import ExploreMoreShuffle from "./ExploreMoreShuffle";
-import { EXTRA_TOPICS, MORE_TOPICS } from "@/lib/experiment";
 
 export default function ExploreHub() {
   return (
@@ -20,6 +19,18 @@ export default function ExploreHub() {
       </header>
 
       <section className="explore-routes" aria-label="Board collections">
+        <article className="is-pulse">
+          <p className="explore-kicker">Monthly · three questions</p>
+          <h2>AI Pulse</h2>
+          <p>
+            A stable monthly read on alignment, humanity&rsquo;s future, and the
+            pace of advanced AI development.
+          </p>
+          <div className="explore-actions">
+            <Link href="/pulse" className="lock-in">Take the Pulse</Link>
+          </div>
+        </article>
+
         <article>
           <p className="explore-kicker">Research-led</p>
           <h2>Main set</h2>
@@ -34,23 +45,18 @@ export default function ExploreHub() {
         </article>
 
         <article>
-          <p className="explore-kicker">Keep exploring or create</p>
-          <h2>More + community</h2>
+          <p className="explore-kicker">Browse or create</p>
+          <h2>Community</h2>
           <p>
-            {MORE_TOPICS.length} more questions from us, followed by public boards
-            people chose to share. The two are clearly labeled.
+            Find more questions to answer, including boards people publish — or
+            make an unlisted one for your own people.
           </p>
           <div className="explore-actions">
-            <Link href="/b" className="lock-in">Explore more boards</Link>
+            <Link href="/b" className="lock-in">Explore community boards</Link>
             <Link href="/b/new" className="reset">Make a board</Link>
           </div>
         </article>
       </section>
-
-      <p className="explore-note">
-        Every stream is optional and finite. Skip freely, stop whenever you like, or
-        return here to switch collections.
-      </p>
 
       <ExploreMoreShuffle />
 

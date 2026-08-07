@@ -85,10 +85,10 @@ export default function Featured() {
       <section className="home-pulse" aria-labelledby="home-pulse-title">
         <div>
           <p className="explore-kicker">New · monthly AI Pulse</p>
-          <h2 id="home-pulse-title">Three questions. Once a month.</h2>
+          <h2 id="home-pulse-title">Three questions to track how AI sentiment changes overtime.</h2>
           <p>
             AI alignment, humanity&rsquo;s future, and whether development should
-            pause or accelerate. Answer now, then watch the lines move over time.
+            pause or accelerate. Answer now, then watch how collective opinion&rsquo;s change over time.
           </p>
         </div>
         <Link href="/pulse" className="lock-in">Take the AI Pulse</Link>

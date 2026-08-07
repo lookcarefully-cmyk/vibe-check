@@ -14,7 +14,7 @@ export default function ExploreHub() {
         </div>
         <h1>Choose your route</h1>
         <p className="lede">
-          Scroll a shuffled set, browse for one question, or make a board of your own.
+          answer a question from our main set, browse community made boards, or make a board of your own.
         </p>
       </header>
 
@@ -35,7 +35,7 @@ export default function ExploreHub() {
           <p className="explore-kicker">Research-led</p>
           <h2>Main set</h2>
           <p>
-            Our focused set of research-led questions. Start anywhere, then swipe or
+            Our focused set of research-led questions, built for future analysis. Start anywhere, then swipe or
             click through as many as you want.
           </p>
           <div className="explore-actions">

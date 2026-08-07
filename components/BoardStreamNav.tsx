@@ -257,7 +257,7 @@ export default function BoardStreamNav({
 
   const exitHref = streamKind === "pulse" ? "/pulse" : "/explore";
   const exitLabel = streamKind === "pulse"
-    ? "Exit the AI Pulse"
+    ? "Exit the monthly AI poll"
     : "Exit the question stream and open Explore";
 
   return (

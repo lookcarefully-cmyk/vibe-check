@@ -5,7 +5,7 @@ import Colophon from "@/components/Colophon";
 
 export const metadata: Metadata = {
   title: "Vibe Check — monthly reminder",
-  description: "Get a reminder when the next monthly AI Pulse opens.",
+  description: "Get a reminder when the next monthly AI poll opens.",
 };
 
 export const dynamic = "force-dynamic";
@@ -34,7 +34,7 @@ export default function SubscribePage() {
     <main className="shell">
       <header className="masthead">
         <div className="kicker">
-          <span className="kicker-text">Vibe Check · monthly AI Pulse</span>
+          <span className="kicker-text">Vibe Check · monthly AI poll</span>
         </div>
         <h1>The reminder list is opening soon.</h1>
         <p className="lede">
@@ -42,7 +42,7 @@ export default function SubscribePage() {
           Substack and stay separate from anonymous Vibe Check answers.
         </p>
       </header>
-      <Link href="/pulse" className="reset">Back to the AI Pulse</Link>
+      <Link href="/pulse" className="reset">Back to the monthly AI poll</Link>
       <Colophon />
     </main>
   );

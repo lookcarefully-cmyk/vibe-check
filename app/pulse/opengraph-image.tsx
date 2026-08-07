@@ -1,7 +1,7 @@
 import { ImageResponse } from "next/og";
 
 /**
- * A result-free invitation to the monthly AI Pulse. Like every other share
+ * A result-free invitation to the monthly AI poll. Like every other share
  * card, it gives someone a reason to answer without showing where the crowd is
  * currently landing and anchoring their response.
  */
@@ -10,7 +10,7 @@ export const runtime = "nodejs";
 // but dropped the card's text and badges, while the same ImageResponse renders
 // correctly in the app runtime.
 export const dynamic = "force-dynamic";
-export const alt = "Vibe Check monthly AI Pulse — how are we feeling about AI?";
+export const alt = "Vibe Check monthly AI poll — how are we feeling about AI?";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -45,7 +45,7 @@ export default function PulseCard() {
             textTransform: "uppercase",
           }}
         >
-          Vibe Check · Monthly AI Pulse
+          Vibe Check · Monthly AI Poll
         </div>
 
         <div

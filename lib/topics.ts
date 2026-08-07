@@ -1084,7 +1084,7 @@ export const TOPICS: Topic[] = [
     category: "Sex & relationships",
   },
 
-  /* ------------------------------------------------ monthly AI Pulse */
+  /* ------------------------------------------------ monthly AI poll */
   /*
    * These three questions are deliberately stable and live outside both the
    * Main Set and More. Together they form one small recurring instrument:
@@ -1105,10 +1105,10 @@ export const TOPICS: Topic[] = [
     rightLabel: "VERY LIKELY",
     highMeans: "greater confidence that advanced AI will act in humanity's best interests",
     scale: "probability",
-    category: "Monthly AI Pulse",
+    category: "Monthly AI poll",
     cadence: "month",
     // Retained so its pre-launch answers remain interpretable. The revised
-    // Pulse asks about present alignment under a new id rather than combining
+    // The poll asks about present alignment under a new id rather than combining
     // two different constructs into one time series.
     retiredFromSite: true,
   },
@@ -1125,7 +1125,7 @@ export const TOPICS: Topic[] = [
     rightProse: "better",
     highMeans: "a more positive expected effect of advanced AI on humanity's future",
     scale: "bipolar",
-    category: "Monthly AI Pulse",
+    category: "Monthly AI poll",
     cadence: "month",
     // Retained for the same reason as the original alignment item above.
     retiredFromSite: true,
@@ -1142,7 +1142,7 @@ export const TOPICS: Topic[] = [
     rightLabel: "HIGHLY ALIGNED",
     highMeans: "a stronger perception that the most advanced AI models are aligned with human values and interests",
     scale: "bipolar",
-    category: "Monthly AI Pulse",
+    category: "Monthly AI poll",
     cadence: "month",
   },
   {
@@ -1156,7 +1156,7 @@ export const TOPICS: Topic[] = [
     rightLabel: "HUMANITY BROADLY",
     highMeans: "an expectation that the benefits of advanced AI will reach humanity more broadly",
     scale: "bipolar",
-    category: "Monthly AI Pulse",
+    category: "Monthly AI poll",
     cadence: "month",
   },
   {
@@ -1172,7 +1172,7 @@ export const TOPICS: Topic[] = [
     rightProse: "accelerate",
     highMeans: "a preference for faster advanced AI development",
     scale: "pace",
-    category: "Monthly AI Pulse",
+    category: "Monthly AI poll",
     cadence: "month",
   },
 

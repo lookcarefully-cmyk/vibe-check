@@ -59,7 +59,7 @@ export default function PulseLanding() {
     <main className="shell pulse-page">
       <header className="masthead">
         <div className="kicker">
-          <span className="kicker-text">Vibe Check · monthly AI Pulse</span>
+          <span className="kicker-text">Vibe Check · monthly AI poll</span>
           <InfoDialog />
         </div>
         <h1>How are we feeling about AI?</h1>
@@ -101,16 +101,16 @@ export default function PulseLanding() {
         <div className="pulse-actions">
           {firstReady ? (
             <Link href={`/${firstReady.id}?stream=pulse-start`} className="lock-in">
-              {completedCount > 0 ? "Continue the AI Pulse" : "Take the AI Pulse"}
+              {completedCount > 0 ? "Continue the AI poll" : "Take the AI poll"}
             </Link>
           ) : loaded ? (
             <p className="pulse-complete">
               {waiting
-                ? "The next Pulse is open. Your questions unlock after the three-day gap."
-                : "You’re caught up. The Pulse reopens next month."}
+                ? "The next monthly poll is open. Your questions unlock after the three-day gap."
+                : "You’re caught up. The AI poll reopens next month."}
             </p>
           ) : (
-            <span className="lock-in is-loading">Checking your Pulse…</span>
+            <span className="lock-in is-loading">Checking the AI poll…</span>
           )}
           <small>About one minute. Skip any question.</small>
         </div>

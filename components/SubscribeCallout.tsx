@@ -21,9 +21,9 @@ export default function SubscribeCallout({
     <aside className={`subscribe-callout${compact ? " is-compact" : ""}${prominent ? " is-prominent" : ""}`}>
       <div>
         <p className="subscribe-kicker">One reminder a month</p>
-        <h2>Come back when the next Pulse opens.</h2>
+        <h2>Come back when next month&rsquo;s AI poll opens.</h2>
         <p>
-          One email when each new three-question Pulse opens. It links to the blank
+          One email when each new three-question poll opens. It links to the blank
           questions, not the current results. Your email stays with Substack and is
           never connected to your answers here.
         </p>

@@ -40,15 +40,15 @@ up/left on the control itself on a phone. An explicit “Exit” beside it retur
 to Explore. Do not bring back the four-tile “More questions” shelf; it recreated
 the choice overload this stream exists to remove.
 
-Pulse boards instead stay in their own stable three-item order. The navigator's
+The monthly AI poll boards instead stay in their own stable three-item order. The navigator's
 Exit returns to `/pulse`, and reaching the last available item ends rather than
 spilling into the community stream. The gold “Answer more questions” action at
 the end deliberately starts a fresh randomized Main Set; it preserves momentum
-while the separate Exit still returns to the Pulse page.
+while the separate Exit still returns to the poll page.
 
-The front door leads with the monthly AI Pulse, then offers three choices: start
+The front door leads with the monthly AI poll, then offers three choices: start
 the randomized Main Set, open `/explore`, or make a board. `/explore` is the
-junction between the Pulse, research-led Main Set, and Community. Community is
+junction between the AI poll, research-led Main Set, and Community. Community is
 one mixed browse pool: curated extras and public visitor-made boards are
 interleaved, and the six-item preview deliberately guarantees early public
 visitor boards some visibility. Visitor-made items remain quietly marked and
@@ -64,11 +64,11 @@ records under a separate storage namespace; never mix them into vote rows.
 Real-figure boards use `cadence: "once"`: after the reveal, a later answer would
 measure memory for the published number rather than the original perception gap.
 
-The monthly AI Pulse is a separate, ordered three-question collection at
-`/pulse`: expected alignment, expected effect on humanity's future, and preferred
+The monthly AI poll is a separate, ordered three-question collection at
+`/pulse`: perceived current alignment, expected breadth of benefit, and preferred
 development speed. Its boards use `collection: "pulse"` and `cadence: "month"`;
 they do not enter either randomized library stream. Keep their wording stable —
-the entire point is to compare the same measures month to month. Pulse reminder
+the entire point is to compare the same measures month to month. Poll reminder
 signup is a plain handoff to Substack through `/subscribe`; Vibe Check never
 receives the email and must never join newsletter identity to the browser id.
 
@@ -88,8 +88,8 @@ community stream. Reports remain the safety mechanism.
 Adding a board is one object in `lib/topics.ts`. It needs `category` (free text,
 creates a new browse section if unused) and `scale` (which wording family
 translates its percentage into words). It enters the secondary shelf by default;
-only `collection: "main"` places it in the focused Main Set. The three Pulse
-boards are the only items with `collection: "pulse"`. This is deliberate:
+only `collection: "main"` places it in the focused Main Set. The three monthly
+AI poll boards are the only items with `collection: "pulse"`. This is deliberate:
 a new idea must not silently dilute the launch data collection.
 
 Removing a board from the public site means setting `retiredFromSite: true`,

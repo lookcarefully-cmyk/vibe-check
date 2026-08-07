@@ -88,11 +88,11 @@ export default function InfoDialog() {
             </ol>
             <p>
               The shuffled feed does not loop back through boards you already completed.
-              Explore lets you browse the focused Main Set, the monthly AI Pulse, and a
+              Explore lets you browse the focused Main Set, the monthly AI poll, and a
               community pool that grows as visitors publish boards.
             </p>
             <p>
-              The <strong>monthly AI Pulse</strong> is a separate three-question set.
+              The <strong>monthly AI poll</strong> is a separate three-question set.
               By tracking answers to the same question set each month, we can see how 
               our outlook on AI changes over time.
             </p>

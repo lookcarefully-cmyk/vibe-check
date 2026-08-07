@@ -21,13 +21,13 @@ export default function ExploreHub() {
       <section className="explore-routes" aria-label="Board collections">
         <article className="is-pulse">
           <p className="explore-kicker">Monthly · three questions</p>
-          <h2>AI Pulse</h2>
+          <h2>Monthly AI poll</h2>
           <p>
-            A stable monthly read on alignment, humanity&rsquo;s future, and the
-            pace of advanced AI development.
+            A stable monthly read on current alignment, who stands to benefit,
+            and the pace of advanced AI development.
           </p>
           <div className="explore-actions">
-            <Link href="/pulse" className="lock-in">Take the Pulse</Link>
+            <Link href="/pulse" className="lock-in">Take the AI poll</Link>
           </div>
         </article>
 

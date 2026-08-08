@@ -39,7 +39,17 @@ export default function SharePrompt({ question, path }: SharePromptProps) {
   const share = async () => {
     try {
       if (navigator.share) {
-        await navigator.share({ title: question, text, url });
+        // `text` and `url` only — deliberately no `title`. Share targets compose
+        // these themselves, and most append the title after the link, so passing
+        // the question as both title and text posted it twice:
+        //
+        //   Will AI create jobs or replace them?
+        //   https://www.vibecheckdata.xyz/ai-jobs
+        //   Will AI create jobs or replace them?
+        //
+        // Targets that ignore `text` still show the question, because the link
+        // preview carries it as the card title.
+        await navigator.share({ text, url });
         return;
       }
       await navigator.clipboard.writeText(url);

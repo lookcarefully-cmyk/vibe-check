@@ -252,14 +252,19 @@ Each of these was arrived at by making the opposite mistake first.
    | `alignment` | how aligned with human values | "borderline, leaning misaligned" |
    | `breadth` | how widely something reaches | "a large share of people" |
    | `bipolar` | which of two named poles | "mostly coffee" |
+   | `comparative` | more or less than a reference point | "much harder" |
+   | `conviction` | a yes/no held with more or less confidence | "probably yes" |
    | `amount` | how much there should be | "a good deal" |
    | `proximity` | how close something is to happening | "a long way off" |
    | `pace` | how much faster or slower | "much slower" |
    | `permission` | whether something should be allowed, and how widely | "in a narrow set of cases" |
    | `probability` | how likely something is | "somewhat likely" |
 
-   Only `bipolar` interpolates the board's pole names. The others have fixed
-   wording because their questions aren't about resembling one of two things.
+   `bipolar`, `comparative` and `conviction` interpolate the board's pole names;
+   the rest have fixed wording because their questions aren't about one of two
+   named things. A `comparative` board wants a BARE comparative in
+   `leftProse`/`rightProse` — "easier", not "much easier" — because the template
+   supplies the intensity.
    That also means `leftProse`/`rightProse` do nothing on a non-bipolar board —
    don't add them there expecting an effect.
 

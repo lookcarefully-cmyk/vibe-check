@@ -65,13 +65,24 @@ export interface Topic {
   /**
    * Which wording family translates this board's percentage into words.
    *
-   *   addictive  — one property varying in degree ("moderately addictive")
-   *   bipolar    — which of two named poles it sits near ("mostly coffee")
-   *   amount     — how much of something there should be ("a good deal")
+   *   addictive   — one property varying in degree ("moderately addictive")
+   *   alignment   — how aligned with human values ("mildly misaligned")
+   *   breadth     — how widely something reaches ("a large share of people")
+   *   bipolar     — which of two named poles it sits near ("mostly coffee")
+   *   comparative — more or less than a reference point ("much harder")
+   *   conviction  — a yes/no held with more or less confidence ("probably yes")
+   *   amount      — how much of something there should be ("a good deal")
+   *   proximity   — how close to happening ("a long way off")
+   *   pace        — how much faster or slower ("slightly faster")
+   *   permission  — how widely something should be allowed ("in most cases")
    *   probability — a subjective chance ("very likely")
    *
-   * See lib/likert.ts. All three share the same band boundaries, so a
-   * percentage means the same distance from neutral on every board.
+   * Pick by asking what the answer IS, not what the poles are called: "how much
+   * of X" takes a degree family, "which of A and B" takes bipolar. Poles that
+   * name two things do not by themselves make a board bipolar.
+   *
+   * See lib/likert.ts. They all share the same band boundaries, so a percentage
+   * means the same distance from neutral on every board.
    */
   scale?: ScaleFamily;
   /**
@@ -577,7 +588,7 @@ export const TOPICS: Topic[] = [
     leftProse: "looser",
     rightProse: "stricter",
     highMeans: "more support for stricter gun laws",
-    scale: "bipolar",
+    scale: "comparative",
     category: "Public life",
     cadence: "month",
   },
@@ -633,8 +644,12 @@ export const TOPICS: Topic[] = [
     prompt: CORE_PROMPT,
     leftLabel: "MUCH EASIER",
     rightLabel: "MUCH HARDER",
+    // Bare comparatives: the comparative family supplies the intensity, so
+    // "much easier" as prose would give "much much easier".
+    leftProse: "easier",
+    rightProse: "harder",
     highMeans: "covering basics has become harder",
-    scale: "bipolar",
+    scale: "comparative",
     category: "Money & work",
   },
   {
@@ -660,8 +675,10 @@ export const TOPICS: Topic[] = [
     prompt: CORE_PROMPT,
     leftLabel: "STILL WORTH IT",
     rightLabel: "NOT WORTH IT",
+    leftProse: "worth it",
+    rightProse: "not worth it",
     highMeans: "home ownership feels less worth its cost",
-    scale: "bipolar",
+    scale: "conviction",
     category: "Money & work",
   },
   {
@@ -673,7 +690,9 @@ export const TOPICS: Topic[] = [
     prompt: CORE_PROMPT,
     leftLabel: "JUST A PAYCHECK",
     rightLabel: "PART OF WHO I AM",
-    leftProse: "paycheck only",
+    // Not "just a paycheck": the "just" fights the template's intensifier and
+    // gives "slightly just a paycheck". This phrasing works in every band.
+    leftProse: "about the money",
     rightProse: "part of my identity",
     highMeans: "work is more central to personal identity",
     scale: "bipolar",
@@ -689,8 +708,10 @@ export const TOPICS: Topic[] = [
     prompt: CORE_PROMPT,
     leftLabel: "FAR WORSE OFF",
     rightLabel: "FAR BETTER OFF",
+    leftProse: "worse off",
+    rightProse: "better off",
     highMeans: "better off than their parents were at the same age",
-    scale: "bipolar",
+    scale: "comparative",
     category: "Money & work",
     cadence: "month",
   },
@@ -736,7 +757,7 @@ export const TOPICS: Topic[] = [
     leftProse: "emptier",
     rightProse: "fuller",
     highMeans: "a fuller social life than perceived peers",
-    scale: "bipolar",
+    scale: "comparative",
     category: "Health & connection",
     cadence: "month",
   },
@@ -916,8 +937,10 @@ export const TOPICS: Topic[] = [
     prompt: CORE_PROMPT,
     leftLabel: "MUCH WORSE",
     rightLabel: "MUCH BETTER",
+    leftProse: "worse",
+    rightProse: "better",
     highMeans: "life would be better without short-video apps",
-    scale: "bipolar",
+    scale: "comparative",
     category: "Media & technology",
     cadence: "month",
   },
@@ -1001,8 +1024,14 @@ export const TOPICS: Topic[] = [
     prompt: "Tap or click to place your answer. Drag to fine-tune, then lock it in.",
     leftLabel: "REAL DISORDER",
     rightLabel: "JUST A HABIT",
+    leftProse: "a real disorder",
+    rightProse: "just a habit",
     highMeans: "less clinically serious",
-    scale: "bipolar",
+    // Whether something IS a disorder is a classification, not a mixture: the
+    // middle of this dial is someone unsure which it is, not someone who thinks
+    // it is half of each. Through the bipolar ladder it read "slightly just a
+    // habit".
+    scale: "conviction",
     category: "Screens & attention",
     hiddenFromLibrary: true,
   },
@@ -1145,6 +1174,12 @@ export const TOPICS: Topic[] = [
     rightLabel: "ALIGNED",
     highMeans: "a stronger perception that the most advanced AI models are aligned with human values and interests",
     scale: "alignment",
+    // v1 ran NOT AT ALL ALIGNED <-> HIGHLY ALIGNED. The direction is the same,
+    // so the old votes are not inverted and STORE_VERSION stays put — but the
+    // left pole moved from "no alignment" to "actively misaligned", which is a
+    // different claim. The four v1 responses are stamped bv:1 and stay
+    // separable from everything collected under this wording.
+    version: 2,
     category: "Monthly AI poll",
     cadence: "month",
   },
@@ -1410,7 +1445,7 @@ export const TOPICS: Topic[] = [
     leftLabel: "NO",
     rightLabel: "YES",
     highMeans: "more likely to recommend college",
-    scale: "bipolar",
+    scale: "conviction",
     category: "Big shifts",
   },
   {
@@ -1435,7 +1470,7 @@ export const TOPICS: Topic[] = [
     leftLabel: "ILLEGAL",
     rightLabel: "LEGAL",
     highMeans: "should be legal",
-    scale: "bipolar",
+    scale: "permission",
     category: "Law & policy",
   },
   {
@@ -1447,7 +1482,7 @@ export const TOPICS: Topic[] = [
     leftLabel: "ILLEGAL",
     rightLabel: "LEGAL",
     highMeans: "should be legal",
-    scale: "bipolar",
+    scale: "permission",
     category: "Law & policy",
   },
 
@@ -1460,7 +1495,7 @@ export const TOPICS: Topic[] = [
     leftLabel: "SMARTER",
     rightLabel: "DUMBER",
     highMeans: "people end up dumber",
-    scale: "bipolar",
+    scale: "comparative",
     category: "AI",
   },
   {

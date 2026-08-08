@@ -21,6 +21,8 @@ export type ScaleFamily =
   | "alignment"
   | "bipolar"
   | "breadth"
+  | "comparative"
+  | "conviction"
   | "amount"
   | "proximity"
   | "pace"
@@ -136,6 +138,52 @@ const BIPOLAR_TEMPLATES = [
   "moderately {right}",
   "mostly {right}",
   "fully {right}",
+];
+
+/**
+ * A comparison against a reference point — easier or harder than last year,
+ * better or worse off than your parents, smarter or dumber than before. The
+ * midpoint means "about the same", not "undecided".
+ *
+ * Interpolating like bipolar, but with degree adverbs instead of resemblance
+ * ones, because the pole is already a comparative. "Mostly much easier" is not
+ * English; "moderately easier" is. Boards here want a bare comparative in
+ * leftProse/rightProse — "easier", not "much easier" — since the template
+ * supplies the intensity.
+ */
+const COMPARATIVE_TEMPLATES = [
+  "far {left}",
+  "much {left}",
+  "moderately {left}",
+  "slightly {left}",
+  "about the same, leaning {left}",
+  "about the same, leaning {right}",
+  "slightly {right}",
+  "moderately {right}",
+  "much {right}",
+  "far {right}",
+];
+
+/**
+ * A yes-or-no judgement held with more or less confidence — should you go, is
+ * it worth it. The band measures how sure someone is, because the thing being
+ * asked about doesn't come in degrees: a house is worth it or it isn't.
+ *
+ * The bipolar ladder assumes it does, and produces "slightly still worth it"
+ * and "fully no". The midpoint here is genuine indecision rather than a middling
+ * amount of some property.
+ */
+const CONVICTION_TEMPLATES = [
+  "definitely {left}",
+  "almost certainly {left}",
+  "probably {left}",
+  "leaning {left}",
+  "undecided, leaning {left}",
+  "undecided, leaning {right}",
+  "leaning {right}",
+  "probably {right}",
+  "almost certainly {right}",
+  "definitely {right}",
 ];
 
 /**
@@ -273,6 +321,25 @@ export function bandCounts(counts: number[]): number[] {
 const forProse = (label: string, override?: string) => override ?? label.toLowerCase();
 
 /**
+ * The families whose wording is built from the board's own pole names. Everyone
+ * else has fixed labels; these three need `poles` and return null without it.
+ */
+const INTERPOLATED: Partial<Record<ScaleFamily, string[]>> = {
+  bipolar: BIPOLAR_TEMPLATES,
+  comparative: COMPARATIVE_TEMPLATES,
+  conviction: CONVICTION_TEMPLATES,
+};
+
+const interpolate = (
+  templates: string[],
+  i: number,
+  poles: { left: string; right: string; leftProse?: string; rightProse?: string },
+) =>
+  templates[i]
+    .replace("{left}", forProse(poles.left, poles.leftProse))
+    .replace("{right}", forProse(poles.right, poles.rightProse));
+
+/**
  * Band label for a 0..1 value.
  *
  * `poles` is required by the bipolar family and ignored by the others. Returns
@@ -297,9 +364,7 @@ export function bandFor(
   if (scale === "probability") return PROBABILITY_LABELS[i];
 
   if (!poles) return null;
-  return BIPOLAR_TEMPLATES[i]
-    .replace("{left}", forProse(poles.left, poles.leftProse))
-    .replace("{right}", forProse(poles.right, poles.rightProse));
+  return interpolate(INTERPOLATED[scale] ?? BIPOLAR_TEMPLATES, i, poles);
 }
 
 /*
@@ -343,8 +408,11 @@ export function labelsFor(
     if (scale === "pace") return PACE_LABELS[i];
     if (scale === "permission") return PERMISSION_LABELS[i];
     if (scale === "probability") return PROBABILITY_LABELS[i];
-    return BIPOLAR_TEMPLATES[i]
-      .replace("{left}", forProse(poles?.left ?? "the first", poles?.leftProse))
-      .replace("{right}", forProse(poles?.right ?? "the second", poles?.rightProse));
+    return interpolate(INTERPOLATED[scale] ?? BIPOLAR_TEMPLATES, i, {
+      left: poles?.left ?? "the first",
+      right: poles?.right ?? "the second",
+      leftProse: poles?.leftProse,
+      rightProse: poles?.rightProse,
+    });
   });
 }

@@ -1155,10 +1155,13 @@ export const TOPICS: Topic[] = [
     axis: "Narrow or broad benefit?",
     question: "Who is advanced AI currently on track to benefit?",
     prompt: CORE_PROMPT,
+    // The poles name two populations, but the quantity is breadth of reach, so
+    // the bands name the group rather than treating "a very small group" as a
+    // thing an answer resembles. Direction unchanged; STORE_VERSION stays put.
     leftLabel: "A VERY SMALL GROUP",
     rightLabel: "HUMANITY BROADLY",
     highMeans: "an expectation that the benefits of advanced AI will reach humanity more broadly",
-    scale: "bipolar",
+    scale: "breadth",
     category: "Monthly AI poll",
     cadence: "month",
   },
@@ -1169,10 +1172,11 @@ export const TOPICS: Topic[] = [
     axis: "Pause or accelerate?",
     question: "From here, how fast should AI development move?",
     prompt: CORE_PROMPT,
+    // No leftProse/rightProse: the pace family has fixed wording ("much
+    // slower", "full speed ahead") and never interpolates the pole names. Only
+    // bipolar boards do.
     leftLabel: "PAUSE DEVELOPMENT",
     rightLabel: "ACCELERATE",
-    leftProse: "pause",
-    rightProse: "accelerate",
     highMeans: "a preference for faster advanced AI development",
     scale: "pace",
     category: "Monthly AI poll",
@@ -1206,8 +1210,6 @@ export const TOPICS: Topic[] = [
     prompt: "Tap or click to place your answer. Drag to fine-tune, then lock it in.",
     leftLabel: "SLOW DOWN",
     rightLabel: "ACCELERATE",
-    leftProse: "slow down",
-    rightProse: "accelerate",
     highMeans: "should accelerate",
     scale: "pace",
     category: "AI",

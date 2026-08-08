@@ -249,6 +249,8 @@ Each of these was arrived at by making the opposite mistake first.
    | Family | For | Reads like |
    | --- | --- | --- |
    | `addictive` | one property varying in degree | "moderately addictive" |
+   | `alignment` | how aligned with human values | "borderline, leaning misaligned" |
+   | `breadth` | how widely something reaches | "a large share of people" |
    | `bipolar` | which of two named poles | "mostly coffee" |
    | `amount` | how much there should be | "a good deal" |
    | `proximity` | how close something is to happening | "a long way off" |
@@ -258,6 +260,15 @@ Each of these was arrived at by making the opposite mistake first.
 
    Only `bipolar` interpolates the board's pole names. The others have fixed
    wording because their questions aren't about resembling one of two things.
+   That also means `leftProse`/`rightProse` do nothing on a non-bipolar board —
+   don't add them there expecting an effect.
+
+   **Poles that name two things do not make a board bipolar.** The test is what
+   the dial measures. "A VERY SMALL GROUP ↔ HUMANITY BROADLY" names two
+   populations but measures one quantity — breadth — so it takes `breadth`;
+   through the bipolar ladder it produced "moderately a very small group".
+   Likewise MISALIGNED ↔ ALIGNED is one quantity with two directions, not two
+   rival nouns. Ask "is the answer *how much of X*, or *which of A and B*?"
 
    Don't collapse these into one family. Each exists because the bipolar
    template produced nonsense: "moderately coffee-ish", "fully we're there",

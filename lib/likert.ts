@@ -20,6 +20,7 @@ export type ScaleFamily =
   | "addictive"
   | "alignment"
   | "bipolar"
+  | "breadth"
   | "amount"
   | "proximity"
   | "pace"
@@ -91,6 +92,28 @@ const ALIGNMENT_LABELS = [
   "moderately aligned",
   "strongly aligned",
   "completely aligned",
+];
+
+/**
+ * How widely something reaches — a handful of people through to everyone.
+ *
+ * Looks bipolar because the poles name two populations, but the thing being
+ * measured is one quantity: breadth. The bipolar ladder treats the pole as a
+ * thing you resemble, which gives "moderately a very small group" and
+ * "neutral, leaning humanity broadly" — eight of the ten bands are not English.
+ * Here the band simply names the group being reached.
+ */
+const BREADTH_LABELS = [
+  "almost no one",
+  "a very small group",
+  "a small group",
+  "a limited group",
+  "borderline, leaning narrow",
+  "borderline, leaning broad",
+  "a fairly broad group",
+  "a large share of people",
+  "the great majority",
+  "humanity broadly",
 ];
 
 /**
@@ -266,6 +289,7 @@ export function bandFor(
 
   if (scale === "addictive") return ADDICTIVE_LABELS[i];
   if (scale === "alignment") return ALIGNMENT_LABELS[i];
+  if (scale === "breadth") return BREADTH_LABELS[i];
   if (scale === "amount") return AMOUNT_LABELS[i];
   if (scale === "proximity") return PROXIMITY_LABELS[i];
   if (scale === "pace") return PACE_LABELS[i];
@@ -313,6 +337,7 @@ export function labelsFor(
   return BOUNDS.map((_, i) => {
     if (scale === "addictive") return ADDICTIVE_LABELS[i];
     if (scale === "alignment") return ALIGNMENT_LABELS[i];
+    if (scale === "breadth") return BREADTH_LABELS[i];
     if (scale === "amount") return AMOUNT_LABELS[i];
     if (scale === "proximity") return PROXIMITY_LABELS[i];
     if (scale === "pace") return PACE_LABELS[i];

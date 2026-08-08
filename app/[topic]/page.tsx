@@ -19,6 +19,18 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   return {
     title: `Vibe Check — ${topic.question}`,
     description: "A live consensus dial. Answer on the spectrum, then see the crowd's distribution.",
+    openGraph: {
+      title: topic.question,
+      description: "Answer on the spectrum, then see how everyone else answered.",
+      siteName: "Vibe Check",
+      type: "website",
+      url: `/${topic.id}`,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: topic.question,
+      description: "Answer on the spectrum, then see how everyone else answered.",
+    },
   };
 }
 

@@ -9,11 +9,24 @@ export const dynamic = "force-dynamic";
 type Params = { params: Promise<{ slug: string }> };
 
 export async function generateMetadata({ params }: Params): Promise<Metadata> {
-  const board = await getCommunityBoard((await params).slug);
+  const slug = (await params).slug;
+  const board = await getCommunityBoard(slug);
   if (!board) return { title: "Vibe Check — board not found" };
   return {
     title: `Vibe Check — ${board.question}`,
     description: "Someone made this board. Place your answer, then see how everyone else answered.",
+    openGraph: {
+      title: board.question,
+      description: "Answer on the spectrum, then see how everyone else answered.",
+      siteName: "Vibe Check",
+      type: "website",
+      url: `/b/${slug}`,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: board.question,
+      description: "Answer on the spectrum, then see how everyone else answered.",
+    },
     // Unlisted boards are shared by link, and a link that gets indexed isn't
     // unlisted any more. The share preview still works; only crawlers are told
     // to stay out.

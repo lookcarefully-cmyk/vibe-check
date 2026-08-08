@@ -8,16 +8,7 @@ interface SharePromptProps {
 }
 
 function shareOrigin(): string {
-  const configured = process.env.NEXT_PUBLIC_SITE_ORIGIN?.trim();
-  if (configured) {
-    const withScheme = /^https?:\/\//i.test(configured) ? configured : `https://${configured}`;
-    try {
-      return new URL(withScheme).origin;
-    } catch {
-      /* fall through to the stable production origin */
-    }
-  }
-  return "https://vibe-check-murex.vercel.app";
+  return "https://www.vibecheckdata.xyz";
 }
 
 /**
@@ -29,7 +20,7 @@ export default function SharePrompt({ question, path }: SharePromptProps) {
   const [status, setStatus] = useState<"idle" | "copied" | "failed">("idle");
   const resetTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const url = `${shareOrigin()}${path}`;
-  const text = `Where do you land? ${question}`;
+  const text = question;
   const xUrl = `https://x.com/intent/post?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`;
 
   useEffect(
@@ -48,7 +39,7 @@ export default function SharePrompt({ question, path }: SharePromptProps) {
   const share = async () => {
     try {
       if (navigator.share) {
-        await navigator.share({ title: "Vibe Check", text, url });
+        await navigator.share({ title: question, text, url });
         return;
       }
       await navigator.clipboard.writeText(url);

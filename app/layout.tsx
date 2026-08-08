@@ -30,41 +30,8 @@ const text = Space_Grotesk({
   display: "swap",
 });
 
-/**
- * Where the OG/Twitter image URLs resolve against. Without it, Next warns and
- * the preview-card URL is wrong in production.
- *
- * Resolved defensively because `new URL()` throws, and this runs at module load
- * during the build — so one malformed environment variable fails the entire
- * build with "Invalid URL" and no indication of which variable is at fault.
- * That has already happened once: NEXT_PUBLIC_SITE_ORIGIN was set to a bare
- * hostname with no scheme, which `??` happily passes through because it is
- * neither null nor undefined.
- *
- * So: try the value, retry it with https:// if it has no scheme, and fall back
- * rather than throw. A wrong preview-card URL is a far smaller problem than a
- * deployment that won't build.
- */
-function resolveOrigin(): URL {
-  const candidates = [
-    process.env.NEXT_PUBLIC_SITE_ORIGIN,
-    process.env.VERCEL_URL,
-    "http://localhost:3210",
-  ];
-  for (const raw of candidates) {
-    const value = raw?.trim();
-    if (!value) continue;
-    const withScheme = /^https?:\/\//i.test(value) ? value : `https://${value}`;
-    try {
-      return new URL(withScheme);
-    } catch {
-      /* try the next candidate rather than failing the build */
-    }
-  }
-  return new URL("http://localhost:3210");
-}
-
-const siteOrigin = resolveOrigin();
+/** The canonical public origin used in copied links and social-card metadata. */
+const siteOrigin = new URL("https://www.vibecheckdata.xyz");
 
 export const metadata: Metadata = {
   metadataBase: siteOrigin,

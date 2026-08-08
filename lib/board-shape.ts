@@ -29,6 +29,7 @@ export function guessScale(left: string, right: string): ScaleFamily {
   if (/\bchance\b|\bcertain\b|\blikely\b|\bunlikely\b/.test(pair)) return "probability";
   if (/\bnone\b/.test(l) && /\ball\b|\bfull\b|\beverything\b/.test(r)) return "amount";
   if (/\baddictive\b/.test(pair)) return "addictive";
+  if (/\bmisaligned\b|\baligned\b/.test(pair)) return "alignment";
   return "bipolar";
 }
 

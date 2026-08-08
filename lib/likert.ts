@@ -18,6 +18,7 @@
 
 export type ScaleFamily =
   | "addictive"
+  | "alignment"
   | "bipolar"
   | "amount"
   | "proximity"
@@ -61,6 +62,35 @@ const ADDICTIVE_LABELS = [
   "moderately addictive",
   "strongly addictive",
   "as addictive as it gets",
+];
+
+/**
+ * How aligned something is with human values and interests. Like `addictive`,
+ * this is one property varying in degree, so it takes degree words.
+ *
+ * Its own family rather than a bipolar board, because "aligned" and
+ * "misaligned" are not two rival things you can resemble — they are the two
+ * directions of a single quantity. Run through the bipolar templates it
+ * produced "neutral, leaning not at all aligned" and "mostly not at all
+ * aligned", which reads as a poll about a noun called "not at all aligned".
+ *
+ * The pair is deliberately misaligned↔aligned rather than not-at-all-aligned↔
+ * highly-aligned. The old left pole was ambiguous: "not at all aligned" can
+ * mean actively working against human interests, or merely indifferent to
+ * them, and those are very different claims to put at the end of a scale.
+ * "Misaligned" is the term of art and names the first one.
+ */
+const ALIGNMENT_LABELS = [
+  "completely misaligned",
+  "strongly misaligned",
+  "moderately misaligned",
+  "mildly misaligned",
+  "borderline, leaning misaligned",
+  "borderline, leaning aligned",
+  "mildly aligned",
+  "moderately aligned",
+  "strongly aligned",
+  "completely aligned",
 ];
 
 /**
@@ -235,6 +265,7 @@ export function bandFor(
   const i = bandIndex(value);
 
   if (scale === "addictive") return ADDICTIVE_LABELS[i];
+  if (scale === "alignment") return ALIGNMENT_LABELS[i];
   if (scale === "amount") return AMOUNT_LABELS[i];
   if (scale === "proximity") return PROXIMITY_LABELS[i];
   if (scale === "pace") return PACE_LABELS[i];
@@ -281,6 +312,7 @@ export function labelsFor(
 ): string[] {
   return BOUNDS.map((_, i) => {
     if (scale === "addictive") return ADDICTIVE_LABELS[i];
+    if (scale === "alignment") return ALIGNMENT_LABELS[i];
     if (scale === "amount") return AMOUNT_LABELS[i];
     if (scale === "proximity") return PROXIMITY_LABELS[i];
     if (scale === "pace") return PACE_LABELS[i];

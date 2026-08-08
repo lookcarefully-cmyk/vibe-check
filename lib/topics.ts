@@ -1138,10 +1138,13 @@ export const TOPICS: Topic[] = [
     question:
       "Based on what you see today, how aligned are the most advanced AI models with human values and interests?",
     prompt: CORE_PROMPT,
-    leftLabel: "NOT AT ALL ALIGNED",
-    rightLabel: "HIGHLY ALIGNED",
+    // Direction is unchanged — low is still the bad-alignment end — so the
+    // existing votes keep their meaning and STORE_VERSION stays put. Only the
+    // wording of the ends moved. See the `alignment` note in lib/likert.ts.
+    leftLabel: "MISALIGNED",
+    rightLabel: "ALIGNED",
     highMeans: "a stronger perception that the most advanced AI models are aligned with human values and interests",
-    scale: "bipolar",
+    scale: "alignment",
     category: "Monthly AI poll",
     cadence: "month",
   },

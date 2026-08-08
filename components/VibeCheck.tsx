@@ -18,7 +18,7 @@ import {
   type WindowedAggregate,
 } from "@/lib/aggregate";
 import { nextHref, readRunState, type RunState } from "@/lib/run";
-import { bandCounts, bandFor, bandIndex, reading } from "@/lib/likert";
+import { bandCounts, bandFor, bandIndex } from "@/lib/likert";
 import { getSessionId } from "@/lib/session";
 import {
   EXPERIMENT_ENABLED,
@@ -512,23 +512,25 @@ export default function VibeCheck({
   const hasSpread = agg.count > 1;
 
   /*
-   * The headline number, in words that mean something.
+   * The headline number is a position on the dial, exactly like every other
+   * figure on the page. It used to be converted to a distance-toward-a-pole
+   * reading on bipolar and pace boards, which put "20% not at all aligned"
+   * under a needle pointing at 40% and left the average sitting outside the
+   * 38–42% spread quoted in the same sentence. See the note in lib/likert.ts.
    *
-   * On a bidirectional board (optimist↔doomer, slow↔fast) a raw "13%" is
-   * baffling — it's strongly toward the left pole but reads as "barely
-   * anything". `reading` converts it to "74% optimistic"; unidirectional boards
-   * (how addictive, how much) keep their plain percentage. See lib/likert.ts.
+   * What the number *means* is carried by the band label rendered beside it,
+   * which is where that job belongs.
    */
-  const say = (v: number) => {
-    const r = reading(v, topic.scale, {
+  const say = (v: number) => pct(v);
+
+  /** The band words for a value, e.g. "neutral, leaning not at all aligned". */
+  const words = (v: number) =>
+    bandFor(v, topic.scale, {
       left: topic.leftLabel,
       right: topic.rightLabel,
       leftProse: topic.leftProse,
       rightProse: topic.rightProse,
     });
-    if (r.neutral) return "dead neutral";
-    return r.toward ? `${r.pct}% ${r.toward}` : `${r.pct}%`;
-  };
 
   const benchmarkValue = (v: number) =>
     topic.benchmark?.unit === "score100"
@@ -875,7 +877,11 @@ export default function VibeCheck({
               <p className="margin-copy">
                 {!revealed && (
                   <>
-                    The average answer is <strong>{say(agg.mean)}</strong>.{" "}
+                    {/* The band words come along here because this is the one
+                        place the crowd's figure appears without the
+                        consensus-band line underneath it to say what it means. */}
+                    The average answer is <strong>{say(agg.mean)}</strong>
+                    {words(agg.mean) ? <> — {words(agg.mean)}</> : null}.{" "}
                   </>
                 )}
                 {hasSpread

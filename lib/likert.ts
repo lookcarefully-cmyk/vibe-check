@@ -247,56 +247,32 @@ export function bandFor(
     .replace("{right}", forProse(poles.right, poles.rightProse));
 }
 
-/**
- * Families whose midpoint is a real neutral, so the meaningful number is how far
- * you've leaned toward a pole — not the raw 0..1 position.
+/*
+ * ONE NUMBER MEANS ONE THING: a position on the dial, 0 at the left label and
+ * 100 at the right. Every figure the site prints — the average, the 10th and
+ * 90th percentiles, your own answer, the chip on the dial face — is that same
+ * measurement. Do not add a second percentage convention.
  *
- * On a bipolar board, "13%" is baffling: it's strongly toward the LEFT pole, but
- * the number reads like "barely anything". What people mean is "strongly
- * optimistic" — 74% of the way to the optimist end. The other families (a
- * quantity from none to all, a distance, a degree of addictiveness) genuinely
- * run 0→100 and are left as they are.
- */
-export function isBidirectional(scale: ScaleFamily | undefined): boolean {
-  return scale === "bipolar" || scale === "pace";
-}
-
-export interface Reading {
-  /**
-   * The number to show. For bidirectional boards this is the distance toward a
-   * pole (0 at dead centre, 100 at an extreme); for the rest it's the raw
-   * position.
-   */
-  pct: number;
-  /** The pole being leaned toward, in prose, or null at exact neutral. */
-  toward: string | null;
-  /** True only at the exact midpoint of a bidirectional board. */
-  neutral: boolean;
-}
-
-/**
- * Turn a raw 0..1 position into the number a person should actually see.
+ * There used to be one. Bipolar and pace boards reported *distance toward a
+ * pole* instead: an average of 0.40 was printed as "20% not at all aligned",
+ * because it sits 20 points of the way from centre to the left end. The
+ * motivation was fair — on an optimist↔doomer board a bare "13%" reads like
+ * "barely anything" when it actually means strongly toward the left pole — but
+ * the cure was worse:
  *
- * Bidirectional boards report "62% doomer"; everything else reports its raw
- * percentage. Callers format it — typically `${pct}% ${toward}`, or the word
- * "neutral" when `neutral` is set.
+ *   - It contradicted the dial. The needle and its chip say 40%; the sentence
+ *     underneath said 20%. Two numbers, same quantity.
+ *   - It cannot express an interval. "Most land between 38% and 42%" has no
+ *     distance-to-pole equivalent, because a range straddling the midpoint runs
+ *     *toward both poles at once*. So the spread stayed in raw position while
+ *     the mean did not, and the site published sentences whose average fell
+ *     outside its own middle 80%.
+ *
+ * The thing the old convention was reaching for — what the number *means* — is
+ * the band label's job, not a second number's. `bandFor` already says "neutral,
+ * leaning not at all aligned" next to the figure, which is what people actually
+ * wanted to read.
  */
-export function reading(
-  value: number,
-  scale: ScaleFamily | undefined,
-  poles?: { left: string; right: string; leftProse?: string; rightProse?: string },
-): Reading {
-  if (isBidirectional(scale) && poles) {
-    const pct = Math.round((Math.abs(value - 0.5) / 0.5) * 100);
-    if (pct === 0) return { pct: 0, toward: null, neutral: true };
-    const toward =
-      value < 0.5
-        ? forProse(poles.left, poles.leftProse)
-        : forProse(poles.right, poles.rightProse);
-    return { pct, toward, neutral: false };
-  }
-  return { pct: Math.round(value * 100), toward: null, neutral: false };
-}
 
 /** Every label for a family, for documentation and for the "?" panel. */
 export function labelsFor(

@@ -76,3 +76,10 @@ epoch_week,board_id,n_people,n_answers,n_first_time,n_returning,mean,sd,p10,p90,
 2026-W32,us-hegemony-end,2,2,2,0,0.064,0.0905,0.0128,0.1152,1,1,0,0,0,0,0,0,0,0
 2026-W32,violence-support-score-perception,4,4,4,0,0.3902,0.2419,0.2229,0.6162,0,1,0,2,0,0,0,1,0,0
 2026-W32,wallet-return,5,5,5,0,0.3164,0.1303,0.2142,0.4632,0,0,3,0,1,1,0,0,0,0
+2026-W33,abortion-legal-perception,1,1,1,0,0.635,0,0.635,0.635,0,0,0,0,0,0,1,0,0,0
+2026-W33,climate-worry-perception,1,1,1,0,0.58,0,0.58,0.58,0,0,0,0,0,1,0,0,0,0
+2026-W33,free-expression-perception,1,1,1,0,0.865,0,0.865,0.865,0,0,0,0,0,0,0,0,1,0
+2026-W33,loneliness-perception,1,1,1,0,0.396,0,0.396,0.396,0,0,0,1,0,0,0,0,0,0
+2026-W33,perceived-extremism,1,1,1,0,0.127,0,0.127,0.127,0,1,0,0,0,0,0,0,0,0
+2026-W33,social-trust-perception,1,1,1,0,0.373,0,0.373,0.373,0,0,0,1,0,0,0,0,0,0
+2026-W33,violence-support-score-perception,1,1,1,0,0.121,0,0.121,0.121,0,1,0,0,0,0,0,0,0,0

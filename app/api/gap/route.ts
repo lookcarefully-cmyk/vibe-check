@@ -32,7 +32,7 @@ export async function GET() {
   try {
     const topics = GAP_TOPICS.filter((topic) => topic.benchmark);
     if (topics.length === 0) {
-      return NextResponse.json({ finishers: 0, accuracies: [] });
+      return NextResponse.json({ ok: true, finishers: 0, accuracies: [] });
     }
 
     const perTopic = await Promise.all(topics.map((topic) => store.all(topic.id)));
@@ -66,7 +66,7 @@ export async function GET() {
     accuracies.sort((a, b) => a - b);
 
     return NextResponse.json(
-      { finishers: accuracies.length, accuracies },
+      { ok: true, finishers: accuracies.length, accuracies },
       {
         headers: {
           // `max-age=0` is load-bearing: without it the browser applies its own
@@ -80,8 +80,16 @@ export async function GET() {
       },
     );
   } catch {
-    // The percentile is a bonus on top of a score that already stands on its
-    // own, so a failure here must never take the results page down with it.
-    return NextResponse.json({ finishers: 0, accuracies: [] });
+    /*
+     * The percentile is a bonus on top of a score that already stands on its
+     * own, so a failure here must never take the results page down with it.
+     *
+     * `ok: false` matters: an empty distribution because nobody has finished
+     * and an empty distribution because the store threw look identical from
+     * the outside, and a silent catch that mimics a valid result is a trap to
+     * debug. The client treats both as "no ranking", but the difference is
+     * visible to anyone checking.
+     */
+    return NextResponse.json({ ok: false, finishers: 0, accuracies: [] });
   }
 }

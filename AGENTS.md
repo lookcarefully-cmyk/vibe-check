@@ -41,6 +41,13 @@ Two rules follow from that, and both are easy to undo by accident:
    respondent, "AVERAGE 52%" is their own guess handed back under an
    authoritative label, sitting beside a real national survey.
 
+`/api/gap` publishes the distribution of finished scores for the percentile on
+the results page. It joins eight boards on the per-browser session id **on the
+server** and returns bare accuracy numbers — no ids, no timestamps, no
+per-question values. `s` never leaves the server, here as everywhere. Rankings
+are withheld below `MIN_FINISHERS_FOR_PERCENTILE` (10); the page says how many
+have finished instead of dressing three people up as a ranking.
+
 `TopicBenchmark.pessimism` marks which direction of error is the bleaker read of
 other people. It is deliberately absent on items with no gloomy direction
 (abortion legality, climate worry) — putting those on a cynicism axis would

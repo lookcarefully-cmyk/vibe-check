@@ -64,6 +64,47 @@ export interface GapScore {
 export const CLOSE_ENOUGH = 10;
 
 /**
+ * How many finished batteries are needed before a percentile is shown.
+ *
+ * The same floor the benchmark boards use for their crowd, and for the same
+ * reason: "you beat 50% of players" off two other people is not a fact about
+ * anyone, and it is worse than silence because it looks like one. Below this,
+ * the score page simply says how many have finished so far.
+ */
+export const MIN_FINISHERS_FOR_PERCENTILE = 10;
+
+/**
+ * Share of other finishers this score beat, 0..100.
+ *
+ * Ties count as half, which is the ordinary convention for a percentile rank
+ * and stops a heavily-tied distribution from reading as "better than 0%" for
+ * everyone who scored the modal value.
+ */
+export function percentileOf(accuracy: number, others: number[]): number {
+  if (others.length === 0) return 0;
+  const below = others.filter((a) => a < accuracy).length;
+  const tied = others.filter((a) => a === accuracy).length;
+  return Math.round(((below + tied / 2) / others.length) * 100);
+}
+
+/**
+ * The other finishers' scores, with one instance of this visitor's own removed.
+ *
+ * Their completed battery is in the published distribution — it has to be, it
+ * is computed from the same votes — and "you scored better than yourself" is
+ * not a sentence. Matching on the value rather than on identity keeps the
+ * endpoint free of anything that could identify a person; with a small number
+ * of finishers the worst case is dropping a stranger who scored identically,
+ * which changes the percentile by one person.
+ */
+export function othersThan(accuracy: number, all: number[]): number[] {
+  const out = [...all];
+  const mine = out.indexOf(accuracy);
+  if (mine !== -1) out.splice(mine, 1);
+  return out;
+}
+
+/**
  * Turn mean error in points into a 0..100 score.
  *
  * Linear from 0 points off (100) to 40 points off (0). Forty is the floor

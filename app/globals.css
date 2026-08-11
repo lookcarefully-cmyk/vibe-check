@@ -3183,3 +3183,20 @@ body:has(.gap-progress-bar) main.shell {
 .benchmark-result.is-slim .benchmark-source {
   margin-top: 0.4rem;
 }
+
+/* The percentile sits with the grade: both are readings of the same number. */
+.gap-percentile {
+  margin: 0.55rem 0 0;
+  font-size: 0.95rem;
+  color: rgba(242, 235, 218, 0.82);
+}
+
+.gap-percentile strong {
+  color: var(--teal);
+  font-weight: 800;
+}
+
+.gap-percentile.is-thin {
+  font-size: 0.82rem;
+  color: rgba(242, 235, 218, 0.45);
+}

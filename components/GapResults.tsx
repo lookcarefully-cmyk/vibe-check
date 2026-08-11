@@ -7,7 +7,16 @@ import InfoDialog from "./InfoDialog";
 import SubscribeCallout from "./SubscribeCallout";
 import { GAP_TOPICS } from "@/lib/experiment";
 import { lastAnswer } from "@/lib/mine";
-import { CLOSE_ENOUGH, gradeOf, readingOf, scoreGap, type GapScore } from "@/lib/gap";
+import {
+  CLOSE_ENOUGH,
+  MIN_FINISHERS_FOR_PERCENTILE,
+  gradeOf,
+  othersThan,
+  percentileOf,
+  readingOf,
+  scoreGap,
+  type GapScore,
+} from "@/lib/gap";
 
 const SHARE_ORIGIN = "https://www.vibecheckdata.xyz";
 
@@ -22,11 +31,27 @@ const SHARE_ORIGIN = "https://www.vibecheckdata.xyz";
  */
 export default function GapResults() {
   const [score, setScore] = useState<GapScore | null>(null);
+  const [finishers, setFinishers] = useState<number[] | null>(null);
   const [shareState, setShareState] = useState<"idle" | "copied" | "failed">("idle");
   const resetTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     setScore(scoreGap(GAP_TOPICS.map((topic) => ({ topic, guess: lastAnswer(topic.id)?.v ?? null }))));
+  }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetch("/api/gap")
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => {
+        if (!cancelled && d && Array.isArray(d.accuracies)) setFinishers(d.accuracies);
+      })
+      .catch(() => {
+        /* the percentile is a bonus; the score stands without it */
+      });
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   useEffect(
@@ -70,13 +95,27 @@ export default function GapResults() {
   const grade = gradeOf(score);
 
   /*
+   * The percentile only exists for a finished battery compared against other
+   * finished batteries — a partial score has nothing to rank, and a handful of
+   * finishers has nothing to rank it against.
+   */
+  const others = finishers ? othersThan(score.accuracy, finishers) : null;
+  const percentile = score.complete && others && others.length >= MIN_FINISHERS_FOR_PERCENTILE
+    ? percentileOf(score.accuracy, others)
+    : null;
+
+  /*
    * The share carries the SCORE and never a board answer, so a recipient still
    * arrives at a blank dial with nothing spoiled. Same rule as SharePrompt: the
    * whole point is that the person you send it to can still play honestly.
    */
-  const shareText = score.complete
-    ? `I scored ${score.accuracy}/100 guessing what my country actually thinks — ${reading.headline.toLowerCase()}. How well do you know yours?`
-    : `I'm ${score.answered} questions into guessing what my country actually thinks. How well do you know yours?`;
+  const shareText = !score.complete
+    ? `I'm ${score.answered} questions into guessing what my country actually thinks. How well do you know yours?`
+    : percentile !== null
+      // A rank is a far better hook than a bare score, and unlike the score it
+      // is not obvious whether 54/100 is good.
+      ? `I scored ${score.accuracy}/100 guessing what my country actually thinks — better than ${percentile}% of people who've taken it. How well do you know yours?`
+      : `I scored ${score.accuracy}/100 guessing what my country actually thinks — ${reading.headline.toLowerCase()}. How well do you know yours?`;
   const shareUrl = `${SHARE_ORIGIN}/gap`;
 
   const briefly = (next: "copied" | "failed") => {
@@ -119,6 +158,19 @@ export default function GapResults() {
           <span className="gap-score-outof">/ 100</span>
         </div>
         <p className="gap-score-grade">{grade}</p>
+        {percentile !== null && others && (
+          <p className="gap-percentile">
+            Better than <strong>{percentile}%</strong> of the {others.length} people
+            who&rsquo;ve finished
+          </p>
+        )}
+        {score.complete && percentile === null && finishers && finishers.length > 0 && (
+          /* Say how thin it is rather than dressing it up as a ranking. */
+          <p className="gap-percentile is-thin">
+            {finishers.length === 1 ? "1 person has" : `${finishers.length} people have`}{" "}
+            finished so far — rankings start at {MIN_FINISHERS_FOR_PERCENTILE}
+          </p>
+        )}
         <dl className="gap-score-stats">
           <div>
             <dt>Average miss</dt>

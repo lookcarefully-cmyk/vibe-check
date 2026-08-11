@@ -731,6 +731,22 @@ export default function VibeCheck({
               ) : (
                 <>No crowd result yet</>
               )
+            ) : !showCrowd && topic.benchmark ? (
+              <>
+                You said <strong className="is-own">{say(pick)}</strong>
+                {(() => {
+                  const diff = Math.round((pick - topic.benchmark!.value) * 100);
+                  if (diff === 0) return <> — spot on.</>;
+                  return (
+                    <>
+                      {" "}— <span className="consensus-delta">
+                        {Math.abs(diff)} {Math.abs(diff) === 1 ? "point" : "points"}{" "}
+                        {diff > 0 ? "too high" : "too low"}
+                      </span>
+                    </>
+                  );
+                })()}
+              </>
             ) : (
               <>
                 You said <strong>{say(pick)}</strong>
@@ -756,12 +772,18 @@ export default function VibeCheck({
           })()}
 
           {topic.benchmark && (
-            <section className="benchmark-result" aria-labelledby="benchmark-title">
+            <section
+              className={`benchmark-result${!showCrowd && !revealed ? " is-slim" : ""}`}
+              aria-labelledby="benchmark-title"
+            >
               <div className="benchmark-heading">
                 <p className="benchmark-kicker">Perception check</p>
-                <h3 id="benchmark-title">How close was the guess?</h3>
+                <h3 id="benchmark-title">
+                  {!showCrowd && !revealed ? "Where that number comes from" : "How close was the guess?"}
+                </h3>
               </div>
 
+              {(showCrowd || revealed) && (
               <dl className="benchmark-grid">
                 {!revealed && (
                   <div>
@@ -789,8 +811,9 @@ export default function VibeCheck({
                   <dd>{topic.benchmark.display}</dd>
                 </div>
               </dl>
+              )}
 
-              {!revealed && (
+              {!revealed && (showCrowd || revealed) && (
                 <p className="benchmark-score">
                   {(() => {
                     const diff = Math.round((pick - topic.benchmark!.value) * 100);

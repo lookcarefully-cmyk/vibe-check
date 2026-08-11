@@ -3107,3 +3107,79 @@ body::after {
     gap: 0.9rem;
   }
 }
+
+/* ------------------------------------------ perception-gap quiz progress */
+
+/*
+ * Pinned to the top so it survives the long question headings on this set —
+ * several run to four lines on a phone, which would push an in-flow progress
+ * line off screen exactly when it is most reassuring.
+ */
+.gap-progress-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 40;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding: 0.55rem 1rem 0.6rem;
+  background: linear-gradient(to bottom, rgba(6, 10, 34, 0.96), rgba(6, 10, 34, 0.72) 70%, transparent);
+  pointer-events: none;
+}
+
+.gap-progress-track {
+  width: min(100%, 34rem);
+  margin: 0 auto;
+  height: 5px;
+  border-radius: 999px;
+  background: rgba(242, 235, 218, 0.16);
+  overflow: hidden;
+}
+
+.gap-progress-track span {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: var(--teal);
+  transition: width 420ms var(--ease-out);
+}
+
+.gap-progress-bar p {
+  margin: 0;
+  text-align: center;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(242, 235, 218, 0.55);
+}
+
+/* The fixed bar would otherwise sit on top of the kicker. */
+.gap-progress-bar ~ * .masthead,
+body:has(.gap-progress-bar) main.shell {
+  padding-top: 2.6rem;
+}
+
+/* On a benchmark board teal is "you" — the needle, the hub and this figure are
+   the same answer, so they must be the same colour. Red belongs to the crowd. */
+.consensus strong.is-own {
+  color: var(--teal);
+}
+
+.consensus-delta {
+  color: var(--mustard);
+  font-weight: 800;
+}
+
+/* The slim benchmark card is just attribution: the headline above already gave
+   the guess, the real figure and the gap. */
+.benchmark-result.is-slim {
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+}
+
+.benchmark-result.is-slim .benchmark-source {
+  margin-top: 0.4rem;
+}

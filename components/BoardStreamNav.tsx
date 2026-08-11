@@ -264,6 +264,11 @@ export default function BoardStreamNav({
     };
   }, [goNext, step?.next]);
 
+  const gapIndex = streamKind === "gap"
+    ? GAP_TOPICS.findIndex((candidate) => candidate.id === topic.id)
+    : -1;
+  const showGapProgress = gapIndex >= 0;
+
   if (!step) return null;
 
   const exitHref = streamKind === "pulse"
@@ -278,10 +283,25 @@ export default function BoardStreamNav({
       : "Exit the question stream and open Explore";
 
   return (
-    <nav
-      className={`board-stream${answered ? " is-answered" : ""}${step.complete ? " is-complete" : ""}`}
-      aria-label="Question navigation"
-    >
+    <>
+      {/*
+        A quiz has to say how long it is. Without this the battery reads as an
+        open-ended stream of questions, which is exactly the thing people quit.
+      */}
+      {showGapProgress && (
+        <div className="gap-progress-bar">
+          <div className="gap-progress-track" aria-hidden="true">
+            <span style={{ width: `${((gapIndex + (answered ? 1 : 0)) / GAP_TOPICS.length) * 100}%` }} />
+          </div>
+          <p role="status">
+            Question {gapIndex + 1} of {GAP_TOPICS.length}
+          </p>
+        </div>
+      )}
+      <nav
+        className={`board-stream${answered ? " is-answered" : ""}${step.complete ? " is-complete" : ""}`}
+        aria-label="Question navigation"
+      >
       <Link
         href={exitHref}
         className="board-stream-all"
@@ -347,6 +367,7 @@ export default function BoardStreamNav({
           <span className="board-stream-arrow" aria-hidden="true">→</span>
         </button>
       )}
-    </nav>
+      </nav>
+    </>
   );
 }

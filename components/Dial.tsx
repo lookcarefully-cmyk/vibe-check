@@ -207,6 +207,13 @@ export default function Dial({
   const isResult = phase === "result";
   /** Every crowd-drawn element hangs off this, so they cannot drift apart. */
   const crowdVisible = showCrowd && agg.count > 0;
+  /*
+   * True on a benchmark board with no crowd to show: the visitor's own answer
+   * is then the primary mark on the face, not a secondary one beside the
+   * crowd's. It gets the full needle and the hub; the faint aim line below is
+   * for the case where both are drawn at once and "yours" needs to defer.
+   */
+  const ownIsPrimary = isResult && !crowdVisible && showOwn;
   const needleValue = isResult ? agg.mean : safePick;
 
   // Where the marker line should land: the tip of the tallest (mean) ray.
@@ -452,7 +459,7 @@ export default function Dial({
             teal means "you" here, where both are on the face at once. The
             choosing phase has no crowd to distinguish yourself from, so it uses
             the red needle below, drawn only once the viewer has placed it. */}
-        {showOwn && isResult && (
+        {showOwn && isResult && crowdVisible && (
           <line
             className="aim"
             x1={CX}
@@ -475,6 +482,21 @@ export default function Dial({
         within the reveal "teal means you" stays consistent. (The choosing
         needle is red; teal is a reveal-only convention.)
       */}
+      {isResult && !crowdVisible && (
+        <g className="bands is-empty" aria-hidden="true">
+          {bands.map((b) => {
+            const gap = 0.0045;
+            return (
+              <path
+                key={b.i}
+                className="band-slot"
+                d={annularSector(b.from + gap, b.to - gap, bandIn, bandOut)}
+              />
+            );
+          })}
+        </g>
+      )}
+
       {isResult && crowdVisible && (
         <g className="bands">
           {bands.map((b) => {
@@ -722,12 +744,30 @@ export default function Dial({
           <line x1={CX} y1={CY} x2={CX} y2={CY - (bandIn - 10)} stroke="#E51D35" strokeWidth="11" strokeLinecap="round" />
         </g>
       )}
+
+      {/* Your answer, in teal, when it is the only answer on the face. */}
+      {ownIsPrimary && (
+        <g
+          className="needle needle-own"
+          style={{ transform: `rotate(${rotationOf(safePick)}deg)` }}
+        >
+          <line x1={CX} y1={CY} x2={CX} y2={CY - (bandIn - 10)} stroke="#2EA3AD" strokeWidth="11" strokeLinecap="round" />
+        </g>
+      )}
       {/* The hub is the pivot for whatever is drawn: the crowd needle, or on a
           benchmark board with no crowd shown, the viewer's own aim line. */}
       {((isResult && (crowdVisible || showOwn)) || (!isResult && placed)) && (
         <>
-          <circle cx={CX} cy={CY} r={R_HUB} fill="#E51D35" />
-          <circle cx={CX} cy={CY} r={R_HUB - 12} fill="none" stroke="#C4142A" strokeWidth="3" opacity="0.85" />
+          <circle cx={CX} cy={CY} r={R_HUB} fill={ownIsPrimary ? "#2EA3AD" : "#E51D35"} />
+          <circle
+            cx={CX}
+            cy={CY}
+            r={R_HUB - 12}
+            fill="none"
+            stroke={ownIsPrimary ? "#1F7F87" : "#C4142A"}
+            strokeWidth="3"
+            opacity="0.85"
+          />
         </>
       )}
     </svg>

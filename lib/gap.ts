@@ -126,9 +126,16 @@ export function scoreGap(items: GapItem[]): GapScore {
   };
 }
 
-/** A short badge for the score. Kept blunt and non-flattering. */
+/**
+ * A short badge for the score. Kept blunt and non-flattering.
+ *
+ * Withheld until the battery is finished: "WAY OFF" earned on a single question
+ * is not a verdict, it is one guess, and stamping it on the card invites people
+ * to quit with a bad grade they never actually earned.
+ */
 export function gradeOf(score: GapScore): string {
   if (!score.answered) return "Unscored";
+  if (!score.complete) return "So far";
   if (score.accuracy >= 85) return "Sharp";
   if (score.accuracy >= 70) return "Pretty close";
   if (score.accuracy >= 50) return "Roughly typical";
@@ -147,6 +154,19 @@ export function gradeOf(score: GapScore): string {
 export function readingOf(score: GapScore): { headline: string; detail: string } {
   if (!score.answered) {
     return { headline: "Nothing scored yet", detail: "Answer the questions to see how you did." };
+  }
+
+  /*
+   * A lean is a claim about a pattern, so it needs a pattern. Reporting one
+   * from a part-finished battery would state as a finding what is really just
+   * the first question or two.
+   */
+  if (!score.complete) {
+    const left = score.total - score.answered;
+    return {
+      headline: `${score.answered} of ${score.total} answered`,
+      detail: `Your score so far is provisional. Which way you lean is the interesting part, and it only means anything once all ${score.total} are in — ${left} to go.`,
+    };
   }
 
   const { gloomyMisses, gloomyEligible } = score;

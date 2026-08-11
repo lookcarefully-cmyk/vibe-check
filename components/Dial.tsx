@@ -70,6 +70,13 @@ interface DialProps {
    * before the first tap there is no needle, no hub, no fill; `placed` gates it.
    */
   placed?: boolean;
+  /**
+   * False on a benchmark board whose crowd is too thin to be worth drawing.
+   * The rays, the band ring, the spread bracket and the AVERAGE chip all come
+   * off, leaving the visitor's own answer against the published figure — which
+   * on those boards is the whole point. See `showCrowd` in VibeCheck.tsx.
+   */
+  showCrowd?: boolean;
 }
 
 /** Stars are baked once from a fixed seed so SSR and hydration agree. */
@@ -127,6 +134,7 @@ export default function Dial({
   onBandFocus,
   showOwn = true,
   placed = true,
+  showCrowd = true,
 }: DialProps) {
   const svgRef = useRef<SVGSVGElement>(null);
   const compact = useCompact();
@@ -197,6 +205,8 @@ export default function Dial({
   } as React.CSSProperties;
 
   const isResult = phase === "result";
+  /** Every crowd-drawn element hangs off this, so they cannot drift apart. */
+  const crowdVisible = showCrowd && agg.count > 0;
   const needleValue = isResult ? agg.mean : safePick;
 
   // Where the marker line should land: the tip of the tallest (mean) ray.
@@ -425,7 +435,7 @@ export default function Dial({
       {/* --------------------------------------------------------- rays */}
       <g clipPath="url(#faceClip)">
         <g className="rays">
-          {isResult &&
+          {isResult && crowdVisible &&
             rays.map((ray) => (
               <polygon
                 key={ray.value.toFixed(4)}
@@ -465,7 +475,7 @@ export default function Dial({
         within the reveal "teal means you" stays consistent. (The choosing
         needle is red; teal is a reveal-only convention.)
       */}
-      {isResult && agg.count > 0 && (
+      {isResult && crowdVisible && (
         <g className="bands">
           {bands.map((b) => {
             // A hairline gap keeps ten sectors from reading as one solid arc.
@@ -536,7 +546,7 @@ export default function Dial({
       )}
 
       {/* -------------------------------------------- 80% margin bracket */}
-      {isResult && agg.count > 1 && (
+      {isResult && crowdVisible && agg.count > 1 && (
         <g className="margin">
           <path
             d={arcBetween(agg.p10, agg.p90, R_BRACKET)}
@@ -590,7 +600,7 @@ export default function Dial({
       )}
 
       {/* ---------------------------------------- consensus marker + chip */}
-      {isResult && agg.count > 0 && (
+      {isResult && crowdVisible && (
         <g className="marker">
           {/* red reads against both the navy sky and the cream face */}
           <line
@@ -703,15 +713,19 @@ export default function Dial({
         showOwn=false but still needs the needle to place a guess. `showOwn` only
         governs the faint own-answer marker among the crowd (the aim line above).
       */}
-      {((isResult && agg.count > 0) || (!isResult && placed)) && (
+      {((isResult && crowdVisible) || (!isResult && placed)) && (
+        <g
+          className={isResult ? "needle" : "needle needle-choose"}
+          style={{ transform: `rotate(${rotationOf(needleValue)}deg)` }}
+        >
+          {/* Stops just inside the band ring, so the ring reads as its own track. */}
+          <line x1={CX} y1={CY} x2={CX} y2={CY - (bandIn - 10)} stroke="#E51D35" strokeWidth="11" strokeLinecap="round" />
+        </g>
+      )}
+      {/* The hub is the pivot for whatever is drawn: the crowd needle, or on a
+          benchmark board with no crowd shown, the viewer's own aim line. */}
+      {((isResult && (crowdVisible || showOwn)) || (!isResult && placed)) && (
         <>
-          <g
-            className={isResult ? "needle" : "needle needle-choose"}
-            style={{ transform: `rotate(${rotationOf(needleValue)}deg)` }}
-          >
-            {/* Stops just inside the band ring, so the ring reads as its own track. */}
-            <line x1={CX} y1={CY} x2={CX} y2={CY - (bandIn - 10)} stroke="#E51D35" strokeWidth="11" strokeLinecap="round" />
-          </g>
           <circle cx={CX} cy={CY} r={R_HUB} fill="#E51D35" />
           <circle cx={CX} cy={CY} r={R_HUB - 12} fill="none" stroke="#C4142A" strokeWidth="3" opacity="0.85" />
         </>

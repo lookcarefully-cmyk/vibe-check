@@ -35,10 +35,12 @@ function shuffle<T>(items: T[]): T[] {
 function makeOrder(currentId: string, topics: Topic[], streamId: string): string[] {
   const ids = [...new Set(topics.map((topic) => topic.id))];
 
-  // Pulse is a three-item instrument with a stable question order, not a
-  // discovery feed. The caller puts the entry question first and the remaining
-  // available Pulse questions after it; preserve that order exactly.
-  if (streamId === "pulse") return ids;
+  // Pulse and the perception-gap battery are fixed instruments with a stable
+  // question order, not discovery feeds. The caller puts the entry question
+  // first and the rest after it; preserve that order exactly. Shuffling the gap
+  // battery would also break its editorial arc — it is built to open on the
+  // sharpest misperception and close on the warmest finding.
+  if (streamId === "pulse" || streamId === "gap") return ids;
 
   const demographic = ids.includes(DEMOGRAPHIC_TOPIC_ID)
     && currentId !== DEMOGRAPHIC_TOPIC_ID

@@ -491,7 +491,7 @@ body::after {
   margin-top: 0;
 }
 
-.front-door-actions .start-main-set {
+.front-door-actions .front-door-primary {
   width: min(100%, 32rem);
   min-height: 64px;
   padding: 1rem 2.5rem;
@@ -500,8 +500,28 @@ body::after {
   box-shadow: 0 12px 32px rgba(242, 177, 56, 0.16);
 }
 
-.front-door-actions .start-main-set:hover:not(:disabled) {
+.front-door-actions .front-door-primary:hover {
   background: #ffc754;
+}
+
+/* Demoted to a quiet pill beside Explore and Make: the crowd boards need other
+   people to be worth anything, so they are not what a first visitor is offered.
+   Matches .reset rather than .lock-in. */
+.front-door-secondary .start-main-set {
+  padding: 0.6rem 1.2rem;
+  min-height: 44px;
+  border: 1px solid rgba(242, 235, 218, 0.35);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--cream);
+  font-size: 0.9rem;
+  font-weight: 600;
+  box-shadow: none;
+}
+
+.front-door-secondary .start-main-set:hover:not(:disabled) {
+  background: rgba(242, 235, 218, 0.1);
+  transform: none;
 }
 
 .front-door-secondary {
@@ -2697,5 +2717,393 @@ body::after {
   .needle,
   .face {
     transition-duration: 1ms;
+  }
+}
+
+/* =========================================================================
+   Perception gap battery (/gap)
+
+   The one part of the site that pays off with nobody else present: its answers
+   come from Pew, Gallup, the Fed and Yale rather than from the crowd. Styled a
+   little warmer and more game-like than the research boards, because it is the
+   front door and has to earn two minutes from a stranger.
+   ========================================================================= */
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+.gap-page,
+.gap-results {
+  max-width: 900px;
+}
+
+/* ------------------------------------------------------------ the landing */
+
+.gap-hero {
+  width: 100%;
+  max-width: 44rem;
+  margin: 0.5rem auto 0;
+  text-align: center;
+}
+
+.gap-hero-lead {
+  margin: 0 auto 0.4rem;
+  max-width: 34rem;
+  font-size: clamp(1.02rem, 2.6vw, 1.2rem);
+  line-height: 1.5;
+  color: rgba(242, 235, 218, 0.9);
+}
+
+.gap-hero-lead em {
+  color: var(--teal);
+  font-style: italic;
+}
+
+.gap-cta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
+  justify-content: center;
+}
+
+.gap-cta-inline {
+  margin: 0.5rem 0 1.5rem;
+}
+
+.gap-start {
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
+}
+
+.gap-secondary {
+  margin-top: 1.25rem;
+}
+
+.gap-progress {
+  margin: 0.75rem 0 0;
+  color: var(--teal);
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.gap-meta {
+  margin: 0.6rem 0 0;
+  color: rgba(242, 235, 218, 0.55);
+  font-size: 0.82rem;
+}
+
+.gap-how,
+.gap-why,
+.gap-next {
+  width: 100%;
+  max-width: 44rem;
+  margin: 2.4rem auto 0;
+  padding: clamp(1.2rem, 4vw, 1.8rem);
+  border: 1px solid rgba(95, 211, 212, 0.28);
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.gap-how h2,
+.gap-why h2,
+.gap-next h2,
+.gap-breakdown h2 {
+  margin: 0 0 0.7rem;
+  font-family: var(--font-display);
+  font-size: clamp(1.15rem, 3vw, 1.45rem);
+  font-weight: 600;
+}
+
+.gap-how p,
+.gap-why p,
+.gap-next p {
+  margin: 0 0 0.8rem;
+  line-height: 1.55;
+  color: rgba(242, 235, 218, 0.86);
+}
+
+.gap-how strong {
+  color: var(--cream);
+}
+
+.gap-steps {
+  display: grid;
+  gap: 0.7rem;
+  margin: 1rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.gap-steps li {
+  display: grid;
+  grid-template-columns: 2rem 1fr;
+  gap: 0.75rem;
+  align-items: start;
+  line-height: 1.5;
+}
+
+.gap-step-n {
+  display: grid;
+  place-items: center;
+  width: 1.9rem;
+  height: 1.9rem;
+  border-radius: 999px;
+  background: var(--teal);
+  color: var(--navy);
+  font-size: 0.85rem;
+  font-weight: 800;
+}
+
+.gap-why-source {
+  padding-top: 0.8rem;
+  border-top: 1px solid rgba(242, 235, 218, 0.14);
+  font-size: 0.9rem;
+  color: rgba(242, 235, 218, 0.7) !important;
+}
+
+/* ------------------------------------------------------------- the score */
+
+.gap-scorecard {
+  width: 100%;
+  max-width: 34rem;
+  margin: 0 auto;
+  padding: clamp(1.4rem, 5vw, 2.2rem);
+  border: 1px solid rgba(95, 211, 212, 0.4);
+  border-radius: 26px;
+  background: rgba(95, 211, 212, 0.08);
+  text-align: center;
+}
+
+.gap-score-figure {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 0.35rem;
+}
+
+.gap-score-number {
+  font-family: var(--font-display);
+  font-size: clamp(4rem, 16vw, 6.5rem);
+  font-weight: 700;
+  line-height: 0.95;
+  color: var(--teal);
+}
+
+.gap-score-outof {
+  font-size: clamp(1rem, 3vw, 1.3rem);
+  font-weight: 700;
+  color: rgba(242, 235, 218, 0.5);
+}
+
+.gap-score-grade {
+  margin: 0.5rem 0 0;
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--mustard);
+}
+
+.gap-score-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.6rem;
+  margin: 1.6rem 0 0;
+  padding-top: 1.2rem;
+  border-top: 1px solid rgba(242, 235, 218, 0.14);
+}
+
+.gap-score-stats div {
+  display: grid;
+  gap: 0.25rem;
+}
+
+.gap-score-stats dt {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(242, 235, 218, 0.5);
+}
+
+.gap-score-stats dd {
+  margin: 0;
+  font-size: clamp(0.95rem, 2.6vw, 1.15rem);
+  font-weight: 800;
+}
+
+.gap-reading {
+  width: 100%;
+  max-width: 40rem;
+  margin: 1.5rem auto 0;
+  text-align: center;
+  line-height: 1.6;
+  color: rgba(242, 235, 218, 0.88);
+}
+
+/* --------------------------------------------------- question by question */
+
+.gap-breakdown {
+  width: 100%;
+  max-width: 44rem;
+  margin: 2.6rem auto 0;
+}
+
+.gap-marks {
+  display: grid;
+  gap: 0.9rem;
+  margin: 1.2rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.gap-mark {
+  padding: clamp(1rem, 3.5vw, 1.35rem);
+  border: 1px solid rgba(242, 235, 218, 0.14);
+  border-left: 4px solid rgba(242, 235, 218, 0.3);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.045);
+}
+
+/* The left edge carries the verdict, so the list can be skimmed for the
+   pattern — which is the actual finding — without reading every number. */
+.gap-mark.is-close { border-left-color: var(--mint); }
+.gap-mark.is-gloomy { border-left-color: var(--red); }
+.gap-mark.is-sunny { border-left-color: var(--mustard); }
+.gap-mark.is-off { border-left-color: rgba(242, 235, 218, 0.4); }
+
+.gap-mark-q {
+  margin: 0 0 0.9rem;
+  font-size: 0.95rem;
+  line-height: 1.45;
+  font-weight: 600;
+}
+
+.gap-mark-bar {
+  position: relative;
+  height: 26px;
+  margin: 0 0 0.7rem;
+}
+
+.gap-mark-track {
+  position: absolute;
+  top: 11px;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  border-radius: 999px;
+  background: rgba(242, 235, 218, 0.16);
+}
+
+.gap-mark-span {
+  position: absolute;
+  top: 11px;
+  height: 4px;
+  border-radius: 999px;
+  background: rgba(229, 29, 53, 0.65);
+}
+
+.gap-mark.is-close .gap-mark-span { background: rgba(155, 211, 166, 0.75); }
+.gap-mark.is-sunny .gap-mark-span { background: rgba(242, 177, 56, 0.7); }
+/* A miss on an item with no gloomy direction is just a miss. Leaving it red
+   would read as "too cynical" on a question that carries no such judgement —
+   the same overreach `TopicBenchmark.pessimism` exists to avoid. */
+.gap-mark.is-off .gap-mark-span { background: rgba(242, 235, 218, 0.45); }
+
+.gap-mark-truth,
+.gap-mark-guess {
+  position: absolute;
+  top: 4px;
+  width: 3px;
+  height: 18px;
+  margin-left: -1.5px;
+  border-radius: 2px;
+}
+
+.gap-mark-truth {
+  background: var(--cream);
+  box-shadow: 0 0 0 2px rgba(10, 18, 56, 0.85);
+}
+
+.gap-mark-guess {
+  background: var(--teal);
+  box-shadow: 0 0 0 2px rgba(10, 18, 56, 0.85);
+}
+
+.gap-mark-numbers {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 1.1rem;
+  margin: 0 0 0.5rem;
+  font-size: 0.85rem;
+  color: rgba(242, 235, 218, 0.72);
+}
+
+.gap-mark-yours strong { color: var(--teal); }
+.gap-mark-real strong { color: var(--cream); }
+
+.gap-mark-delta {
+  font-weight: 800;
+  color: rgba(242, 235, 218, 0.95);
+}
+
+.gap-mark-source {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 0;
+  font-size: 0.75rem;
+  color: rgba(242, 235, 218, 0.45);
+}
+
+.gap-mark-source a { color: rgba(242, 235, 218, 0.7); }
+
+.gap-share {
+  margin-top: 2.4rem;
+}
+
+.gap-next {
+  text-align: center;
+}
+
+/* --------------------------------------------------- front door additions */
+
+.front-door-primary {
+  display: inline-flex;
+  align-items: center;
+  text-align: center;
+  text-decoration: none;
+  padding: 1rem 2.4rem;
+  font-size: clamp(1rem, 2.6vw, 1.15rem);
+}
+
+.front-door-sub {
+  margin: 0.7rem 0 0;
+  color: rgba(242, 235, 218, 0.6);
+  font-size: 0.85rem;
+}
+
+/* The battery's Next button is a link, not a button, so it needs the same
+   flex layout the button rule gives its siblings. */
+.board-stream-next.is-score {
+  text-decoration: none;
+}
+
+@media (max-width: 560px) {
+  .gap-score-stats {
+    grid-template-columns: 1fr;
+    gap: 0.9rem;
   }
 }

@@ -84,9 +84,30 @@ export const PULSE_TOPICS: Topic[] = ACTIVE_LIBRARY_TOPICS.filter(
 /** Used for the one reminder prompt after the final Pulse result. */
 export const PULSE_FINAL_TOPIC_ID = PULSE_TOPICS[PULSE_TOPICS.length - 1]?.id ?? "";
 
+/**
+ * The perception-gap battery, in a fixed order — see /gap.
+ *
+ * Order is deliberate and must not be shuffled. It opens on the other side's
+ * extremism, which is the item people are most confidently wrong about and the
+ * one that makes the point fastest; it closes on free expression, which is the
+ * warmest finding in the set. Anything scored against a published figure is
+ * scoreable in isolation, so the sequence is doing editorial work, not
+ * methodological work.
+ *
+ * Every item here must carry a `benchmark`; one without would appear in the
+ * battery and then be silently dropped from the score.
+ */
+export const GAP_TOPICS: Topic[] = ACTIVE_LIBRARY_TOPICS.filter(
+  (topic) => topic.collection === "gap" && topic.benchmark,
+);
+
+export const GAP_FINAL_TOPIC_ID = GAP_TOPICS[GAP_TOPICS.length - 1]?.id ?? "";
+
 /** Curated extras kept available beside community-made boards. */
 export const MORE_TOPICS: Topic[] = ACTIVE_LIBRARY_TOPICS.filter(
-  (topic) => topic.collection !== "main" && topic.collection !== "pulse",
+  (topic) => topic.collection !== "main"
+    && topic.collection !== "pulse"
+    && topic.collection !== "gap",
 );
 
 /** Compatibility name used by the existing Main Set UI. */

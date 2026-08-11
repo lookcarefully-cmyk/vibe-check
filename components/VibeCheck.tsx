@@ -91,6 +91,12 @@ const EMPTY: BoardResult = {
 
 const pct = (v: number) => `${Math.round(v * 100)}%`;
 
+/**
+ * How many people a benchmark board needs before its crowd result is shown at
+ * all. See `showCrowd` below for the reasoning.
+ */
+const MIN_CROWD_FOR_BENCHMARK = 10;
+
 const showStageFromTop = () => {
   window.requestAnimationFrame(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -512,6 +518,21 @@ export default function VibeCheck({
   const hasSpread = agg.count > 1;
 
   /*
+   * On a benchmark board the published figure IS the answer, so the crowd is a
+   * bonus rather than the payoff — and a thin crowd is worse than none at all.
+   * With one respondent the dial prints "AVERAGE 52%", which is the visitor's
+   * own guess handed straight back to them under an authoritative label, right
+   * beside a real national figure. It reads as a second source of truth and it
+   * is not one.
+   *
+   * Ten is the same floor the opposite-side prediction comparison already uses.
+   * Below it, a benchmark board shows the visitor's guess against the published
+   * figure and nothing else, which is the entire experience the /gap battery is
+   * built to deliver on an empty site.
+   */
+  const showCrowd = !topic.benchmark || agg.count >= MIN_CROWD_FOR_BENCHMARK;
+
+  /*
    * The headline number is a position on the dial, exactly like every other
    * figure on the page. It used to be converted to a distance-toward-a-pole
    * reading on bipolar and pace boards, which put "20% not at all aligned"
@@ -570,6 +591,10 @@ export default function VibeCheck({
             ? "You've answered this before. Vibes move — has yours?"
             : !isResult
               ? topic.prompt
+              : !showCrowd
+              ? revealed
+                ? "Here's what the survey actually found."
+                : "Your guess is locked in. Here's what the survey actually found."
               : revealed
                 ? "Here's how everyone answered. You're not on this board."
                 : "You're on the board. Here's where everyone else landed."}
@@ -662,6 +687,7 @@ export default function VibeCheck({
           onBandFocus={setActiveBand}
           showOwn={!revealed && !predicting}
           placed={predicting ? predictionTouched : touched}
+          showCrowd={showCrowd}
         />
       </div>
 
@@ -698,7 +724,7 @@ export default function VibeCheck({
         <section className="results">
           <p className="consensus">
             {revealed ? (
-              agg.count > 0 ? (
+              agg.count > 0 && showCrowd ? (
                 <>
                   The average answer is <strong>{say(agg.mean)}</strong>
                 </>
@@ -717,6 +743,9 @@ export default function VibeCheck({
             // your own there's nothing to read back, so it describes the
             // average instead.
             if (agg.count === 0 && revealed) return null;
+            // On a benchmark board the comparison with the published figure is
+            // the finding; a band label beside it only competes with it.
+            if (!showCrowd) return null;
             const band = bandFor(revealed ? agg.mean : pick, topic.scale, {
               left: topic.leftLabel,
               right: topic.rightLabel,
@@ -740,16 +769,21 @@ export default function VibeCheck({
                     <dd>{benchmarkValue(pick)}</dd>
                   </div>
                 )}
-                <div>
-                  <dt>Vibe Check average</dt>
-                  <dd>
-                    {agg.count > 0
-                      ? benchmarkValue(agg.mean)
-                      : loaded
-                        ? "No crowd yet"
-                        : "Fetching…"}
-                  </dd>
-                </div>
+                {/* Held back until the crowd is big enough to mean anything —
+                    otherwise this column repeats the visitor's own guess beside
+                    a national survey, as though the two were comparable. */}
+                {showCrowd && (
+                  <div>
+                    <dt>Vibe Check average</dt>
+                    <dd>
+                      {agg.count > 0
+                        ? benchmarkValue(agg.mean)
+                        : loaded
+                          ? "No crowd yet"
+                          : "Fetching…"}
+                    </dd>
+                  </div>
+                )}
                 <div className="is-benchmark">
                   <dt>Published estimate</dt>
                   <dd>{topic.benchmark.display}</dd>
@@ -859,7 +893,15 @@ export default function VibeCheck({
             </section>
           )}
 
-          {agg.count === 0 ? (
+          {!showCrowd ? (
+            /*
+              A benchmark board with too thin a crowd says nothing about the
+              crowd at all. The published figure above already answered the
+              question; "1 person · all time" underneath it would only invite
+              the visitor to read their own guess as a second finding.
+            */
+            null
+          ) : agg.count === 0 ? (
             // Your answer is saved locally, so this board still shows as answered
             // even when the crowd figures can't be fetched. Better to say so than
             // to render the empty aggregate's 50% as if it were a real average.
@@ -999,6 +1041,7 @@ export default function VibeCheck({
             </section>
           )}
 
+          {showCrowd && (
           <dl className="stats">
             <div>
               <dt>Your answer</dt>
@@ -1030,6 +1073,7 @@ export default function VibeCheck({
               </dd>
             </div>
           </dl>
+          )}
 
           <SharePrompt
             question={topic.question}

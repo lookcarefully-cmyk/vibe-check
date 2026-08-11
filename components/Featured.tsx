@@ -73,20 +73,31 @@ export default function Featured() {
           <span className="kicker-text">Vibe Check · public opinion, made visible</span>
           <InfoDialog />
         </div>
-        <h1>Where do you land?</h1>
+        <h1>You are probably wrong about everyone else.</h1>
         <p className="lede">
-          Place your answer, see how everyone else landed, then keep going or stop
-          whenever you like.
+          Almost everyone is — and nearly always in the same direction. Find out
+          which way you lean.
         </p>
       </header>
 
-      <section className="front-door-actions" aria-label="Start or explore">
-        <StartMainSet label="Answer a question" />
+      {/*
+        The quiz leads because it is the only thing here that pays off on an
+        empty site: its answers come from national surveys, not from the crowd,
+        so a lone visitor still gets the whole experience. The crowd boards
+        below need other people to be worth anything.
+      */}
+      <section className="front-door-actions" aria-label="Start the perception gap quiz">
+        <Link href="/gap" className="lock-in front-door-primary">
+          How well do you know your country?
+        </Link>
+        <p className="front-door-sub">
+          8 questions · about 2 minutes · real answers from Pew, Gallup and the Fed
+        </p>
         <div className="front-door-secondary">
+          <StartMainSet label="Or answer a crowd question" />
           <Link href="/explore" className="reset">Explore boards</Link>
           <Link href="/b/new" className="reset">Make a board</Link>
         </div>
-        <p>questions are shuffled, your answers are anonymous.</p>
       </section>
 
       <HowToPlay />

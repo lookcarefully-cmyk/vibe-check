@@ -30,6 +30,21 @@ export interface TopicBenchmark {
   fielded: string;
   /** Plain-language caveat shown with the result. */
   note: string;
+  /**
+   * Which direction of error is the BLEAKER read of other people.
+   *
+   * `high` means guessing above the real figure is the gloomy mistake (thinking
+   * more of the country is extreme, violent or lonely than really is). `low`
+   * means guessing below it is (thinking fewer people are trusting, solvent or
+   * committed to free expression than really are).
+   *
+   * Omit it when the question has no gloomy direction. Whether abortion should
+   * be legal, or how many people worry about the climate, are not more or less
+   * cheerful at one end — reading them onto a cynicism axis would be smuggling
+   * in a political judgement. Those items still count toward accuracy; they are
+   * simply left out of the optimism read.
+   */
+  pessimism?: "high" | "low";
 }
 
 export type RevealType = "real-figure" | "other-side" | "crowd";
@@ -97,8 +112,19 @@ export interface Topic {
    * resulting responses need enough concentration to become useful data.
    * `more` is the looser shelf beside visitor-made boards. Missing defaults to
    * `more`, so adding a board can never silently expand the Main Set.
+   *
+   * `gap` is the perception-gap battery at /gap — the eight boards that check a
+   * guess against a published national figure. It is deliberately small and
+   * deliberately separate: it is the only set that pays off with no other
+   * visitors present, because its answer comes from Pew and the Fed rather than
+   * from the crowd. Keep it that way. Adding a board here without a `benchmark`
+   * would leave a question in the battery that cannot be scored.
+   *
+   * Keeping `main` SMALL is a live constraint, not tidiness. Traffic divided
+   * across many boards leaves every one of them showing a crowd of three, and
+   * the crowd reveal is the entire reward. Demote to `more` rather than adding.
    */
-  collection?: "main" | "more" | "pulse";
+  collection?: "main" | "more" | "pulse" | "gap";
   /**
    * Keep the board and its data, but hide it from the browse library and the
    * board-page nav. For items that belong to a formal data-collection set and
@@ -296,7 +322,7 @@ export const TOPICS: Topic[] = [
    */
   {
     id: "perceived-extremism",
-    collection: "main",
+    collection: "gap",
     subject: "Political opponents",
     axis: "How many seem extreme?",
     question:
@@ -318,6 +344,7 @@ export const TOPICS: Topic[] = [
       fielded: "2019 · representative sample of 2,100 Americans",
       note:
         "Across the policy views tested, opponents were estimated to be extreme about 55% of the time; their measured views were extreme about 30% of the time.",
+      pessimism: "high",
     },
   },
   {
@@ -337,7 +364,7 @@ export const TOPICS: Topic[] = [
   },
   {
     id: "climate-worry-perception",
-    collection: "main",
+    collection: "gap",
     subject: "Climate worry",
     axis: "How many are worried?",
     question:
@@ -377,7 +404,7 @@ export const TOPICS: Topic[] = [
   },
   {
     id: "violence-support-score-perception",
-    collection: "main",
+    collection: "gap",
     subject: "Political violence",
     axis: "How much support?",
     question:
@@ -398,11 +425,12 @@ export const TOPICS: Topic[] = [
       fielded: "October 2020 · nationally representative survey of U.S. Democrats and Republicans",
       note:
         "The study found mean support scores of 9.3 among Democrats and 10.3 among Republicans. This is an average support score, not the percentage of people who endorse violence.",
+      pessimism: "high",
     },
   },
   {
     id: "emergency-expense-perception",
-    collection: "main",
+    collection: "gap",
     subject: "A $400 emergency",
     axis: "How many would cover it?",
     question:
@@ -424,11 +452,12 @@ export const TOPICS: Topic[] = [
       fielded: "October 2025 · nationally representative survey of 12,934 U.S. adults",
       note:
         "The Federal Reserve counts cash, savings, and a credit card paid in full at the next statement as cash or its equivalent.",
+      pessimism: "low",
     },
   },
   {
     id: "abortion-legal-perception",
-    collection: "main",
+    collection: "gap",
     subject: "Legal abortion",
     axis: "How many support it?",
     question:
@@ -454,7 +483,7 @@ export const TOPICS: Topic[] = [
   },
   {
     id: "loneliness-perception",
-    collection: "main",
+    collection: "gap",
     subject: "Persistent loneliness",
     axis: "How many feel it?",
     question:
@@ -476,11 +505,12 @@ export const TOPICS: Topic[] = [
       fielded: "September 3–15, 2024 · nationally representative sample of 6,204 U.S. adults",
       note:
         "This is the share who chose all or most of the time, not everyone who ever feels lonely.",
+      pessimism: "high",
     },
   },
   {
     id: "social-trust-perception",
-    collection: "main",
+    collection: "gap",
     subject: "Trusting other people",
     axis: "How many generally do?",
     question:
@@ -502,11 +532,12 @@ export const TOPICS: Topic[] = [
       fielded: "2023–2024 · nationally representative survey of U.S. adults",
       note:
         "The alternative response was that you can't be too careful in dealing with people.",
+      pessimism: "low",
     },
   },
   {
     id: "free-expression-perception",
-    collection: "main",
+    collection: "gap",
     subject: "Free expression",
     axis: "How many defend it?",
     question:
@@ -528,6 +559,7 @@ export const TOPICS: Topic[] = [
       fielded: "July 7–August 25, 2025 · probability-based survey of more than 20,000 U.S. adults",
       note:
         "Gallup combines 39% who strongly agreed and 41% who agreed with the statement.",
+      pessimism: "low",
     },
   },
   {
@@ -546,7 +578,7 @@ export const TOPICS: Topic[] = [
   },
   {
     id: "immigration-status",
-    collection: "main",
+    collection: "more",
     subject: "People without legal status",
     axis: "Deport or legalize?",
     question:
@@ -562,7 +594,7 @@ export const TOPICS: Topic[] = [
   },
   {
     id: "local-police",
-    collection: "main",
+    collection: "more",
     subject: "Police where you live",
     axis: "Threat or protection?",
     question: "The police where you live are, on balance...",
@@ -578,7 +610,7 @@ export const TOPICS: Topic[] = [
   },
   {
     id: "gun-laws",
-    collection: "main",
+    collection: "more",
     subject: "Gun laws where you live",
     axis: "Looser or stricter?",
     question: "Gun laws where you live should be...",
@@ -594,7 +626,7 @@ export const TOPICS: Topic[] = [
   },
   {
     id: "prison-purpose",
-    collection: "main",
+    collection: "more",
     subject: "The purpose of prison",
     axis: "Punishment or rehabilitation?",
     question:
@@ -636,7 +668,7 @@ export const TOPICS: Topic[] = [
   },
   {
     id: "household-basics",
-    collection: "main",
+    collection: "more",
     subject: "Covering the basics",
     axis: "Easier or harder?",
     question:
@@ -668,7 +700,7 @@ export const TOPICS: Topic[] = [
   },
   {
     id: "home-worth",
-    collection: "main",
+    collection: "more",
     subject: "Buying a home",
     axis: "Still worth it?",
     question: "Is buying a home still worth what it costs?",
@@ -683,7 +715,7 @@ export const TOPICS: Topic[] = [
   },
   {
     id: "job-identity",
-    collection: "main",
+    collection: "more",
     subject: "Your job",
     axis: "Paycheck or identity?",
     question: "Your job: is it just a paycheck, or part of who you are?",
@@ -763,7 +795,7 @@ export const TOPICS: Topic[] = [
   },
   {
     id: "medical-bill",
-    collection: "main",
+    collection: "more",
     subject: "An unexpected medical bill",
     axis: "How disruptive?",
     question: "If an unexpected $500 medical bill landed tomorrow, how much would it wreck you?",
@@ -777,7 +809,7 @@ export const TOPICS: Topic[] = [
   },
   {
     id: "relationship-privacy",
-    collection: "main",
+    collection: "more",
     subject: "Privacy in relationships",
     axis: "How much should remain?",
     question: "In a committed relationship, how much privacy should each person keep?",
@@ -804,7 +836,7 @@ export const TOPICS: Topic[] = [
   },
   {
     id: "wallet-return",
-    collection: "main",
+    collection: "more",
     subject: "Trusting strangers",
     axis: "Would they return it?",
     question:
@@ -819,7 +851,7 @@ export const TOPICS: Topic[] = [
   },
   {
     id: "beyond-physical",
-    collection: "main",
+    collection: "more",
     subject: "Beyond the physical world",
     axis: "How likely?",
     question: "How likely is it that something exists beyond the physical world?",
@@ -849,7 +881,7 @@ export const TOPICS: Topic[] = [
   },
   {
     id: "care-for-parents",
-    collection: "main",
+    collection: "more",
     subject: "Aging parents",
     axis: "Adult children's duty?",
     question:
@@ -864,7 +896,7 @@ export const TOPICS: Topic[] = [
   },
   {
     id: "rootedness",
-    collection: "main",
+    collection: "more",
     subject: "Where you live",
     axis: "How rooted?",
     question: "How rooted do you feel in the place you live?",
@@ -901,7 +933,7 @@ export const TOPICS: Topic[] = [
   },
   {
     id: "online-self-censorship",
-    collection: "main",
+    collection: "more",
     subject: "Speaking online",
     axis: "How much do you say?",
     question: "How much of what you actually think are you willing to say online?",
@@ -915,7 +947,7 @@ export const TOPICS: Topic[] = [
   },
   {
     id: "division-source",
-    collection: "main",
+    collection: "more",
     subject: "The country's divisions",
     axis: "Real or amplified?",
     question: "The political division you see in the country is mostly...",
@@ -929,7 +961,7 @@ export const TOPICS: Topic[] = [
   },
   {
     id: "life-without-short-video",
-    collection: "main",
+    collection: "more",
     subject: "Life without short-video apps",
     axis: "Worse or better?",
     question:
@@ -946,7 +978,7 @@ export const TOPICS: Topic[] = [
   },
   {
     id: "official-numbers-trust",
-    collection: "main",
+    collection: "more",
     subject: "Official statistics",
     axis: "Trust or doubt?",
     question:
@@ -975,7 +1007,7 @@ export const TOPICS: Topic[] = [
   },
   {
     id: "ai-lift-or-leave-behind",
-    collection: "main",
+    collection: "more",
     subject: "AI in your life",
     axis: "Lift you up or leave you behind?",
     question: "Will AI leave you behind, or lift you up?",

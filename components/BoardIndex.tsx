@@ -6,6 +6,7 @@ import TopicNav from "./TopicNav";
 import InfoDialog from "./InfoDialog";
 import Colophon from "./Colophon";
 import StartMainSet from "./StartMainSet";
+import SubscribeCallout from "./SubscribeCallout";
 import { EXPERIMENT_ENABLED, EXTRA_TOPICS, groupTopics } from "@/lib/experiment";
 import { readRunState } from "@/lib/run";
 import { voteStorageKey } from "@/lib/topics";
@@ -114,6 +115,8 @@ export default function BoardIndex() {
           )}
         </p>
       )}
+
+      <SubscribeCallout variant="general" />
 
       <footer className="disclosure">
         Private by design: your answer, any prediction, the time, and a random browser ID

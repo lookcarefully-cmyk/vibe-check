@@ -8,7 +8,7 @@ import {
   useRef,
   useState,
 } from "react";
-import { EXTRA_TOPICS, MORE_TOPICS, PULSE_TOPICS } from "@/lib/experiment";
+import { EXTRA_TOPICS, GAP_TOPICS, MORE_TOPICS, PULSE_TOPICS } from "@/lib/experiment";
 import { boardStreamStep, type BoardStreamStep } from "@/lib/board-stream";
 import { canAnswerNow } from "@/lib/mine";
 import { readBoardReaction } from "@/lib/reaction";
@@ -22,9 +22,9 @@ interface BoardStreamNavProps {
   standalone?: boolean;
 }
 
-type StreamKind = "main" | "community" | "pulse";
+type StreamKind = "main" | "community" | "pulse" | "gap";
 
-const CURATED_TOPICS = [...EXTRA_TOPICS, ...MORE_TOPICS, ...PULSE_TOPICS];
+const CURATED_TOPICS = [...EXTRA_TOPICS, ...MORE_TOPICS, ...PULSE_TOPICS, ...GAP_TOPICS];
 
 interface CommunityStreamBoard {
   slug: string;
@@ -76,9 +76,11 @@ export default function BoardStreamNav({
       const streamParam = new URLSearchParams(window.location.search).get("stream") ?? "";
       const kind: StreamKind = streamParam.startsWith("community") || community
         ? "community"
-        : streamParam.startsWith("pulse") || topic.collection === "pulse"
-          ? "pulse"
-          : "main";
+        : streamParam.startsWith("gap") || topic.collection === "gap"
+          ? "gap"
+          : streamParam.startsWith("pulse") || topic.collection === "pulse"
+            ? "pulse"
+            : "main";
       const continueStream = streamParam.endsWith("continue");
       const now = Date.now();
       // Keep the page we're standing on so the navigator can locate its place,
@@ -89,6 +91,15 @@ export default function BoardStreamNav({
           (candidate) => candidate.id !== topic.id && canAnswerNow(candidate, now),
         ),
       ];
+
+      if (kind === "gap") {
+        topics = [
+          topic,
+          ...GAP_TOPICS.filter(
+            (candidate) => candidate.id !== topic.id && canAnswerNow(candidate, now),
+          ),
+        ];
+      }
 
       if (kind === "pulse") {
         topics = [
@@ -255,10 +266,16 @@ export default function BoardStreamNav({
 
   if (!step) return null;
 
-  const exitHref = streamKind === "pulse" ? "/pulse" : "/explore";
+  const exitHref = streamKind === "pulse"
+    ? "/pulse"
+    : streamKind === "gap"
+      ? "/gap"
+      : "/explore";
   const exitLabel = streamKind === "pulse"
     ? "Exit the monthly AI poll"
-    : "Exit the question stream and open Explore";
+    : streamKind === "gap"
+      ? "Exit the perception gap quiz"
+      : "Exit the question stream and open Explore";
 
   return (
     <nav
@@ -272,7 +289,18 @@ export default function BoardStreamNav({
       >
         Exit
       </Link>
-      {step.complete && streamKind === "pulse" ? (
+      {step.complete && streamKind === "gap" ? (
+        <Link
+          href="/gap/results"
+          className="board-stream-next is-score"
+          aria-label="See how well you know the country"
+        >
+          <span className="board-stream-action">
+            <span>See your score</span>
+          </span>
+          <span className="board-stream-arrow" aria-hidden="true">→</span>
+        </Link>
+      ) : step.complete && streamKind === "pulse" ? (
         <button
           type="button"
           className="board-stream-next"

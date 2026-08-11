@@ -17,6 +17,35 @@ Owner: Will Keller, PsyD student. Non-programmer. Explain reasoning, don't
 assume familiarity with the stack, and say plainly when something is a trade-off
 rather than a fact.
 
+## The front door is the perception-gap battery
+
+`/gap` — "How well do you know your country?" — is eight boards
+(`collection: "gap"` in `lib/topics.ts`) whose answers come from Pew, the
+Federal Reserve, Gallup, Yale and a PNAS paper rather than from the crowd.
+Scored client-side in `lib/gap.ts` from this browser's own saved answers.
+
+**It exists because it is the only thing here that works on an empty site.**
+Every other board pays off by showing you the crowd, and with the traffic this
+project actually has, that crowd is two or three people. The battery pays off
+for a single visitor on day one, which is why it leads the home page.
+
+Two rules follow from that, and both are easy to undo by accident:
+
+1. **`main` stays small.** It is six boards. 202 answers spread over 77 boards
+   left every board showing a crowd of three and the reveal — the entire reward
+   — never fired for anyone. Demote to `more`; don't add to `main`.
+2. **A benchmark board hides its crowd until it has one.**
+   `MIN_CROWD_FOR_BENCHMARK` (10) in `components/VibeCheck.tsx` gates the rays,
+   bands, spread bracket, AVERAGE chip and stats table. Below it the visitor
+   sees their guess against the published figure and nothing else. With one
+   respondent, "AVERAGE 52%" is their own guess handed back under an
+   authoritative label, sitting beside a real national survey.
+
+`TopicBenchmark.pessimism` marks which direction of error is the bleaker read of
+other people. It is deliberately absent on items with no gloomy direction
+(abortion legality, climate worry) — putting those on a cynicism axis would
+smuggle in a political judgement. They still count toward accuracy.
+
 ## Current focus
 
 The order experiment is **PARKED** — `EXPERIMENT_ENABLED = false` in
@@ -46,8 +75,9 @@ spilling into the community stream. The gold “Answer more questions” action 
 the end deliberately starts a fresh randomized Main Set; it preserves momentum
 while the separate Exit still returns to the poll page.
 
-The front door leads with the monthly AI poll, then offers three choices: start
-the randomized Main Set, open `/explore`, or make a board. `/explore` is the
+The front door leads with the **perception-gap quiz** at `/gap` (see above); the
+Main Set, `/explore` and Make a board are the quieter secondary row, and the
+monthly AI poll keeps its own card lower down. `/explore` is the
 junction between the AI poll, research-led Main Set, and Community. Community is
 one mixed browse pool: curated extras and public visitor-made boards are
 interleaved, and the six-item preview deliberately guarantees early public
@@ -55,7 +85,7 @@ visitor boards some visibility. Visitor-made items remain quietly marked and
 retain their board-page safety disclosure; do not imply that curated extras were
 visitor submissions. Neither kind may silently enter the Main Set.
 
-The 32-board Main Set now has three reveal instruments. Type 1 boards are
+The Main Set is six boards, and the site has three reveal instruments. Type 1 boards are
 standalone guesses scored against published benchmarks. Type 2/3 boards bank the
 visitor's own opinion, then collect a separate prediction of the opposite half
 or whole Vibe Check crowd before revealing any result. `revealTypeOf` in
@@ -63,6 +93,8 @@ or whole Vibe Check crowd before revealing any result. `revealTypeOf` in
 records under a separate storage namespace; never mix them into vote rows.
 Real-figure boards use `cadence: "once"`: after the reveal, a later answer would
 measure memory for the published number rather than the original perception gap.
+That is why `/gap` never offers a retake — it sends a finished visitor to their
+score instead.
 
 The monthly AI poll is a separate, ordered three-question collection at
 `/pulse`: perceived current alignment, expected breadth of benefit, and preferred

@@ -80,6 +80,7 @@ epoch_week,board_id,n_people,n_answers,n_first_time,n_returning,mean,sd,p10,p90,
 2026-W33,climate-worry-perception,1,1,1,0,0.58,0,0.58,0.58,0,0,0,0,0,1,0,0,0,0
 2026-W33,free-expression-perception,1,1,1,0,0.865,0,0.865,0.865,0,0,0,0,0,0,0,0,1,0
 2026-W33,loneliness-perception,1,1,1,0,0.396,0,0.396,0.396,0,0,0,1,0,0,0,0,0,0
+2026-W33,luck-or-effort,1,1,1,0,0.78,0,0.78,0.78,0,0,0,0,0,0,0,1,0,0
 2026-W33,perceived-extremism,1,1,1,0,0.127,0,0.127,0.127,0,1,0,0,0,0,0,0,0,0
 2026-W33,social-trust-perception,1,1,1,0,0.373,0,0.373,0.373,0,0,0,1,0,0,0,0,0,0
 2026-W33,violence-support-score-perception,1,1,1,0,0.121,0,0.121,0.121,0,1,0,0,0,0,0,0,0,0

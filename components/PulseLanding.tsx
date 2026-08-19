@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import Colophon from "./Colophon";
 import InfoDialog from "./InfoDialog";
+import SharePrompt from "./SharePrompt";
 import SubscribeCallout from "./SubscribeCallout";
 import { PULSE_TOPICS } from "@/lib/experiment";
 import { canAnswerNow, myStanding } from "@/lib/mine";
@@ -115,6 +116,15 @@ export default function PulseLanding() {
           <small>About one minute. Skip any question.</small>
         </div>
       </section>
+
+      <SharePrompt
+        question="How are we feeling about AI?"
+        path="/pulse"
+        kicker="Share the monthly AI poll"
+        heading="Who else should take it?"
+        description="They’ll get all three blank questions. No answers or current results are included."
+        ariaLabel="Share the monthly AI poll"
+      />
 
       <p className="pulse-method-note">
         The questions remain the same each month to track sentiment shifts. Respondents

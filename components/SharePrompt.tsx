@@ -5,6 +5,10 @@ import { useEffect, useRef, useState } from "react";
 interface SharePromptProps {
   question: string;
   path: string;
+  kicker?: string;
+  heading?: string;
+  description?: string;
+  ariaLabel?: string;
 }
 
 function shareOrigin(): string {
@@ -16,7 +20,14 @@ function shareOrigin(): string {
  * answer or the crowd result. A recipient therefore arrives at an uncontaminated
  * dial even when the sender shares immediately after seeing the reveal.
  */
-export default function SharePrompt({ question, path }: SharePromptProps) {
+export default function SharePrompt({
+  question,
+  path,
+  kicker = "Keep the board moving",
+  heading = "Who else should answer this?",
+  description = "They’ll get a blank dial. Your answer and the crowd result stay hidden.",
+  ariaLabel = "Share this question",
+}: SharePromptProps) {
   const [status, setStatus] = useState<"idle" | "copied" | "failed">("idle");
   const resetTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const url = `${shareOrigin()}${path}`;
@@ -62,11 +73,11 @@ export default function SharePrompt({ question, path }: SharePromptProps) {
   };
 
   return (
-    <section className="share-prompt" aria-label="Share this question">
+    <section className="share-prompt" aria-label={ariaLabel}>
       <div>
-        <p className="share-kicker">Keep the board moving</p>
-        <h3>Who else should answer this?</h3>
-        <p>They&rsquo;ll get a blank dial. Your answer and the crowd result stay hidden.</p>
+        <p className="share-kicker">{kicker}</p>
+        <h3>{heading}</h3>
+        <p>{description}</p>
       </div>
       <div className="share-actions">
         <button

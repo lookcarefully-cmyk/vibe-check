@@ -5,6 +5,9 @@ export const metadata: Metadata = {
   title: "Vibe Check — monthly AI poll",
   description:
     "Three monthly questions on current AI alignment, who stands to benefit, and the pace of development.",
+  alternates: {
+    canonical: "/pulse",
+  },
   openGraph: {
     title: "How are we feeling about AI?",
     description:

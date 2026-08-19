@@ -96,8 +96,10 @@ export const PULSE_FINAL_TOPIC_ID = PULSE_TOPICS[PULSE_TOPICS.length - 1]?.id ??
  * `lean` picks which characteristic error the score page reads back. "pessimism"
  * (the original set) reports whether you read the country as bleaker than it is;
  * "overestimate" (the group-size set) reports that you think small groups are
- * far bigger than they are, which is the near-universal error there. A battery's
- * boards carry `battery: id`; nothing else here needs to know the lean.
+ * far bigger than they are; "accuracy" (the budget set) makes no directional
+ * claim, because the error there runs both ways — people inflate the famous
+ * small programs and underrate the giant ones — so the reading is score-based.
+ * A battery's boards carry `battery: id`; nothing else here needs to know the lean.
  */
 export interface BatteryDef {
   id: string;
@@ -107,7 +109,7 @@ export interface BatteryDef {
   blurb: string;
   /** The provocation on the hub card — the reason to click. */
   hook: string;
-  lean: "pessimism" | "overestimate";
+  lean: "pessimism" | "overestimate" | "accuracy";
 }
 
 export const GAP_BATTERIES: BatteryDef[] = [
@@ -124,6 +126,13 @@ export const GAP_BATTERIES: BatteryDef[] = [
     blurb: "Guess what share of the country belongs to each group — then see the real number.",
     hook: "Almost nobody gets these right. Guess the real share — then find out how far off you are.",
     lean: "overestimate",
+  },
+  {
+    id: "budget",
+    title: "Where does your tax dollar go?",
+    blurb: "Guess how the federal government splits every $100 it spends — then see the real number.",
+    hook: "Almost nobody knows where the money actually goes. Guess, then find out.",
+    lean: "accuracy",
   },
 ];
 

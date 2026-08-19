@@ -4,9 +4,9 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import InfoDialog from "./InfoDialog";
-import HowToPlay from "./HowToPlay";
 import Colophon from "./Colophon";
 import StartMainSet from "./StartMainSet";
+import GapBatteryCards from "./GapBatteryCards";
 import { EXPERIMENT_ENABLED } from "@/lib/experiment";
 import { readRunState, nextHref } from "@/lib/run";
 
@@ -86,29 +86,22 @@ export default function Featured() {
         so a lone visitor still gets the whole experience. The crowd boards
         below need other people to be worth anything.
       */}
-      <section className="front-door-actions" aria-label="Take a quiz">
-        <Link href="/gap" className="lock-in front-door-primary">
-          How well do you know America?
-        </Link>
-        <p className="front-door-sub">
-          Two quick quizzes · guess a real figure, then see how close you were
-        </p>
-        <div className="front-door-secondary">
-          <StartMainSet label="Or answer a crowd question" />
-          <Link href="/explore" className="reset">Explore boards</Link>
-          <Link href="/b/new" className="reset">Make a board</Link>
-        </div>
-      </section>
+      <GapBatteryCards />
 
-      <HowToPlay />
+      <div className="front-door-secondary home-secondary">
+        <StartMainSet label="Answer a crowd question" />
+        <Link href="/explore" className="reset">Explore boards</Link>
+        <Link href="/b/new" className="reset">Make a board</Link>
+      </div>
+
 
       <section className="home-pulse" aria-labelledby="home-pulse-title">
         <div>
           <p className="explore-kicker">New · monthly AI poll</p>
-          <h2 id="home-pulse-title">Answer three questions to help track AI sentiment over time.</h2>
+          <h2 id="home-pulse-title">The monthly AI poll</h2>
           <p>
-            Current AI alignment, who stands to benefit, and whether development
-            should pause or accelerate. Answer now, then track how collective opinions—and your own—change over time.
+            Three questions on where AI is headed. Answer now, then watch the
+            country&rsquo;s take — and your own — move month to month.
           </p>
         </div>
         <Link href="/pulse" className="lock-in">Take the monthly AI poll</Link>

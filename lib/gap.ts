@@ -207,7 +207,7 @@ export function gradeOf(score: GapScore): string {
  */
 export function readingOf(
   score: GapScore,
-  lean: "pessimism" | "overestimate" = "pessimism",
+  lean: "pessimism" | "overestimate" | "accuracy" = "pessimism",
 ): { headline: string; detail: string } {
   if (!score.answered) {
     return { headline: "Nothing scored yet", detail: "Answer the questions to see how you did." };
@@ -223,6 +223,25 @@ export function readingOf(
     return {
       headline: `${score.answered} of ${score.total} answered`,
       detail: `Your score so far is provisional. Which way you lean is the interesting part, and it only means anything once all ${score.total} are in — ${left} to go.`,
+    };
+  }
+
+  if (lean === "accuracy") {
+    if (score.accuracy >= 80) {
+      return {
+        headline: "You actually know where the money goes",
+        detail: `That is rare. Most people are wildly off on at least the famous lines — the ones that make headlines are tiny, and the ones that quietly dominate are enormous.`,
+      };
+    }
+    if (score.accuracy >= 50) {
+      return {
+        headline: "Roughly the right shape",
+        detail: `You have the big picture, even if a few threw you. The pattern that trips most people: the programs you hear about — foreign aid, NASA — are a rounding error, while the giants like Social Security and interest on the debt are far bigger than they feel.`,
+      };
+    }
+    return {
+      headline: "The budget isn't where you think",
+      detail: `Almost nobody guesses this right. People inflate the programs that make headlines — foreign aid, NASA, food stamps — and badly underrate the giants: Social Security alone is bigger than all of them combined, and interest on the debt now rivals the entire defense budget.`,
     };
   }
 

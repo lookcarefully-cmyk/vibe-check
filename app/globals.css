@@ -3276,3 +3276,9 @@ body:has(.gap-progress-bar) main.shell {
 .gap-switch a {
   color: var(--teal);
 }
+
+/* The crowd paths sit quietly below the quiz cards on the home page. */
+.home-secondary {
+  margin-top: 1.4rem;
+  flex-wrap: wrap;
+}

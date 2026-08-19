@@ -63,11 +63,11 @@ export default function GapResults({ batteryId }: { batteryId: string }) {
     [],
   );
 
-  const kicker = batteryId === "groups" ? "group size" : "perception gap";
-  const otherId = batteryId === "groups" ? "perception" : "groups";
-  const otherLabel = batteryId === "groups"
-    ? "how well you know your country"
-    : "how big that group really is";
+  const kicker = batteryId === "groups"
+    ? "group size"
+    : batteryId === "budget"
+      ? "the federal budget"
+      : "perception gap";
 
   if (!battery) return null;
 
@@ -121,7 +121,9 @@ export default function GapResults({ batteryId }: { batteryId: string }) {
    */
   const subject = batteryId === "groups"
     ? "guessing how big different groups in America really are"
-    : "guessing what my country actually thinks";
+    : batteryId === "budget"
+      ? "guessing where federal tax dollars actually go"
+      : "guessing what my country actually thinks";
   const shareText = !score.complete
     ? `I'm ${score.answered} questions into ${subject}. How well do you know yours?`
     : percentile !== null
@@ -296,9 +298,9 @@ export default function GapResults({ batteryId }: { batteryId: string }) {
       <section className="gap-next" aria-labelledby="gap-next-title">
         <h2 id="gap-next-title">Keep going</h2>
         <p>
-          Try <Link href={`/gap/${otherId}`}>{otherLabel}</Link> — a different
-          eight. Or the rest of Vibe Check, where there&rsquo;s no published
-          answer, just where everyone else landed.
+          <Link href="/gap">Try another quiz</Link> — a different set of eight. Or
+          the rest of Vibe Check, where there&rsquo;s no published answer, just
+          where everyone else landed.
         </p>
         <div className="gap-cta">
           <Link href="/explore" className="reset">Explore the boards</Link>

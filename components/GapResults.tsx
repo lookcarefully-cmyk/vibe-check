@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import Colophon from "./Colophon";
 import InfoDialog from "./InfoDialog";
 import SubscribeCallout from "./SubscribeCallout";
-import { batteryTopics, getBattery } from "@/lib/experiment";
+import { GAP_BATTERIES, batteryTopics, getBattery } from "@/lib/experiment";
 import { lastAnswer } from "@/lib/mine";
 import {
   CLOSE_ENOUGH,
@@ -80,6 +80,9 @@ export default function GapResults({ batteryId }: { batteryId: string }) {
       : "perception gap";
 
   if (!battery) return null;
+
+  const batteryIndex = GAP_BATTERIES.findIndex((item) => item.id === batteryId);
+  const nextBattery = GAP_BATTERIES[(batteryIndex + 1) % GAP_BATTERIES.length];
 
   if (!score) {
     return (
@@ -363,13 +366,15 @@ export default function GapResults({ batteryId }: { batteryId: string }) {
       <SubscribeCallout variant="general" />
 
       <section className="gap-next" aria-labelledby="gap-next-title">
-        <h2 id="gap-next-title">Keep going</h2>
-        <p>
-          <Link href="/gap">Try another quiz</Link> — a different set of eight. Or
-          the rest of Vibe Check, where there&rsquo;s no published answer, just
-          where everyone else landed.
-        </p>
-        <div className="gap-cta">
+        <p className="gap-next-kicker">Keep going</p>
+        <h2 id="gap-next-title">Try another quiz</h2>
+        <Link href={`/gap/${nextBattery.id}`} className="gap-next-primary">
+          <strong>{nextBattery.title}</strong>
+          <span>{nextBattery.blurb}</span>
+          <b>Start the next quiz <span aria-hidden="true">→</span></b>
+        </Link>
+        <p className="gap-next-secondary-label">Or browse the rest of Vibe Check</p>
+        <div className="gap-cta gap-next-secondary-actions">
           <Link href="/explore" className="reset">Explore the boards</Link>
           <Link href="/pulse" className="reset">Monthly AI poll</Link>
         </div>

@@ -3266,6 +3266,67 @@ body::after {
   text-align: center;
 }
 
+.gap-next-kicker {
+  margin-bottom: 0.35rem !important;
+  color: var(--teal) !important;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+}
+
+.gap-next-primary {
+  display: grid;
+  gap: 0.35rem;
+  width: min(100%, 34rem);
+  margin: 1.1rem auto 0;
+  padding: clamp(1rem, 3vw, 1.35rem);
+  border-radius: 18px;
+  background: var(--mustard);
+  color: var(--navy);
+  text-align: left;
+  text-decoration: none;
+  box-shadow: 0 12px 32px rgba(242, 177, 56, 0.14);
+  transition: background 180ms ease, transform 180ms ease;
+}
+
+.gap-next-primary:hover {
+  background: #ffc754;
+  transform: translateY(-2px);
+}
+
+.gap-next-primary strong {
+  font-family: var(--font-display);
+  font-size: clamp(1.15rem, 3vw, 1.45rem);
+  line-height: 1.15;
+}
+
+.gap-next-primary span {
+  color: rgba(7, 18, 64, 0.76);
+  font-size: 0.83rem;
+  line-height: 1.4;
+}
+
+.gap-next-primary b {
+  margin-top: 0.35rem;
+  font-size: 0.88rem;
+}
+
+.gap-next-primary b span {
+  color: inherit;
+  font-size: inherit;
+}
+
+.gap-next-secondary-label {
+  margin: 1.35rem 0 0 !important;
+  color: rgba(242, 235, 218, 0.55) !important;
+  font-size: 0.78rem;
+}
+
+.gap-next-secondary-actions .reset {
+  margin-top: 0;
+}
+
 /* --------------------------------------------------- front door additions */
 
 .front-door-primary {

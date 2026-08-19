@@ -420,7 +420,7 @@ export const TOPICS: Topic[] = [
     subject: "Political violence",
     axis: "How much support?",
     question:
-      "When U.S. Democrats and Republicans were asked about using violence to advance political goals, what was their average support score out of 100?",
+      "On average, how much did U.S. Democrats and Republicans support using violence to advance political goals, on a scale from 0 to 100?",
     prompt: CORE_PROMPT,
     leftLabel: "NO SUPPORT",
     rightLabel: "FULL SUPPORT",

@@ -70,7 +70,7 @@ export default function Featured() {
     <main className="shell">
       <header className="masthead">
         <div className="kicker">
-          <span className="kicker-text">Vibe Check · public opinion, made visible</span>
+          <span className="kicker-text">Vibe Check · quizzes</span>
           <InfoDialog />
         </div>
         <h1>You are probably wrong about everyone else.</h1>

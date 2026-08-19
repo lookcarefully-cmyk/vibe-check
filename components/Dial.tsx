@@ -388,9 +388,6 @@ export default function Dial({
         <clipPath id="faceClip">
           <path d={dome(R_FACE, 0)} />
         </clipPath>
-        <clipPath id="bodyClip">
-          <path d={dome(R_RIM, BASE)} />
-        </clipPath>
         <radialGradient id="faceGlow" cx="50%" cy="100%" r="86%">
           <stop offset="0%" stopColor="#ffffff" stopOpacity="0.55" />
           <stop offset="100%" stopColor="#ffffff" stopOpacity="0" />
@@ -427,13 +424,6 @@ export default function Dial({
       {/* ------------------------------------------------- navy dial body */}
       <path d={dome(R_RIM, BASE)} fill="#101A4A" />
       <path d={dome(R_RIM, BASE)} fill="#101A4A" filter="url(#grain)" opacity="0.9" />
-
-      {/* stars inside the navy rim, for the speckled look of the reference */}
-      <g className="rim-stars" clipPath="url(#bodyClip)" aria-hidden="true">
-        {STARS.slice(0, 110).map((s, i) => (
-          <circle key={i} cx={s.x} cy={s.y} r={s.r * 0.7} fill="#ffffff" opacity={s.o * 0.7} />
-        ))}
-      </g>
 
       {/* ------------------------------------------------------ dial face */}
       <path className="face" d={dome(R_FACE, 0)} />

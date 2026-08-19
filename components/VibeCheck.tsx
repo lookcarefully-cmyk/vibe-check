@@ -559,6 +559,13 @@ export default function VibeCheck({
       : `${Math.round(v * 100)}%`;
 
   const predictionQuestion = "Where do you think others landed?";
+  const boardKicker = community
+    ? "Vibe Check · a board someone made"
+    : topic.collection === "gap"
+      ? `Vibe Check · ${topic.battery === "budget" ? "federal budget" : topic.battery === "groups" ? "group size" : "perception gap"}`
+      : topic.collection === "pulse"
+        ? "Vibe Check · monthly AI poll"
+        : `Vibe Check · ${topic.category}`;
 
   return (
     <main className="shell">
@@ -577,7 +584,7 @@ export default function VibeCheck({
         {/* A div, not a p: it contains a <dialog>, which isn't phrasing content. */}
         <div className="kicker">
           <span className="kicker-text">
-            {community ? "Vibe Check · a board someone made" : "Vibe Check · public opinion, made visible"}
+            {boardKicker}
           </span>
           <InfoDialog />
         </div>

@@ -19,6 +19,16 @@ import {
 } from "@/lib/gap";
 
 const SHARE_ORIGIN = "https://www.vibecheckdata.xyz";
+const BUDGET_COLORS = [
+  "#5fd3d4",
+  "#f2b138",
+  "#f27a4d",
+  "#e51d35",
+  "#9bd3a6",
+  "#f7a1bc",
+  "#70a4db",
+  "#d7c7ff",
+];
 
 /**
  * The end of a quiz battery: the one screen the whole set exists to reach.
@@ -155,6 +165,27 @@ export default function GapResults({ batteryId }: { batteryId: string }) {
 
   const xUrl = `https://x.com/intent/post?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(shareUrl)}`;
   const remaining = topics.filter((topic) => lastAnswer(topic.id) === null);
+  const budgetSegments = score.complete && batteryId === "budget"
+    ? [...score.marks]
+      .sort((a, b) => b.topic.benchmark!.value - a.topic.benchmark!.value)
+      .map((mark, index) => ({
+        label: mark.topic.subject,
+        value: mark.topic.benchmark!.value * 100,
+        color: BUDGET_COLORS[index],
+      }))
+    : [];
+  const budgetTotal = budgetSegments.reduce((sum, segment) => sum + segment.value, 0);
+  let budgetCursor = 0;
+  const budgetGradient = budgetSegments.length
+    ? `conic-gradient(${[
+      ...budgetSegments.map((segment) => {
+        const start = budgetCursor;
+        budgetCursor += segment.value;
+        return `${segment.color} ${start}% ${budgetCursor}%`;
+      }),
+      `rgba(242, 235, 218, 0.12) ${budgetCursor}% 100%`,
+    ].join(", ")})`
+    : undefined;
 
   return (
     <main className="shell gap-results">
@@ -215,31 +246,32 @@ export default function GapResults({ batteryId }: { batteryId: string }) {
       {score.complete && batteryId === "budget" && (
         <section className="gap-budget-map" aria-labelledby="gap-budget-map-title">
           <div className="gap-budget-map-heading">
-            <div>
-              <p className="share-kicker">The real shape</p>
-              <h2 id="gap-budget-map-title">Eight lines from every federal $100</h2>
+            <p className="share-kicker">The real shape</p>
+            <h2 id="gap-budget-map-title">Where every federal $100 goes</h2>
+            <p>The eight lines you guessed account for about ${Math.round(budgetTotal)}.</p>
+          </div>
+          <div className="gap-budget-visual">
+            <div className="gap-budget-donut" style={{ background: budgetGradient }} aria-hidden="true">
+              <div>
+                <strong>$100</strong>
+                <span>federal spending</span>
+              </div>
             </div>
-            <p>These are selected categories, not the entire budget.</p>
-          </div>
-          <div className="gap-budget-axis" aria-hidden="true">
-            <span>$0</span>
-            <span>$25</span>
-          </div>
-          <ol className="gap-budget-bars">
-            {[...score.marks]
-              .sort((a, b) => b.truthPct - a.truthPct)
-              .map((mark) => (
-                <li key={mark.topic.id}>
-                  <div className="gap-budget-label">
-                    <span>{mark.topic.subject}</span>
-                    <strong>{mark.topic.benchmark!.display}</strong>
-                  </div>
-                  <div className="gap-budget-track" aria-hidden="true">
-                    <span style={{ width: `${Math.min(100, mark.truthPct * 4)}%` }} />
-                  </div>
+            <ol className="gap-budget-legend">
+              {budgetSegments.map((segment) => (
+                <li key={segment.label}>
+                  <span className="gap-budget-swatch" style={{ background: segment.color }} />
+                  <span>{segment.label}</span>
+                  <strong>${segment.value < 1 ? segment.value.toFixed(1) : Math.round(segment.value)}</strong>
                 </li>
               ))}
-          </ol>
+              <li>
+                <span className="gap-budget-swatch is-other" />
+                <span>Other federal spending</span>
+                <strong>${Math.round(100 - budgetTotal)}</strong>
+              </li>
+            </ol>
+          </div>
           <p className="gap-budget-map-note">
             Social Security is larger than foreign aid, NASA and food stamps combined.
             Interest on the debt is now roughly level with national defense.

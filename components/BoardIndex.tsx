@@ -49,7 +49,7 @@ export default function BoardIndex() {
     <main className="shell">
       <header className="masthead">
         <div className="kicker">
-          <span className="kicker-text">Vibe Check · public opinion, made visible</span>
+          <span className="kicker-text">Vibe Check · main set</span>
           <InfoDialog />
         </div>
         <h1>Main set</h1>

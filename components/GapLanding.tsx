@@ -136,15 +136,15 @@ export default function GapLanding({ batteryId }: { batteryId: string }) {
         {isGroups ? (
           <>
             <p>
-              People picture minorities as several times their real size — and it
-              barely matters who you ask. It is one of the most consistent
-              findings in social science, and it quietly shapes how threatening or
-              divided the country feels.
+              How big we imagine a group to be quietly shapes how threatening or
+              divided the country feels — and for most people the picture in their
+              head sits a long way from the measured one. It is one of the most
+              studied gaps in social science.
             </p>
             <p className="gap-why-source">
-              In a 2025 <em>PNAS</em> study, Americans estimated the country was
-              around 30% gay or lesbian (really about 3%) and 27% Muslim (really
-              about 1%). One of these questions is one of those.
+              Every figure here is from the Census or a national survey, and you
+              get the source with each answer. We are not telling you which way
+              people miss — that would give the game away. Find out for yourself.
             </p>
           </>
         ) : (
@@ -156,9 +156,10 @@ export default function GapLanding({ batteryId }: { batteryId: string }) {
               <em>wider</em> with more news consumption, not narrower.
             </p>
             <p className="gap-why-source">
-              More in Common surveyed 2,100 Americans and found people believed
-              55% of the other party held extreme views. The real figure was
-              about 30%. One of these questions is that question.
+              Each question is drawn from a national survey — Pew, Gallup, the Fed,
+              More in Common — and you get the source with every answer. We do not
+              tell you which way people tend to miss; the point is to see where
+              your own picture lands.
             </p>
           </>
         )}

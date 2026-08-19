@@ -115,14 +115,14 @@ export const GAP_BATTERIES: BatteryDef[] = [
     id: "perception",
     title: "How well do you know your country?",
     blurb: "Guess what other people actually think, do and feel — then see the real national figure.",
-    hook: "Almost everyone reads the country as bleaker than it is. Which way do you lean?",
+    hook: "Almost nobody gets these right. Guess the real figure — then find out which way you lean.",
     lean: "pessimism",
   },
   {
     id: "groups",
     title: "How big is that group, really?",
     blurb: "Guess what share of the country belongs to each group — then see the real number.",
-    hook: "People think minorities are far bigger than they are. By a lot. Find out how far off you are.",
+    hook: "Almost nobody gets these right. Guess the real share — then find out how far off you are.",
     lean: "overestimate",
   },
 ];

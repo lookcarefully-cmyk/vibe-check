@@ -4,11 +4,11 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import Colophon from "./Colophon";
 import InfoDialog from "./InfoDialog";
-import { GAP_TOPICS } from "@/lib/experiment";
+import { batteryTopics, getBattery } from "@/lib/experiment";
 import { lastAnswer } from "@/lib/mine";
 
 /**
- * The front door to the perception-gap battery.
+ * The front door to one quiz battery (/gap/<battery>).
  *
  * Deliberately promises the payoff in the first sentence. The rest of the site
  * asks people to contribute to a crowd result; this asks them to find out
@@ -19,39 +19,42 @@ import { lastAnswer } from "@/lib/mine";
  * figures are the answers, so printing one here would spoil the item and
  * anchor the guess. Same rule as the crowd mean, for the same reason.
  */
-export default function GapLanding() {
+export default function GapLanding({ batteryId }: { batteryId: string }) {
+  const battery = getBattery(batteryId);
+  const topics = batteryTopics(batteryId);
   const [answered, setAnswered] = useState<number | null>(null);
 
   useEffect(() => {
-    setAnswered(GAP_TOPICS.filter((topic) => lastAnswer(topic.id) !== null).length);
-  }, []);
+    setAnswered(topics.filter((topic) => lastAnswer(topic.id) !== null).length);
+    // topics is derived from a module constant; recomputing per battery id is enough.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [batteryId]);
 
+  if (!battery) return null;
+
+  const count = topics.length;
   const started = answered !== null && answered > 0;
-  const finished = answered !== null && answered >= GAP_TOPICS.length;
+  const finished = answered !== null && answered >= count;
   // Resume where they stopped rather than sending them back through answered
   // items: the server would refuse the repeat anyway (one answer per epoch).
-  const resume = GAP_TOPICS.find((topic) => lastAnswer(topic.id) === null) ?? GAP_TOPICS[0];
+  const resume = topics.find((topic) => lastAnswer(topic.id) === null) ?? topics[0];
+  const isGroups = batteryId === "groups";
 
   return (
     <main className="shell gap-page">
       <header className="masthead">
         <div className="kicker">
-          <span className="kicker-text">Vibe Check · perception gap</span>
+          <span className="kicker-text">Vibe Check · {isGroups ? "group size" : "perception gap"}</span>
           <InfoDialog />
         </div>
-        <h1>How well do you know your country?</h1>
+        <h1>{battery.title}</h1>
         <p className="lede">
-          Eight questions about what other people actually think, do and feel.
-          Guess the real national figure — then see how close you were.
+          {count} questions. {battery.blurb}
         </p>
       </header>
 
       <section className="gap-hero">
-        <p className="gap-hero-lead">
-          Almost everybody gets these wrong in the same direction. The
-          interesting part isn&rsquo;t your score. It&rsquo;s <em>which way</em> you
-          miss.
-        </p>
+        <p className="gap-hero-lead">{battery.hook}</p>
         {/*
           These boards are `cadence: "once"` — answering again would measure how
           well someone remembers the published figure, not what they perceived
@@ -60,7 +63,7 @@ export default function GapLanding() {
         */}
         <div className="gap-cta">
           {finished ? (
-            <Link href="/gap/results" className="lock-in gap-start">
+            <Link href={`/gap/${batteryId}/results`} className="lock-in gap-start">
               See my score
             </Link>
           ) : (
@@ -71,12 +74,12 @@ export default function GapLanding() {
         </div>
         {started && !finished && (
           <p className="gap-progress" role="status">
-            {answered} of {GAP_TOPICS.length} answered
+            {answered} of {count} answered
           </p>
         )}
         <p className="gap-meta">
           {finished
-            ? "You've answered all eight. Each one is asked only once — a second guess would just be recalling the answer."
+            ? `You've answered all ${count}. Each one is asked only once — a second guess would just be recalling the answer.`
             : "Takes about two minutes · no account · answers are anonymous"}
         </p>
       </section>
@@ -84,12 +87,24 @@ export default function GapLanding() {
       <section className="gap-how" aria-labelledby="gap-how-title">
         <h2 id="gap-how-title">What you&rsquo;re guessing</h2>
         <p>
-          Every question has a real answer, measured by a national survey —{" "}
-          <strong>Pew</strong>, the <strong>Federal Reserve</strong>,{" "}
-          <strong>Gallup</strong>, <strong>Yale</strong>, and a study in{" "}
-          <strong>PNAS</strong>. You place a guess on the dial. The moment you
-          lock it in, you get the published figure and the source, so you can
-          check the answer yourself.
+          {isGroups ? (
+            <>
+              Every question has a real answer, measured by a national survey or
+              the <strong>Census</strong> — <strong>Gallup</strong>,{" "}
+              <strong>Pew</strong>, the <strong>Bureau of Labor Statistics</strong>.
+              You place a guess on the dial. The moment you lock it in, you get
+              the published figure and the source.
+            </>
+          ) : (
+            <>
+              Every question has a real answer, measured by a national survey —{" "}
+              <strong>Pew</strong>, the <strong>Federal Reserve</strong>,{" "}
+              <strong>Gallup</strong>, <strong>Yale</strong>, and a study in{" "}
+              <strong>PNAS</strong>. You place a guess on the dial. The moment you
+              lock it in, you get the published figure and the source, so you can
+              check the answer yourself.
+            </>
+          )}
         </p>
         <ol className="gap-steps">
           <li>
@@ -118,18 +133,44 @@ export default function GapLanding() {
 
       <section className="gap-why" aria-labelledby="gap-why-title">
         <h2 id="gap-why-title">Why this is worth two minutes</h2>
-        <p>
-          Being wrong about your neighbours is not a harmless mistake. People who
-          badly misjudge the other side are measurably more likely to describe
-          them as hateful or brainwashed — and the gap gets <em>wider</em> with
-          more news consumption, not narrower.
-        </p>
-        <p className="gap-why-source">
-          More in Common surveyed 2,100 Americans and found people believed 55%
-          of the other party held extreme views. The real figure was about 30%.
-          One of these eight questions is that question.
-        </p>
+        {isGroups ? (
+          <>
+            <p>
+              People picture minorities as several times their real size — and it
+              barely matters who you ask. It is one of the most consistent
+              findings in social science, and it quietly shapes how threatening or
+              divided the country feels.
+            </p>
+            <p className="gap-why-source">
+              In a 2025 <em>PNAS</em> study, Americans estimated the country was
+              around 30% gay or lesbian (really about 3%) and 27% Muslim (really
+              about 1%). One of these questions is one of those.
+            </p>
+          </>
+        ) : (
+          <>
+            <p>
+              Being wrong about your neighbours is not a harmless mistake. People
+              who badly misjudge the other side are measurably more likely to
+              describe them as hateful or brainwashed — and the gap gets{" "}
+              <em>wider</em> with more news consumption, not narrower.
+            </p>
+            <p className="gap-why-source">
+              More in Common surveyed 2,100 Americans and found people believed
+              55% of the other party held extreme views. The real figure was
+              about 30%. One of these questions is that question.
+            </p>
+          </>
+        )}
       </section>
+
+      <p className="gap-switch">
+        {isGroups ? (
+          <>Or try <Link href="/gap/perception">how well you know your country</Link>.</>
+        ) : (
+          <>Or try <Link href="/gap/groups">how big that group really is</Link>.</>
+        )}
+      </p>
 
       <Colophon />
     </main>

@@ -40,7 +40,7 @@ function makeOrder(currentId: string, topics: Topic[], streamId: string): string
   // first and the rest after it; preserve that order exactly. Shuffling the gap
   // battery would also break its editorial arc — it is built to open on the
   // sharpest misperception and close on the warmest finding.
-  if (streamId === "pulse" || streamId === "gap") return ids;
+  if (streamId === "pulse" || streamId.startsWith("gap")) return ids;
 
   const demographic = ids.includes(DEMOGRAPHIC_TOPIC_ID)
     && currentId !== DEMOGRAPHIC_TOPIC_ID
@@ -111,7 +111,7 @@ export function boardStreamStep(
   // session order. Community is live: freeze the list for this pass so a board
   // published mid-scroll cannot rebuild the order and repeat things already
   // seen. Boards hidden during the pass are simply skipped below.
-  if (!hasCurrent || ((streamId === "main" || streamId === "pulse") && !hasEveryTopic)) {
+  if (!hasCurrent || ((streamId === "main" || streamId === "pulse" || streamId.startsWith("gap")) && !hasEveryTopic)) {
     order = makeOrder(currentId, topics, streamId);
     writeStored(streamId, order);
   }

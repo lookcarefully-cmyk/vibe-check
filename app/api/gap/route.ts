@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { dedupeLatestPerPerson } from "@/lib/aggregate";
 import { accuracyOf } from "@/lib/gap";
 import { store } from "@/lib/store";
-import { GAP_TOPICS } from "@/lib/experiment";
+import { batteryTopics, getBattery } from "@/lib/experiment";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -28,9 +28,13 @@ export const runtime = "nodejs";
 /** Cheap protection against this becoming eight full board reads per visitor. */
 const CACHE_SECONDS = 120;
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
-    const topics = GAP_TOPICS.filter((topic) => topic.benchmark);
+    const batteryId = new URL(request.url).searchParams.get("battery") ?? "perception";
+    if (!getBattery(batteryId)) {
+      return NextResponse.json({ ok: false, finishers: 0, accuracies: [] }, { status: 404 });
+    }
+    const topics = batteryTopics(batteryId).filter((topic) => topic.benchmark);
     if (topics.length === 0) {
       return NextResponse.json({ ok: true, finishers: 0, accuracies: [] });
     }

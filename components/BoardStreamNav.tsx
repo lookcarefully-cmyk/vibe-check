@@ -8,7 +8,13 @@ import {
   useRef,
   useState,
 } from "react";
-import { EXTRA_TOPICS, GAP_TOPICS, MORE_TOPICS, PULSE_TOPICS } from "@/lib/experiment";
+import {
+  EXTRA_TOPICS,
+  GAP_BATTERIES,
+  MORE_TOPICS,
+  PULSE_TOPICS,
+  batteryTopics,
+} from "@/lib/experiment";
 import { boardStreamStep, type BoardStreamStep } from "@/lib/board-stream";
 import { canAnswerNow } from "@/lib/mine";
 import { readBoardReaction } from "@/lib/reaction";
@@ -24,7 +30,11 @@ interface BoardStreamNavProps {
 
 type StreamKind = "main" | "community" | "pulse" | "gap";
 
-const CURATED_TOPICS = [...EXTRA_TOPICS, ...MORE_TOPICS, ...PULSE_TOPICS, ...GAP_TOPICS];
+const ALL_GAP_TOPICS = GAP_BATTERIES.flatMap((b) => batteryTopics(b.id));
+const CURATED_TOPICS = [...EXTRA_TOPICS, ...MORE_TOPICS, ...PULSE_TOPICS, ...ALL_GAP_TOPICS];
+
+/** Which battery a gap board belongs to, defaulting to the original set. */
+const batteryOf = (t: Topic): string => t.battery ?? "perception";
 
 interface CommunityStreamBoard {
   slug: string;
@@ -95,7 +105,7 @@ export default function BoardStreamNav({
       if (kind === "gap") {
         topics = [
           topic,
-          ...GAP_TOPICS.filter(
+          ...batteryTopics(batteryOf(topic)).filter(
             (candidate) => candidate.id !== topic.id && canAnswerNow(candidate, now),
           ),
         ];
@@ -137,7 +147,8 @@ export default function BoardStreamNav({
         }
       }
 
-      const nextStep = boardStreamStep(topic.id, topics, continueStream, kind);
+      const streamId = kind === "gap" ? `gap:${batteryOf(topic)}` : kind;
+      const nextStep = boardStreamStep(topic.id, topics, continueStream, streamId);
       if (cancelled) return;
       setStreamKind(kind);
       setStep(nextStep);
@@ -264,8 +275,10 @@ export default function BoardStreamNav({
     };
   }, [goNext, step?.next]);
 
+  const gapBattery = batteryOf(topic);
+  const gapBatteryTopics = streamKind === "gap" ? batteryTopics(gapBattery) : [];
   const gapIndex = streamKind === "gap"
-    ? GAP_TOPICS.findIndex((candidate) => candidate.id === topic.id)
+    ? gapBatteryTopics.findIndex((candidate) => candidate.id === topic.id)
     : -1;
   const showGapProgress = gapIndex >= 0;
 
@@ -274,7 +287,7 @@ export default function BoardStreamNav({
   const exitHref = streamKind === "pulse"
     ? "/pulse"
     : streamKind === "gap"
-      ? "/gap"
+      ? `/gap/${gapBattery}`
       : "/explore";
   const exitLabel = streamKind === "pulse"
     ? "Exit the monthly AI poll"
@@ -291,10 +304,10 @@ export default function BoardStreamNav({
       {showGapProgress && (
         <div className="gap-progress-bar">
           <div className="gap-progress-track" aria-hidden="true">
-            <span style={{ width: `${((gapIndex + (answered ? 1 : 0)) / GAP_TOPICS.length) * 100}%` }} />
+            <span style={{ width: `${((gapIndex + (answered ? 1 : 0)) / gapBatteryTopics.length) * 100}%` }} />
           </div>
           <p role="status">
-            Question {gapIndex + 1} of {GAP_TOPICS.length}
+            Question {gapIndex + 1} of {gapBatteryTopics.length}
           </p>
         </div>
       )}
@@ -311,7 +324,7 @@ export default function BoardStreamNav({
       </Link>
       {step.complete && streamKind === "gap" ? (
         <Link
-          href="/gap/results"
+          href={`/gap/${gapBattery}/results`}
           className="board-stream-next is-score"
           aria-label="See how well you know the country"
         >

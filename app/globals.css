@@ -3200,3 +3200,79 @@ body:has(.gap-progress-bar) main.shell {
   font-size: 0.82rem;
   color: rgba(242, 235, 218, 0.45);
 }
+
+/* -------------------------------------------------- perception-gap hub (/gap) */
+
+.gap-hub {
+  max-width: 780px;
+}
+
+.gap-hub-cards {
+  display: grid;
+  gap: 1rem;
+  width: 100%;
+  max-width: 44rem;
+  margin: 0.5rem auto 0;
+}
+
+.gap-hub-card {
+  display: block;
+  padding: clamp(1.3rem, 4vw, 1.8rem);
+  border: 1px solid rgba(95, 211, 212, 0.32);
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.05);
+  text-decoration: none;
+  color: inherit;
+  transition: transform 200ms var(--ease-out), border-color 200ms ease, background 200ms ease;
+}
+
+.gap-hub-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(95, 211, 212, 0.6);
+  background: rgba(95, 211, 212, 0.08);
+}
+
+.gap-hub-card h2 {
+  margin: 0 0 0.4rem;
+  font-family: var(--font-display);
+  font-size: clamp(1.3rem, 3.6vw, 1.7rem);
+  font-weight: 600;
+}
+
+.gap-hub-hook {
+  margin: 0 0 0.7rem;
+  line-height: 1.5;
+  color: rgba(242, 235, 218, 0.86);
+}
+
+.gap-hub-meta {
+  margin: 0 0 0.6rem;
+  font-size: 0.8rem;
+  letter-spacing: 0.04em;
+  color: rgba(242, 235, 218, 0.5);
+}
+
+.gap-hub-go {
+  font-weight: 800;
+  color: var(--teal);
+}
+
+.gap-hub-note {
+  width: 100%;
+  max-width: 44rem;
+  margin: 1.4rem auto 0;
+  text-align: center;
+  font-size: 0.85rem;
+  color: rgba(242, 235, 218, 0.55);
+}
+
+.gap-switch {
+  margin: 1.6rem 0 0;
+  text-align: center;
+  font-size: 0.92rem;
+  color: rgba(242, 235, 218, 0.7);
+}
+
+.gap-switch a {
+  color: var(--teal);
+}

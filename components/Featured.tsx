@@ -86,12 +86,12 @@ export default function Featured() {
         so a lone visitor still gets the whole experience. The crowd boards
         below need other people to be worth anything.
       */}
-      <section className="front-door-actions" aria-label="Start the perception gap quiz">
+      <section className="front-door-actions" aria-label="Take a quiz">
         <Link href="/gap" className="lock-in front-door-primary">
-          How well do you know your country?
+          How well do you know America?
         </Link>
         <p className="front-door-sub">
-          8 questions · about 2 minutes · real answers from Pew, Gallup and the Fed
+          Two quick quizzes · guess a real figure, then see how close you were
         </p>
         <div className="front-door-secondary">
           <StartMainSet label="Or answer a crowd question" />

@@ -1,5 +1,10 @@
 # Perception-Gap Question Bank
 
+> **Update (Aug 2026):** the group-size set below shipped as the live `groups`
+> battery at **/gap/groups** — eight boards, each figure verified against its
+> primary source. The batteries live at the **/gap** hub. Remaining items here
+> are still candidates; verify each primary source before shipping.
+
 A sourced catalogue of candidate items for the "How well do you know your
 country?" battery (`/gap`). Each item is a share of people (0–100) with a
 **published national figure** to check the guess against — which is what lets

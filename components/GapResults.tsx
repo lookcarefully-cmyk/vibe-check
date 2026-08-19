@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import Colophon from "./Colophon";
 import InfoDialog from "./InfoDialog";
 import SubscribeCallout from "./SubscribeCallout";
-import { GAP_TOPICS } from "@/lib/experiment";
+import { batteryTopics, getBattery } from "@/lib/experiment";
 import { lastAnswer } from "@/lib/mine";
 import {
   CLOSE_ENOUGH,
@@ -21,27 +21,29 @@ import {
 const SHARE_ORIGIN = "https://www.vibecheckdata.xyz";
 
 /**
- * The end of the perception-gap battery: the one screen the whole set exists to
- * reach.
+ * The end of a quiz battery: the one screen the whole set exists to reach.
  *
  * Scored entirely from this browser's own saved answers — see lib/gap.ts for
  * why. That also means it renders nothing on the server: the first paint would
  * otherwise be a zero score that flips to the real one, which reads as a bug
  * and, worse, as a bad result.
  */
-export default function GapResults() {
+export default function GapResults({ batteryId }: { batteryId: string }) {
+  const battery = getBattery(batteryId);
+  const topics = batteryTopics(batteryId);
   const [score, setScore] = useState<GapScore | null>(null);
   const [finishers, setFinishers] = useState<number[] | null>(null);
   const [shareState, setShareState] = useState<"idle" | "copied" | "failed">("idle");
   const resetTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
-    setScore(scoreGap(GAP_TOPICS.map((topic) => ({ topic, guess: lastAnswer(topic.id)?.v ?? null }))));
-  }, []);
+    setScore(scoreGap(topics.map((topic) => ({ topic, guess: lastAnswer(topic.id)?.v ?? null }))));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [batteryId]);
 
   useEffect(() => {
     let cancelled = false;
-    fetch("/api/gap")
+    fetch(`/api/gap?battery=${encodeURIComponent(batteryId)}`)
       .then((r) => (r.ok ? r.json() : null))
       .then((d) => {
         if (!cancelled && d && Array.isArray(d.accuracies)) setFinishers(d.accuracies);
@@ -52,7 +54,7 @@ export default function GapResults() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [batteryId]);
 
   useEffect(
     () => () => {
@@ -60,6 +62,14 @@ export default function GapResults() {
     },
     [],
   );
+
+  const kicker = batteryId === "groups" ? "group size" : "perception gap";
+  const otherId = batteryId === "groups" ? "perception" : "groups";
+  const otherLabel = batteryId === "groups"
+    ? "how well you know your country"
+    : "how big that group really is";
+
+  if (!battery) return null;
 
   if (!score) {
     return (
@@ -74,24 +84,24 @@ export default function GapResults() {
       <main className="shell gap-results">
         <header className="masthead">
           <div className="kicker">
-            <span className="kicker-text">Vibe Check · perception gap</span>
+            <span className="kicker-text">Vibe Check · {kicker}</span>
             <InfoDialog />
           </div>
           <h1>Nothing to score yet</h1>
           <p className="lede">
-            Answer the eight questions and your score appears here. Answers are
-            kept in this browser, so a different device starts fresh.
+            Answer the {topics.length} questions and your score appears here.
+            Answers are kept in this browser, so a different device starts fresh.
           </p>
         </header>
         <div className="gap-cta">
-          <Link href="/gap" className="lock-in gap-start">Start the quiz</Link>
+          <Link href={`/gap/${batteryId}`} className="lock-in gap-start">Start the quiz</Link>
         </div>
         <Colophon />
       </main>
     );
   }
 
-  const reading = readingOf(score);
+  const reading = readingOf(score, battery.lean);
   const grade = gradeOf(score);
 
   /*
@@ -109,14 +119,17 @@ export default function GapResults() {
    * arrives at a blank dial with nothing spoiled. Same rule as SharePrompt: the
    * whole point is that the person you send it to can still play honestly.
    */
+  const subject = batteryId === "groups"
+    ? "guessing how big different groups in America really are"
+    : "guessing what my country actually thinks";
   const shareText = !score.complete
-    ? `I'm ${score.answered} questions into guessing what my country actually thinks. How well do you know yours?`
+    ? `I'm ${score.answered} questions into ${subject}. How well do you know yours?`
     : percentile !== null
       // A rank is a far better hook than a bare score, and unlike the score it
       // is not obvious whether 54/100 is good.
-      ? `I scored ${score.accuracy}/100 guessing what my country actually thinks — better than ${percentile}% of people who've taken it. How well do you know yours?`
-      : `I scored ${score.accuracy}/100 guessing what my country actually thinks — ${reading.headline.toLowerCase()}. How well do you know yours?`;
-  const shareUrl = `${SHARE_ORIGIN}/gap`;
+      ? `I scored ${score.accuracy}/100 ${subject} — better than ${percentile}% of people who've taken it. How would you do?`
+      : `I scored ${score.accuracy}/100 ${subject} — ${reading.headline.toLowerCase()}. How would you do?`;
+  const shareUrl = `${SHARE_ORIGIN}/gap/${batteryId}`;
 
   const briefly = (next: "copied" | "failed") => {
     setShareState(next);
@@ -139,13 +152,13 @@ export default function GapResults() {
   };
 
   const xUrl = `https://x.com/intent/post?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(shareUrl)}`;
-  const remaining = GAP_TOPICS.filter((topic) => lastAnswer(topic.id) === null);
+  const remaining = topics.filter((topic) => lastAnswer(topic.id) === null);
 
   return (
     <main className="shell gap-results">
       <header className="masthead">
         <div className="kicker">
-          <span className="kicker-text">Vibe Check · perception gap</span>
+          <span className="kicker-text">Vibe Check · {kicker}</span>
           <InfoDialog />
         </div>
         <h1>{reading.headline}</h1>
@@ -202,13 +215,17 @@ export default function GapResults() {
         <ol className="gap-marks">
           {score.marks.map((mark) => {
             const benchmark = mark.topic.benchmark!;
+            // On a battery with no gloomy direction (groups), colour by whether
+            // the guess was too high — the characteristic error there.
             const tone = mark.off <= CLOSE_ENOUGH
               ? "is-close"
               : mark.gloomy === true
                 ? "is-gloomy"
                 : mark.gloomy === false
                   ? "is-sunny"
-                  : "is-off";
+                  : battery.lean === "overestimate" && mark.error > 0
+                    ? "is-gloomy"
+                    : "is-off";
             return (
               <li key={mark.topic.id} className={`gap-mark ${tone}`}>
                 <p className="gap-mark-q">{mark.topic.question}</p>
@@ -279,8 +296,9 @@ export default function GapResults() {
       <section className="gap-next" aria-labelledby="gap-next-title">
         <h2 id="gap-next-title">Keep going</h2>
         <p>
-          The rest of Vibe Check works the other way round: no published answer,
-          just where everyone else landed.
+          Try <Link href={`/gap/${otherId}`}>{otherLabel}</Link> — a different
+          eight. Or the rest of Vibe Check, where there&rsquo;s no published
+          answer, just where everyone else landed.
         </p>
         <div className="gap-cta">
           <Link href="/explore" className="reset">Explore the boards</Link>

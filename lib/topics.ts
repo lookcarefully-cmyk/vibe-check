@@ -126,6 +126,14 @@ export interface Topic {
    */
   collection?: "main" | "more" | "pulse" | "gap";
   /**
+   * Which quiz battery a `collection: "gap"` board belongs to. The batteries are
+   * defined in lib/experiment.ts (GAP_BATTERIES); each is its own eight-item
+   * quiz at /gap/<battery> with its own landing and score. Ignored on
+   * non-gap boards. Defaults to "perception" so the original battery keeps
+   * working without every board restating it.
+   */
+  battery?: string;
+  /**
    * Keep the board and its data, but hide it from the browse library and the
    * board-page nav. For items that belong to a formal data-collection set and
    * shouldn't be casually browsable, without deleting the board or orphaning
@@ -323,6 +331,7 @@ export const TOPICS: Topic[] = [
   {
     id: "perceived-extremism",
     collection: "gap",
+    battery: "perception",
     subject: "Political opponents",
     axis: "How many seem extreme?",
     question:
@@ -365,6 +374,7 @@ export const TOPICS: Topic[] = [
   {
     id: "climate-worry-perception",
     collection: "gap",
+    battery: "perception",
     subject: "Climate worry",
     axis: "How many are worried?",
     question:
@@ -405,6 +415,7 @@ export const TOPICS: Topic[] = [
   {
     id: "violence-support-score-perception",
     collection: "gap",
+    battery: "perception",
     subject: "Political violence",
     axis: "How much support?",
     question:
@@ -431,6 +442,7 @@ export const TOPICS: Topic[] = [
   {
     id: "emergency-expense-perception",
     collection: "gap",
+    battery: "perception",
     subject: "A $400 emergency",
     axis: "How many would cover it?",
     question:
@@ -458,6 +470,7 @@ export const TOPICS: Topic[] = [
   {
     id: "abortion-legal-perception",
     collection: "gap",
+    battery: "perception",
     subject: "Legal abortion",
     axis: "How many support it?",
     question:
@@ -484,6 +497,7 @@ export const TOPICS: Topic[] = [
   {
     id: "loneliness-perception",
     collection: "gap",
+    battery: "perception",
     subject: "Persistent loneliness",
     axis: "How many feel it?",
     question:
@@ -511,6 +525,7 @@ export const TOPICS: Topic[] = [
   {
     id: "social-trust-perception",
     collection: "gap",
+    battery: "perception",
     subject: "Trusting other people",
     axis: "How many generally do?",
     question:
@@ -538,6 +553,7 @@ export const TOPICS: Topic[] = [
   {
     id: "free-expression-perception",
     collection: "gap",
+    battery: "perception",
     subject: "Free expression",
     axis: "How many defend it?",
     question:
@@ -560,6 +576,206 @@ export const TOPICS: Topic[] = [
       note:
         "Gallup combines 39% who strongly agreed and 41% who agreed with the statement.",
       pessimism: "low",
+    },
+  },
+  {
+    id: "group-immigrants",
+    collection: "gap",
+    battery: "groups",
+    subject: "Immigrants",
+    axis: "How much of the country?",
+    question: "Out of 100 people living in the United States, how many were born in another country?",
+    prompt: CORE_PROMPT,
+    leftLabel: "NONE",
+    rightLabel: "ALL 100",
+    highMeans: "a larger perceived foreign-born share of the U.S. population",
+    scale: "amount",
+    category: "Group size",
+    cadence: "once",
+    benchmark: {
+      value: 0.14,
+      display: "about 14%",
+      unit: "percent",
+      sourceName: "U.S. Census Bureau, American Community Survey",
+      sourceUrl: "https://www.census.gov/programs-surveys/acs.html",
+      fielded: "2023 · American Community Survey, full U.S. population",
+      note:
+        "The 2023 American Community Survey put the foreign-born share of the U.S. population at about 14%. In surveys, people routinely guess more than double that.",
+    },
+  },
+  {
+    id: "group-black",
+    collection: "gap",
+    battery: "groups",
+    subject: "Black Americans",
+    axis: "How much of the country?",
+    question: "Out of 100 people in the United States, how many are Black?",
+    prompt: CORE_PROMPT,
+    leftLabel: "NONE",
+    rightLabel: "ALL 100",
+    highMeans: "a larger perceived Black share of the U.S. population",
+    scale: "amount",
+    category: "Group size",
+    cadence: "once",
+    benchmark: {
+      value: 0.13,
+      display: "about 13%",
+      unit: "percent",
+      sourceName: "U.S. Census Bureau, American Community Survey",
+      sourceUrl: "https://www.census.gov/programs-surveys/acs.html",
+      fielded: "2023 · American Community Survey, full U.S. population",
+      note:
+        "About 13% of U.S. residents identify as Black — roughly 12% as Black alone, a little more including multiracial identities. In one YouGov study, people averaged guesses around 40%.",
+    },
+  },
+  {
+    id: "group-gay-lesbian",
+    collection: "gap",
+    battery: "groups",
+    subject: "Gay and lesbian adults",
+    axis: "How much of the country?",
+    question: "Out of 100 U.S. adults, how many identify as gay or lesbian?",
+    prompt: CORE_PROMPT,
+    leftLabel: "NONE",
+    rightLabel: "ALL 100",
+    highMeans: "a larger perceived gay and lesbian share of U.S. adults",
+    scale: "amount",
+    category: "Group size",
+    cadence: "once",
+    benchmark: {
+      value: 0.03,
+      display: "about 3%",
+      unit: "percent",
+      sourceName: "Gallup",
+      sourceUrl: "https://news.gallup.com/poll/656708/lgbtq-identification-rises.aspx",
+      fielded: "2024 · aggregated Gallup surveys of more than 14,000 U.S. adults",
+      note:
+        "In Gallup's 2024 data, 2.0% of adults identified as gay and 1.4% as lesbian — about 3% together. Public estimates have averaged around 30%.",
+    },
+  },
+  {
+    id: "group-lgbtq",
+    collection: "gap",
+    battery: "groups",
+    subject: "LGBTQ+ adults",
+    axis: "How much of the country?",
+    question: "Out of 100 U.S. adults, how many identify as lesbian, gay, bisexual or transgender?",
+    prompt: CORE_PROMPT,
+    leftLabel: "NONE",
+    rightLabel: "ALL 100",
+    highMeans: "a larger perceived LGBTQ+ share of U.S. adults",
+    scale: "amount",
+    category: "Group size",
+    cadence: "once",
+    benchmark: {
+      value: 0.093,
+      display: "about 9%",
+      unit: "percent",
+      sourceName: "Gallup",
+      sourceUrl: "https://news.gallup.com/poll/656708/lgbtq-identification-rises.aspx",
+      fielded: "2024 · aggregated Gallup surveys of more than 14,000 U.S. adults",
+      note:
+        "Gallup put LGBTQ+ identification at 9.3% of U.S. adults in 2024. It is far higher among young adults — above 1 in 5 — and bisexual is the largest group.",
+    },
+  },
+  {
+    id: "group-transgender",
+    collection: "gap",
+    battery: "groups",
+    subject: "Transgender adults",
+    axis: "How much of the country?",
+    question: "Out of 100 U.S. adults, how many identify as transgender?",
+    prompt: CORE_PROMPT,
+    leftLabel: "NONE",
+    rightLabel: "ALL 100",
+    highMeans: "a larger perceived transgender share of U.S. adults",
+    scale: "amount",
+    category: "Group size",
+    cadence: "once",
+    benchmark: {
+      value: 0.013,
+      display: "about 1%",
+      unit: "percent",
+      sourceName: "Gallup",
+      sourceUrl: "https://news.gallup.com/poll/656708/lgbtq-identification-rises.aspx",
+      fielded: "2024 · aggregated Gallup surveys of more than 14,000 U.S. adults",
+      note:
+        "About 1.3% of U.S. adults identified as transgender in Gallup's 2024 data. Public estimates have run far higher — around 20% in one study.",
+    },
+  },
+  {
+    id: "group-muslim",
+    collection: "gap",
+    battery: "groups",
+    subject: "Muslim adults",
+    axis: "How much of the country?",
+    question: "Out of 100 U.S. adults, how many are Muslim?",
+    prompt: CORE_PROMPT,
+    leftLabel: "NONE",
+    rightLabel: "ALL 100",
+    highMeans: "a larger perceived Muslim share of U.S. adults",
+    scale: "amount",
+    category: "Group size",
+    cadence: "once",
+    benchmark: {
+      value: 0.01,
+      display: "about 1%",
+      unit: "percent",
+      sourceName: "Pew Research Center, Religious Landscape Study",
+      sourceUrl: "https://www.pewresearch.org/religion/2025/02/26/religious-landscape-study-executive-summary/",
+      fielded: "2023–24 · Pew Religious Landscape Study, ~37,000 U.S. adults",
+      note:
+        "Pew's 2023–24 Religious Landscape Study put Muslims at about 1% of U.S. adults. In one survey, people guessed around 27%.",
+    },
+  },
+  {
+    id: "group-gun-owners",
+    collection: "gap",
+    battery: "groups",
+    subject: "Gun owners",
+    axis: "How much of the country?",
+    question: "Out of 100 U.S. adults, how many personally own a gun?",
+    prompt: CORE_PROMPT,
+    leftLabel: "NONE",
+    rightLabel: "ALL 100",
+    highMeans: "a larger perceived share of adults who own a gun",
+    scale: "amount",
+    category: "Group size",
+    cadence: "once",
+    benchmark: {
+      value: 0.32,
+      display: "about 32%",
+      unit: "percent",
+      sourceName: "Gallup",
+      sourceUrl: "https://news.gallup.com/poll/264932/percentage-americans-own-guns.aspx",
+      fielded: "2023 · Gallup Crime survey of U.S. adults",
+      note:
+        "About 32% of U.S. adults say they personally own a gun, and 44% live in a household with one, per Gallup. Guesses in one survey averaged around 54%.",
+    },
+  },
+  {
+    id: "group-union",
+    collection: "gap",
+    battery: "groups",
+    subject: "Union members",
+    axis: "How much of the workforce?",
+    question: "Out of 100 U.S. workers, how many belong to a labor union?",
+    prompt: CORE_PROMPT,
+    leftLabel: "NONE",
+    rightLabel: "ALL 100",
+    highMeans: "a larger perceived share of workers in a union",
+    scale: "amount",
+    category: "Group size",
+    cadence: "once",
+    benchmark: {
+      value: 0.1,
+      display: "about 10%",
+      unit: "percent",
+      sourceName: "U.S. Bureau of Labor Statistics",
+      sourceUrl: "https://www.bls.gov/news.release/union2.htm",
+      fielded: "2024 · Current Population Survey, wage and salary workers",
+      note:
+        "The union membership rate was 9.9% of wage and salary workers in 2024, per the Bureau of Labor Statistics — near a record low.",
     },
   },
   {

@@ -17,12 +17,30 @@ Owner: Will Keller, PsyD student. Non-programmer. Explain reasoning, don't
 assume familiarity with the stack, and say plainly when something is a trade-off
 rather than a fact.
 
-## The front door is the perception-gap battery
+## The front door is the quiz hub
 
-`/gap` — "How well do you know your country?" — is eight boards
-(`collection: "gap"` in `lib/topics.ts`) whose answers come from Pew, the
-Federal Reserve, Gallup, Yale and a PNAS paper rather than from the crowd.
-Scored client-side in `lib/gap.ts` from this browser's own saved answers.
+`/gap` is a hub listing quiz **batteries**. Each battery is eight benchmark
+boards (`collection: "gap"` in `lib/topics.ts`) whose answers come from national
+surveys and the Census, not the crowd, scored client-side in `lib/gap.ts` from
+this browser's own saved answers. Two ship today:
+
+- **`perception`** — "How well do you know your country?" (Pew, the Fed, Gallup,
+  Yale, PNAS). Its lean is `pessimism`: you read the country as bleaker than it
+  is.
+- **`groups`** — "How big is that group, really?" (Census, Gallup, Pew, BLS). Its
+  lean is `overestimate`: you think small groups are far bigger than they are.
+
+Batteries are pure data: a `BatteryDef` in `GAP_BATTERIES` (lib/experiment.ts)
+plus boards tagged `battery: "<id>"`. A board with no `battery` defaults to
+`perception`. Adding a flagship set is a registry entry and its eight boards —
+the hub, the dynamic routes `/gap/[battery]` and `/gap/[battery]/results`, the
+stream and the score endpoint all pick it up with no further change. `lean`
+picks which characteristic error the score page reads back.
+
+Every figure that ships must be verified against its primary source with an
+exact `fielded` date — a bank entry in PERCEPTION-GAP-BANK.md is a lead, not a
+shippable claim. The eight `groups` figures were each checked (Census ACS 2023,
+Gallup 2024/23, Pew RLS 2023–24, BLS 2024).
 
 **It exists because it is the only thing here that works on an empty site.**
 Every other board pays off by showing you the crowd, and with the traffic this
@@ -82,7 +100,7 @@ spilling into the community stream. The gold “Answer more questions” action 
 the end deliberately starts a fresh randomized Main Set; it preserves momentum
 while the separate Exit still returns to the poll page.
 
-The front door leads with the **perception-gap quiz** at `/gap` (see above); the
+The front door leads with the **quiz hub** at `/gap` (see above); the
 Main Set, `/explore` and Make a board are the quieter secondary row, and the
 monthly AI poll keeps its own card lower down. `/explore` is the
 junction between the AI poll, research-led Main Set, and Community. Community is

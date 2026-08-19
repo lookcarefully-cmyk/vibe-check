@@ -54,6 +54,14 @@ export interface GapScore {
   /** Of the items that have a gloomy direction, how many missed that way. */
   gloomyMisses: number;
   gloomyEligible: number;
+  /**
+   * How many answered items were guessed HIGHER than the real figure. On a
+   * group-size battery — where every real figure is small — this is the
+   * "you think these groups are bigger than they are" signal. Mean overshoot is
+   * in points, over the items that were overestimated.
+   */
+  overCount: number;
+  overshoot: number;
   /** The single worst miss, for the headline. Null before anything is answered. */
   worst: GapMark | null;
   /** The best call, for the "you nailed this one" line. */
@@ -162,6 +170,11 @@ export function scoreGap(items: GapItem[]): GapScore {
     close: marks.filter((m) => m.off <= CLOSE_ENOUGH).length,
     gloomyMisses: marks.filter((m) => m.gloomy === true).length,
     gloomyEligible,
+    overCount: marks.filter((m) => m.error > 0).length,
+    overshoot: (() => {
+      const over = marks.filter((m) => m.error > 0);
+      return over.length ? Math.round(over.reduce((sum, m) => sum + m.error, 0) / over.length) : 0;
+    })(),
     worst: answered ? marks.reduce((a, b) => (b.off > a.off ? b : a)) : null,
     best: answered ? marks.reduce((a, b) => (b.off < a.off ? b : a)) : null,
   };
@@ -192,7 +205,10 @@ export function gradeOf(score: GapScore): string {
  * The threshold is two-thirds of eligible items, so a single stray miss can't
  * brand someone a cynic — with six eligible items that means at least four.
  */
-export function readingOf(score: GapScore): { headline: string; detail: string } {
+export function readingOf(
+  score: GapScore,
+  lean: "pessimism" | "overestimate" = "pessimism",
+): { headline: string; detail: string } {
   if (!score.answered) {
     return { headline: "Nothing scored yet", detail: "Answer the questions to see how you did." };
   }
@@ -207,6 +223,27 @@ export function readingOf(score: GapScore): { headline: string; detail: string }
     return {
       headline: `${score.answered} of ${score.total} answered`,
       detail: `Your score so far is provisional. Which way you lean is the interesting part, and it only means anything once all ${score.total} are in — ${left} to go.`,
+    };
+  }
+
+  if (lean === "overestimate") {
+    // Every figure in this battery is a small share, so guessing high is the
+    // near-universal error — the finding is how consistently, and by how much.
+    if (score.overCount >= Math.ceil((score.answered * 2) / 3)) {
+      return {
+        headline: "You think these groups are bigger than they are",
+        detail: `You guessed too high on ${score.overCount} of ${score.answered} — on average about ${score.overshoot} points over the real figure. That is the near-universal mistake: people picture minorities as several times their actual size, and it barely matters who you ask.`,
+      };
+    }
+    if (score.overCount <= Math.floor(score.answered / 3)) {
+      return {
+        headline: "You didn't fall for the usual overshoot",
+        detail: `Most people guess far too high on questions like these — picturing minorities as several times their real size. You mostly didn't. That is rare.`,
+      };
+    }
+    return {
+      headline: "A mix of high and low",
+      detail: `You overshot on some and undershot on others. The common pattern is guessing too high across the board, so a mix is already better calibrated than most.`,
     };
   }
 

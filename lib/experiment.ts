@@ -85,21 +85,64 @@ export const PULSE_TOPICS: Topic[] = ACTIVE_LIBRARY_TOPICS.filter(
 export const PULSE_FINAL_TOPIC_ID = PULSE_TOPICS[PULSE_TOPICS.length - 1]?.id ?? "";
 
 /**
- * The perception-gap battery, in a fixed order — see /gap.
+ * A quiz battery runs in a FIXED order (see board-stream.ts) — the sequence is
+ * editorial, opening on the sharpest misperception and closing on the warmest
+ * finding. Every board must carry a `benchmark`; one without would appear in the
+ * quiz and then be silently dropped from the score.
  *
- * Order is deliberate and must not be shuffled. It opens on the other side's
- * extremism, which is the item people are most confidently wrong about and the
- * one that makes the point fastest; it closes on free expression, which is the
- * warmest finding in the set. Anything scored against a published figure is
- * scoreable in isolation, so the sequence is doing editorial work, not
- * methodological work.
+ * A themed quiz battery: eight benchmark boards checked against published
+ * figures, living at /gap/<id> with its own landing and score.
  *
- * Every item here must carry a `benchmark`; one without would appear in the
- * battery and then be silently dropped from the score.
+ * `lean` picks which characteristic error the score page reads back. "pessimism"
+ * (the original set) reports whether you read the country as bleaker than it is;
+ * "overestimate" (the group-size set) reports that you think small groups are
+ * far bigger than they are, which is the near-universal error there. A battery's
+ * boards carry `battery: id`; nothing else here needs to know the lean.
  */
-export const GAP_TOPICS: Topic[] = ACTIVE_LIBRARY_TOPICS.filter(
-  (topic) => topic.collection === "gap" && topic.benchmark,
-);
+export interface BatteryDef {
+  id: string;
+  /** Shown on the hub card and as the quiz's own H1. */
+  title: string;
+  /** One line under the title. */
+  blurb: string;
+  /** The provocation on the hub card — the reason to click. */
+  hook: string;
+  lean: "pessimism" | "overestimate";
+}
+
+export const GAP_BATTERIES: BatteryDef[] = [
+  {
+    id: "perception",
+    title: "How well do you know your country?",
+    blurb: "Guess what other people actually think, do and feel — then see the real national figure.",
+    hook: "Almost everyone reads the country as bleaker than it is. Which way do you lean?",
+    lean: "pessimism",
+  },
+  {
+    id: "groups",
+    title: "How big is that group, really?",
+    blurb: "Guess what share of the country belongs to each group — then see the real number.",
+    hook: "People think minorities are far bigger than they are. By a lot. Find out how far off you are.",
+    lean: "overestimate",
+  },
+];
+
+export function getBattery(id: string): BatteryDef | undefined {
+  return GAP_BATTERIES.find((b) => b.id === id);
+}
+
+/** The boards of one battery, in source order (the order the quiz runs). */
+export function batteryTopics(batteryId: string): Topic[] {
+  return ACTIVE_LIBRARY_TOPICS.filter(
+    (topic) =>
+      topic.collection === "gap"
+      && topic.benchmark
+      && (topic.battery ?? "perception") === batteryId,
+  );
+}
+
+/** Back-compat: the original battery. Prefer batteryTopics(id) in new code. */
+export const GAP_TOPICS: Topic[] = batteryTopics("perception");
 
 export const GAP_FINAL_TOPIC_ID = GAP_TOPICS[GAP_TOPICS.length - 1]?.id ?? "";
 

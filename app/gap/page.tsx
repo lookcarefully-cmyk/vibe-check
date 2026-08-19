@@ -1,26 +1,24 @@
 import type { Metadata } from "next";
-import GapLanding from "@/components/GapLanding";
+import GapHub from "@/components/GapHub";
 
 export const metadata: Metadata = {
-  title: "How well do you know your country? — Vibe Check",
+  title: "How well do you know America? — Vibe Check",
   description:
-    "Eight questions about what other people actually think, do and feel. Guess the real national figure, then see how close you were.",
+    "Short quizzes that check your guesses against real national figures — how the country actually thinks, and how big different groups really are.",
   openGraph: {
-    title: "How well do you know your country?",
-    description:
-      "Eight questions. Guess what your country really thinks — then see which way you lean.",
+    title: "How well do you know America?",
+    description: "Guess the real national figure — then see how close you were.",
     siteName: "Vibe Check",
     type: "website",
     url: "/gap",
   },
   twitter: {
     card: "summary_large_image",
-    title: "How well do you know your country?",
-    description:
-      "Eight questions. Guess what your country really thinks — then see which way you lean.",
+    title: "How well do you know America?",
+    description: "Guess the real national figure — then see how close you were.",
   },
 };
 
-export default function GapPage() {
-  return <GapLanding />;
+export default function GapHubPage() {
+  return <GapHub />;
 }

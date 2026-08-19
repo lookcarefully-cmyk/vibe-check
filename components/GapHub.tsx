@@ -20,17 +20,15 @@ export default function GapHub() {
         </div>
         <h1>How well do you know America?</h1>
         <p className="lede">
-          Guess a real national figure, then see how close you were. Each quiz is
-          eight questions checked against published numbers — Census, Gallup,
-          Pew, the CBO.
+          Guess a real figure, then see how close you were. Eight questions each,
+          checked against Census, Gallup, Pew and the CBO.
         </p>
       </header>
 
       <GapBatteryCards />
 
       <p className="gap-hub-note">
-        No account, answers are anonymous, and each figure comes with its source
-        so you can check it yourself.
+        No account. Every figure comes with its source.
       </p>
 
       <Colophon />

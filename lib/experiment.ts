@@ -117,14 +117,14 @@ export const GAP_BATTERIES: BatteryDef[] = [
     id: "perception",
     title: "How well do you know America?",
     blurb: "Guess what other people actually think, do and feel — then see the real national figure.",
-    hook: "Do you picture America as more extreme, lonely and divided than national surveys find?",
+    hook: "Guess what the country really thinks — then see how close you were.",
     lean: "pessimism",
   },
   {
     id: "groups",
     title: "How big is that group, really?",
     blurb: "Guess what share of the country belongs to each group — then see the real number.",
-    hook: "The groups that loom largest in public life are often much smaller than they feel.",
+    hook: "Guess how big each group is — then see how far off you are.",
     lean: "overestimate",
   },
   {

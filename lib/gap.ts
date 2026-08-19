@@ -192,7 +192,7 @@ export function gradeOf(score: GapScore): string {
   if (!score.complete) return "So far";
   if (score.accuracy >= 85) return "Sharp";
   if (score.accuracy >= 70) return "Pretty close";
-  if (score.accuracy >= 50) return "Getting the shape";
+  if (score.accuracy >= 50) return "In the ballpark";
   if (score.accuracy >= 30) return "Some way off";
   return "Way off";
 }
@@ -251,7 +251,7 @@ export function readingOf(
     if (score.overCount >= Math.ceil((score.answered * 2) / 3)) {
       return {
         headline: "You think these groups are bigger than they are",
-        detail: `You guessed too high on ${score.overCount} of ${score.answered} — on average about ${score.overshoot} points over the real figure. Visibility and population size are different things, and your mental picture gave these groups more space than the national counts do.`,
+        detail: `You guessed too high on ${score.overCount} of ${score.answered} — on average about ${score.overshoot} points over. How visible a group is and how big it is are two different things.`,
       };
     }
     if (score.overCount <= Math.floor(score.answered / 3)) {

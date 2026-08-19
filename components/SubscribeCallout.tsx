@@ -38,7 +38,7 @@ export default function SubscribeCallout({
         <h2>
           {pulse
             ? "Come back when next month’s AI poll opens."
-            : "New questions, once a month."}
+            : "Get notified when new questions go up."}
         </h2>
         <p>
           {pulse

@@ -273,7 +273,7 @@ export default function GapResults({ batteryId }: { batteryId: string }) {
       <section className="share-prompt gap-share" aria-label="Share your score">
         <div>
           <p className="share-kicker">Who else thinks they know?</p>
-          <h3>Send it to someone who&rsquo;d disagree.</h3>
+          <h3>See if they can beat your score.</h3>
           <p>
             They get the blank quiz — your score and every answer stay hidden, so
             they play it honestly.

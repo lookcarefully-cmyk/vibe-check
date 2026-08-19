@@ -335,7 +335,7 @@ export const TOPICS: Topic[] = [
     subject: "Political opponents",
     axis: "How many seem extreme?",
     question:
-      "Out of 100 people who vote the opposite way from you, how many hold views you'd honestly call extreme?",
+      "Across major political issues, out of 100 opposing-party voters, how many actually take the most extreme position?",
     prompt: CORE_PROMPT,
     leftLabel: "NONE OF THEM",
     rightLabel: "ALL 100",
@@ -343,6 +343,7 @@ export const TOPICS: Topic[] = [
     scale: "amount",
     category: "Perception gaps",
     cadence: "once",
+    version: 2,
     benchmark: {
       value: 0.3,
       display: "about 30%",
@@ -352,7 +353,7 @@ export const TOPICS: Topic[] = [
         "https://perceptiongap.us/media/anvpqwr2/perception-gap-report-1-0-3.pdf",
       fielded: "2019 · representative sample of 2,100 Americans",
       note:
-        "Across the policy views tested, opponents were estimated to be extreme about 55% of the time; their measured views were extreme about 30% of the time.",
+        "Across the policy positions tested, opposing voters were perceived as taking the most extreme position about 55% of the time; representative surveys put the measured share around 30%.",
       pessimism: "high",
     },
   },
@@ -419,7 +420,7 @@ export const TOPICS: Topic[] = [
     subject: "Political violence",
     axis: "How much support?",
     question:
-      "On a 0–100 scale, how much do people on the political side you like least support using violence to advance political goals?",
+      "When U.S. Democrats and Republicans were asked about using violence to advance political goals, what was their average support score out of 100?",
     prompt: CORE_PROMPT,
     leftLabel: "NO SUPPORT",
     rightLabel: "FULL SUPPORT",
@@ -427,6 +428,7 @@ export const TOPICS: Topic[] = [
     scale: "amount",
     category: "Perception gaps",
     cadence: "once",
+    version: 2,
     benchmark: {
       value: 0.098,
       display: "about 9.8 / 100",
@@ -642,6 +644,7 @@ export const TOPICS: Topic[] = [
     scale: "amount",
     category: "Group size",
     cadence: "once",
+    retiredFromSite: true,
     benchmark: {
       value: 0.03,
       display: "about 3%",
@@ -651,6 +654,56 @@ export const TOPICS: Topic[] = [
       fielded: "2024 · aggregated Gallup surveys of more than 14,000 U.S. adults",
       note:
         "In Gallup's 2024 data, 2.0% of adults identified as gay and 1.4% as lesbian — about 3% together. Public estimates have averaged around 30%.",
+    },
+  },
+  {
+    id: "group-veterans",
+    collection: "gap",
+    battery: "groups",
+    subject: "Military veterans",
+    axis: "How much of the adult population?",
+    question: "Out of 100 U.S. adults, how many are military veterans?",
+    prompt: CORE_PROMPT,
+    leftLabel: "NONE",
+    rightLabel: "ALL 100",
+    highMeans: "a larger perceived veteran share of U.S. adults",
+    scale: "amount",
+    category: "Group size",
+    cadence: "once",
+    benchmark: {
+      value: 0.061,
+      display: "about 6%",
+      unit: "percent",
+      sourceName: "U.S. Census Bureau, American Community Survey",
+      sourceUrl: "https://data.census.gov/table/ACSST1Y2023.S2101?g=010XX00US",
+      fielded: "2023 · ACS 1-year estimate, U.S. civilian adults",
+      note:
+        "About 6.1% of the U.S. civilian population age 18 and older were veterans in the 2023 American Community Survey.",
+    },
+  },
+  {
+    id: "group-older-adults",
+    collection: "gap",
+    battery: "groups",
+    subject: "Adults 65 and older",
+    axis: "How much of the country?",
+    question: "Out of 100 people living in the United States, how many are age 65 or older?",
+    prompt: CORE_PROMPT,
+    leftLabel: "NONE",
+    rightLabel: "ALL 100",
+    highMeans: "a larger perceived share of the U.S. population age 65 or older",
+    scale: "amount",
+    category: "Group size",
+    cadence: "once",
+    benchmark: {
+      value: 0.18,
+      display: "18%",
+      unit: "percent",
+      sourceName: "U.S. Census Bureau, Population Estimates",
+      sourceUrl: "https://www.census.gov/newsroom/press-releases/2025/older-adults-outnumber-children.html",
+      fielded: "July 1, 2024 · U.S. population estimate",
+      note:
+        "The Census Bureau estimated 61.2 million people age 65 or older in 2024 — 18% of the U.S. population.",
     },
   },
   {
@@ -692,6 +745,7 @@ export const TOPICS: Topic[] = [
     scale: "amount",
     category: "Group size",
     cadence: "once",
+    retiredFromSite: true,
     benchmark: {
       value: 0.013,
       display: "about 1%",

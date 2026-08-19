@@ -1146,10 +1146,45 @@ export default function VibeCheck({
         </section>
       ) : (
         <>
+          {topic.benchmark && !predicting && touched && (
+            <div className="benchmark-guess-control" aria-label="Fine-tune your numerical guess">
+              <button
+                type="button"
+                aria-label="Lower guess by one"
+                onClick={() =>
+                  setPick((current) => Math.max(0, Math.round(current * 100) - 1) / 100)
+                }
+              >
+                −
+              </button>
+              <p aria-live="polite">
+                <span>Your guess</span>
+                <strong>
+                  {topic.leftLabel === "$0"
+                    ? `$${Math.round(pick * 100)}`
+                    : topic.benchmark.unit === "score100"
+                      ? `${Math.round(pick * 100)} / 100`
+                      : `${Math.round(pick * 100)} out of 100`}
+                </strong>
+              </p>
+              <button
+                type="button"
+                aria-label="Raise guess by one"
+                onClick={() =>
+                  setPick((current) => Math.min(100, Math.round(current * 100) + 1) / 100)
+                }
+              >
+                +
+              </button>
+            </div>
+          )}
           {/*
             The commit step, deliberately separate from the dial. No percentage
-            or band label on it: naming the number before it's locked in turns a
-            felt judgement into a number-picking task (rule 1 in AGENTS.md).
+            or band label appears on opinion boards: naming those before they're
+            locked in turns a felt judgement into a number-picking task. Published-
+            figure quizzes are the deliberate exception above. They are already
+            numerical tasks, and a scored answer must expose the number the visitor
+            is about to submit without exposing the benchmark itself.
           */}
           <button
             type="button"

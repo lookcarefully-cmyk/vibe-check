@@ -192,7 +192,7 @@ export function gradeOf(score: GapScore): string {
   if (!score.complete) return "So far";
   if (score.accuracy >= 85) return "Sharp";
   if (score.accuracy >= 70) return "Pretty close";
-  if (score.accuracy >= 50) return "Roughly typical";
+  if (score.accuracy >= 50) return "Getting the shape";
   if (score.accuracy >= 30) return "Some way off";
   return "Way off";
 }
@@ -230,39 +230,39 @@ export function readingOf(
     if (score.accuracy >= 80) {
       return {
         headline: "You actually know where the money goes",
-        detail: `That is rare. Most people are wildly off on at least the famous lines — the ones that make headlines are tiny, and the ones that quietly dominate are enormous.`,
+        detail: `You kept both the famous small programs and the quiet giants in proportion — the central challenge in reading the federal budget.`,
       };
     }
     if (score.accuracy >= 50) {
       return {
         headline: "Roughly the right shape",
-        detail: `You have the big picture, even if a few threw you. The pattern that trips most people: the programs you hear about — foreign aid, NASA — are a rounding error, while the giants like Social Security and interest on the debt are far bigger than they feel.`,
+        detail: `You have the big picture, even if a few threw you. The pattern to notice: the programs you hear about — foreign aid, NASA — are a rounding error, while giants like Social Security and interest on the debt are far bigger than they feel.`,
       };
     }
     return {
       headline: "The budget isn't where you think",
-      detail: `Almost nobody guesses this right. People inflate the programs that make headlines — foreign aid, NASA, food stamps — and badly underrate the giants: Social Security alone is bigger than all of them combined, and interest on the debt now rivals the entire defense budget.`,
+      detail: `Your picture gave too much or too little space to several major lines. The striking contrast: foreign aid, NASA and food stamps are small, while Social Security alone is bigger than all three combined and interest now rivals defense.`,
     };
   }
 
   if (lean === "overestimate") {
-    // Every figure in this battery is a small share, so guessing high is the
-    // near-universal error — the finding is how consistently, and by how much.
+    // Every figure in this battery is a minority share, so the directional
+    // finding is how consistently this visitor guessed high, and by how much.
     if (score.overCount >= Math.ceil((score.answered * 2) / 3)) {
       return {
         headline: "You think these groups are bigger than they are",
-        detail: `You guessed too high on ${score.overCount} of ${score.answered} — on average about ${score.overshoot} points over the real figure. That is the near-universal mistake: people picture minorities as several times their actual size, and it barely matters who you ask.`,
+        detail: `You guessed too high on ${score.overCount} of ${score.answered} — on average about ${score.overshoot} points over the real figure. Visibility and population size are different things, and your mental picture gave these groups more space than the national counts do.`,
       };
     }
     if (score.overCount <= Math.floor(score.answered / 3)) {
       return {
-        headline: "You didn't fall for the usual overshoot",
-        detail: `Most people guess far too high on questions like these — picturing minorities as several times their real size. You mostly didn't. That is rare.`,
+        headline: "You avoided the repeated overshoot",
+        detail: `You mostly kept visibility and population size separate, avoiding the repeated high guesses this set is designed to test.`,
       };
     }
     return {
       headline: "A mix of high and low",
-      detail: `You overshot on some and undershot on others. The common pattern is guessing too high across the board, so a mix is already better calibrated than most.`,
+      detail: `You overshot on some and undershot on others rather than making the same directional error across the set.`,
     };
   }
 
@@ -273,19 +273,19 @@ export function readingOf(
   if (gloomyEligible >= 3 && gloomyShare >= 2 / 3) {
     return {
       headline: "You read the country as bleaker than it is",
-      detail: `On ${gloomyMisses} of the ${gloomyEligible} questions that have a gloomy direction, you guessed the gloomier way — more extremism, more loneliness, less trust than the surveys actually find. That is the most common way to be wrong here, and it gets more common the more news you read.`,
+      detail: `On ${gloomyMisses} of the ${gloomyEligible} questions that have a gloomy direction, you guessed the gloomier way — more extremism, more loneliness or less trust than the published surveys find.`,
     };
   }
 
   if (gloomyEligible >= 3 && sunnyMisses / gloomyEligible >= 2 / 3) {
     return {
       headline: "You read the country as sunnier than it is",
-      detail: `On ${sunnyMisses} of the ${gloomyEligible} questions with a gloomy direction, you guessed the rosier way. That is the rarer error — most people miss in the other direction.`,
+      detail: `On ${sunnyMisses} of the ${gloomyEligible} questions with a gloomy direction, you guessed the rosier way than the published surveys find.`,
     };
   }
 
   return {
     headline: "You didn't lean either way",
-    detail: `Your misses fell on both sides rather than consistently gloomy or consistently rosy. Most people show a clear lean, usually the gloomy one.`,
+    detail: `Your misses fell on both sides rather than consistently gloomy or consistently rosy.`,
   };
 }

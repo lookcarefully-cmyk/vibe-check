@@ -2467,6 +2467,54 @@ body::after {
 
 /* ------------------------------------------------- the commit button */
 
+.benchmark-guess-control {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.8rem;
+  margin-top: 0.85rem;
+}
+
+.benchmark-guess-control p {
+  min-width: 9.5rem;
+  margin: 0;
+  text-align: center;
+}
+
+.benchmark-guess-control p span {
+  display: block;
+  color: rgba(242, 235, 218, 0.48);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.benchmark-guess-control p strong {
+  display: block;
+  margin-top: 0.12rem;
+  color: var(--cream);
+  font-family: var(--font-display);
+  font-size: 1.45rem;
+}
+
+.benchmark-guess-control button {
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 1px solid rgba(95, 211, 212, 0.42);
+  border-radius: 50%;
+  background: rgba(95, 211, 212, 0.08);
+  color: var(--teal);
+  font: inherit;
+  font-size: 1.35rem;
+  cursor: pointer;
+}
+
+.benchmark-guess-control button:hover {
+  background: rgba(95, 211, 212, 0.16);
+}
+
 .lock-in {
   margin-top: 1.25rem;
   padding: 0.85rem 2.2rem;
@@ -2951,6 +2999,123 @@ body::after {
   text-align: center;
   line-height: 1.6;
   color: rgba(242, 235, 218, 0.88);
+}
+
+.gap-budget-map {
+  width: 100%;
+  max-width: 48rem;
+  margin: 2.4rem auto 0;
+  padding: clamp(1.1rem, 3.5vw, 1.7rem);
+  border: 1px solid rgba(95, 211, 212, 0.28);
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.035);
+  text-align: left;
+}
+
+.gap-budget-map-heading {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 1.5rem;
+}
+
+.gap-budget-map-heading h2 {
+  margin: 0.18rem 0 0;
+  font-family: var(--font-display);
+  font-size: clamp(1.35rem, 3.5vw, 1.9rem);
+}
+
+.gap-budget-map-heading > p,
+.gap-budget-map-note {
+  color: rgba(242, 235, 218, 0.52);
+  font-size: 0.76rem;
+  line-height: 1.45;
+}
+
+.gap-budget-map-heading > p {
+  max-width: 13rem;
+  margin: 0;
+  text-align: right;
+}
+
+.gap-budget-axis {
+  display: flex;
+  justify-content: space-between;
+  margin: 1.3rem 0 0.35rem 9rem;
+  color: rgba(242, 235, 218, 0.35);
+  font-size: 0.65rem;
+}
+
+.gap-budget-bars {
+  display: grid;
+  gap: 0.7rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.gap-budget-bars li {
+  display: grid;
+  grid-template-columns: 8.2rem 1fr;
+  align-items: center;
+  gap: 0.8rem;
+}
+
+.gap-budget-label {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.4rem;
+  font-size: 0.76rem;
+}
+
+.gap-budget-label strong {
+  color: var(--mustard);
+  font-size: 0.72rem;
+  white-space: nowrap;
+}
+
+.gap-budget-track {
+  height: 12px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(242, 235, 218, 0.08);
+}
+
+.gap-budget-track span {
+  display: block;
+  height: 100%;
+  min-width: 3px;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--teal), var(--mustard));
+}
+
+.gap-budget-map-note {
+  margin: 1rem 0 0;
+}
+
+@media (max-width: 600px) {
+  .gap-budget-map-heading {
+    display: block;
+  }
+
+  .gap-budget-map-heading > p {
+    max-width: none;
+    margin-top: 0.4rem;
+    text-align: left;
+  }
+
+  .gap-budget-axis {
+    margin-left: 0;
+  }
+
+  .gap-budget-bars li {
+    display: block;
+  }
+
+  .gap-budget-label {
+    margin-bottom: 0.25rem;
+  }
 }
 
 /* --------------------------------------------------- question by question */

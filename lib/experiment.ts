@@ -115,23 +115,23 @@ export interface BatteryDef {
 export const GAP_BATTERIES: BatteryDef[] = [
   {
     id: "perception",
-    title: "How well do you know your country?",
+    title: "How well do you know America?",
     blurb: "Guess what other people actually think, do and feel — then see the real national figure.",
-    hook: "Almost nobody gets these right. Guess the real figure — then find out which way you lean.",
+    hook: "Do you picture America as more extreme, lonely and divided than national surveys find?",
     lean: "pessimism",
   },
   {
     id: "groups",
     title: "How big is that group, really?",
     blurb: "Guess what share of the country belongs to each group — then see the real number.",
-    hook: "Almost nobody gets these right. Guess the real share — then find out how far off you are.",
+    hook: "The groups that loom largest in public life are often much smaller than they feel.",
     lean: "overestimate",
   },
   {
     id: "budget",
-    title: "Where does your tax dollar go?",
+    title: "Where does the federal budget go?",
     blurb: "Guess how the federal government splits every $100 it spends — then see the real number.",
-    hook: "Almost nobody knows where the money actually goes. Guess, then find out.",
+    hook: "Build the real federal $100 — from foreign aid to Social Security.",
     lean: "accuracy",
   },
 ];

@@ -122,7 +122,7 @@ export default function GapResults({ batteryId }: { batteryId: string }) {
   const subject = batteryId === "groups"
     ? "guessing how big different groups in America really are"
     : batteryId === "budget"
-      ? "guessing where federal tax dollars actually go"
+      ? "guessing where federal spending actually goes"
       : "guessing what my country actually thinks";
   const shareText = !score.complete
     ? `I'm ${score.answered} questions into ${subject}. How well do you know yours?`
@@ -210,6 +210,41 @@ export default function GapResults({ batteryId }: { batteryId: string }) {
             Answer the last {remaining.length === 1 ? "question" : `${remaining.length} questions`}
           </Link>
         </div>
+      )}
+
+      {score.complete && batteryId === "budget" && (
+        <section className="gap-budget-map" aria-labelledby="gap-budget-map-title">
+          <div className="gap-budget-map-heading">
+            <div>
+              <p className="share-kicker">The real shape</p>
+              <h2 id="gap-budget-map-title">Eight lines from every federal $100</h2>
+            </div>
+            <p>These are selected categories, not the entire budget.</p>
+          </div>
+          <div className="gap-budget-axis" aria-hidden="true">
+            <span>$0</span>
+            <span>$25</span>
+          </div>
+          <ol className="gap-budget-bars">
+            {[...score.marks]
+              .sort((a, b) => b.truthPct - a.truthPct)
+              .map((mark) => (
+                <li key={mark.topic.id}>
+                  <div className="gap-budget-label">
+                    <span>{mark.topic.subject}</span>
+                    <strong>{mark.topic.benchmark!.display}</strong>
+                  </div>
+                  <div className="gap-budget-track" aria-hidden="true">
+                    <span style={{ width: `${Math.min(100, mark.truthPct * 4)}%` }} />
+                  </div>
+                </li>
+              ))}
+          </ol>
+          <p className="gap-budget-map-note">
+            Social Security is larger than foreign aid, NASA and food stamps combined.
+            Interest on the debt is now roughly level with national defense.
+          </p>
+        </section>
       )}
 
       <section className="gap-breakdown" aria-labelledby="gap-breakdown-title">

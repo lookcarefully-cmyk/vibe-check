@@ -24,7 +24,7 @@ boards (`collection: "gap"` in `lib/topics.ts`) whose answers come from national
 surveys and the Census, not the crowd, scored client-side in `lib/gap.ts` from
 this browser's own saved answers. Two ship today:
 
-- **`perception`** — "How well do you know your country?" (Pew, the Fed, Gallup,
+- **`perception`** — "How well do you know America?" (Pew, the Fed, Gallup,
   Yale, PNAS). Its lean is `pessimism`: you read the country as bleaker than it
   is.
 - **`groups`** — "How big is that group, really?" (Census, Gallup, Pew, BLS). Its
@@ -184,11 +184,19 @@ Defined in `lib/experiment.ts`. Arm is assigned at random per browser, stored in
 
 Each of these was arrived at by making the opposite mistake first.
 
-1. **No number is shown to anyone who hasn't answered yet.** No live readout on
-   the dial, no averages on nav tiles for unanswered boards, no results until the
-   run is complete. Seeing the crowd's answer before giving your own is
+1. **No outside number is shown to anyone who hasn't answered yet.** No crowd
+   number, benchmark, average, nav-tile result or other reference appears before
+   the answer is committed. Seeing the crowd's answer before giving your own is
    anchoring, and it contaminates exactly the comparison being measured. This is
    a constraint on the whole UI, and it's easy to break by accident.
+
+   **Benchmark quizzes are the narrow exception for the visitor's own number.**
+   Once they place the red needle, a readout states the numerical guess they are
+   about to submit and ± buttons move it one point. These boards explicitly ask
+   for a scored number; hiding the chosen value makes the later score claim more
+   precision than the interface allowed. The readout never shows the published
+   figure, crowd, midpoint suggestion or any other external reference, and it
+   must never appear on an ordinary opinion board.
 
    **The one sanctioned exception is "view results without voting"**, and it
    works because the visitor pays for it: choosing it writes

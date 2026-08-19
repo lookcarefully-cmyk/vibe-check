@@ -12,7 +12,7 @@ import { ImageResponse } from "next/og";
  * and no arbitrary SVG.
  */
 export const runtime = "nodejs";
-export const alt = "How well do you know your country? — a perception gap quiz";
+export const alt = "How well do you know America? — real-figure quizzes";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -75,7 +75,7 @@ export default function GapOpengraphImage() {
             lineHeight: 1.05,
           }}
         >
-          How well do you know your country?
+          How well do you know America?
         </div>
 
         {/* The gap itself: a guess far from the truth, which is the whole idea. */}

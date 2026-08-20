@@ -75,8 +75,7 @@ export default function Featured() {
         </div>
         <h1>You are probably wrong about everyone else.</h1>
         <p className="lede">
-          Almost everyone is — and nearly always in the same direction. Find out
-          which way you lean.
+          Almost everyone is. Guess the real numbers — then see how close you got.
         </p>
       </header>
 
